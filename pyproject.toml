@@ -39,6 +39,8 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# The solver scaffold lives next to `src/` as a plain package.
+pythonpath = ["."]
 filterwarnings = [
     # The animation tests inspect frames without ever rendering the animation.
     "ignore:Animation was deleted without rendering anything:UserWarning",
