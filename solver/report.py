@@ -11,12 +11,17 @@ Leaderboard and summary numbers for the morning report.
 - `vs_baseline_pct`: how much shorter than the baseline, in percent
 - `score_gain`: `(baseline / best) ** 2`, the factor by which the contest
   score on this instance grew since the baseline, if nobody else moved
+- `family`: cutter family from the instance name suffix, `s` square,
+  `l` diamond, `d` clipped square, `p` plus, `x` X shape
+- `pessimistic_score`: `(lower_bound / best) ** 2`, the contest score on this
+  instance if some team reached the bound; the real score can only be higher
 """
 
 import csv
 import io
 import json
 import os
+import re
 import statistics
 import sys
 import time
@@ -25,7 +30,46 @@ from typing import Any
 
 from .jobs import BASELINE_ROUNDS
 
-__all__ = ["leaderboard_rows", "summary", "write_leaderboard"]
+__all__ = [
+    "family",
+    "leaderboard_rows",
+    "median_gap_by_family",
+    "pessimistic_score",
+    "summary",
+    "write_leaderboard",
+]
+
+# names end in k, cutter letter and cutter size, sometimes with a variant letter
+NAME_SUFFIX = re.compile(r"_(\d)([a-z])(\d+)[a-z]*$")
+
+FAMILY_NAMES = {
+    "s": "square",
+    "l": "diamond",
+    "d": "clipped square",
+    "p": "plus",
+    "x": "X",
+}
+
+
+def family(uid: str) -> str:
+    """
+    The cutter family of an instance, read from its name.
+    """
+    match = NAME_SUFFIX.search(uid)
+    if match is None:
+        return "unknown"
+
+    return FAMILY_NAMES.get(match.group(2), "unknown")
+
+
+def pessimistic_score(bound: int, objective: int) -> float | None:
+    """
+    `(bound / objective) ** 2`, the score if a team reached the lower bound.
+    """
+    if not bound or not objective:
+        return None
+
+    return (bound / objective) ** 2
 
 
 def leaderboard_rows(
@@ -56,6 +100,7 @@ def leaderboard_rows(
             "k": info.get("k"),
             "cells": info.get("cells"),
             "cutter": info.get("cutter_kind"),
+            "family": family(uid),
             "lower_bound": bound,
             "baseline": base,
             "best": best,
@@ -63,6 +108,7 @@ def leaderboard_rows(
             "gap_pct": _pct(best, bound) if bound else None,
             "vs_baseline_pct": _pct(best, base) if base else None,
             "score_gain": round((base / best) ** 2, 4) if base else None,
+            "pessimistic_score": _round(pessimistic_score(bound, best), 4),
         }
         rows.append(row)
 
@@ -104,6 +150,13 @@ def summary(rows: list[dict[str, Any]], total_instances: int) -> dict[str, Any]:
     wins = sorted(with_baseline, key=lambda r: r["vs_baseline_pct"])[:5]
     worst = sorted(rows, key=lambda r: -(r["gap_pct"] or 0))[:5]
 
+    # recomputed from bound and best so rounding in the csv does not add up
+    pessimistic = 0.0
+    for row in rows:
+        score = pessimistic_score(row["lower_bound"], row["best"])
+        if score is not None:
+            pessimistic += score
+
     return {
         "feasible": len(rows),
         "instances": total_instances,
@@ -112,9 +165,34 @@ def summary(rows: list[dict[str, Any]], total_instances: int) -> dict[str, Any]:
         "sum_change_pct": _pct(best_sum, baseline_sum) if baseline_sum else None,
         "median_gap_pct": round(statistics.median(gaps), 1) if gaps else None,
         "score_gain_total": round(sum(r["score_gain"] for r in with_baseline), 2),
+        "pessimistic_score": round(pessimistic, 1),
+        "median_gap_by_family": median_gap_by_family(rows),
         "biggest_wins": [(r["instance"], r["vs_baseline_pct"]) for r in wins],
         "worst_gaps": [(r["instance"], r["gap_pct"]) for r in worst],
     }
+
+
+def median_gap_by_family(rows: list[dict[str, Any]]) -> dict[str, float]:
+    """
+    Median gap to the bound in percent per cutter family, widest gap first.
+    """
+    gaps: dict[str, list[float]] = {}
+    for row in rows:
+        if row["gap_pct"] is None:
+            continue
+
+        name = family(row["instance"])
+        gaps.setdefault(name, []).append(row["gap_pct"])
+
+    medians = {}
+    for name, values in gaps.items():
+        medians[name] = round(statistics.median(values), 1)
+
+    return dict(sorted(medians.items(), key=lambda item: -item[1]))
+
+
+def _round(value: float | None, digits: int) -> float | None:
+    return None if value is None else round(value, digits)
 
 
 def _pct(value: float, reference: float) -> float:
@@ -130,8 +208,8 @@ def main(argv: list[str] | None = None) -> int:
             parsed: dict[str, Any] = dict(row)
             for key in ("baseline", "best", "lower_bound"):
                 parsed[key] = int(row[key]) if row[key] else None
-            for key in ("gap_pct", "vs_baseline_pct", "score_gain"):
-                parsed[key] = float(row[key]) if row[key] else None
+            for key in ("gap_pct", "vs_baseline_pct", "score_gain", "pessimistic_score"):
+                parsed[key] = float(row[key]) if row.get(key) else None
             rows.append(parsed)
 
     with (data / "catalog.csv").open() as file:
