@@ -214,3 +214,7 @@ data/instances/
 data/solutions/
 data/jobs.jsonl
 data/mine.log
+
+data/mine.stdout.txt
+data/mine.stderr.txt
+data/mine.pid

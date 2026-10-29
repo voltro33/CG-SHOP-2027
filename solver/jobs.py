@@ -11,6 +11,8 @@ starts the next one, so the cheap safe configs land first:
     round 3   shift sweep    segments with lanes shifted by a quarter, half
                              and three quarters of a lane height
     round 4   cross          partitions combined with gap and shift
+    round 5   seeds          segments with other seeds for the random kicks
+                             of the order search, with longer kick time
 
 Rounds 0 and 1 together are the Phase 4 baseline in the leaderboard.
 Within a round the biggest instances go first, so the long jobs start early
@@ -31,6 +33,10 @@ COVER_TSP_MAX_CELLS = 60_000
 
 GAP_FACTORS = (0.0, 1.0, 4.0, 8.0)
 SHIFTS = (0.25, 0.5, 0.75)
+SEEDS = (1, 2, 3)
+
+# bump when the solver code changes enough that old jobs are worth rerunning
+CODE_VERSION = 2
 
 
 @dataclass(frozen=True)
@@ -60,7 +66,7 @@ class Job:
 
     @property
     def job_id(self) -> str:
-        return f"{self.instance}|{self.label}|s{self.seed}"
+        return f"{self.instance}|{self.label}|s{self.seed}|v{CODE_VERSION}"
 
 
 def time_limit_for(cells: int) -> float:
@@ -118,10 +124,16 @@ def configs_for(k: int, cells: int, round_number: int) -> list[dict]:
                             {"method": method, "params": params, "partition": partition}
                         )
 
+    elif round_number == 5:
+        for method in orientations:
+            for seed in SEEDS:
+                params = (("seed", seed), ("kick_seconds", 30.0))
+                configs.append({"method": method, "params": params, "seed": seed})
+
     return configs
 
 
-LAST_ROUND = 4
+LAST_ROUND = 5
 
 
 def build_jobs(

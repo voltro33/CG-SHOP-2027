@@ -24,6 +24,7 @@ import numpy as np
 
 from ..model import Problem
 from ..tours import Point, connect
+from .ordering import improve_order
 
 __all__ = [
     "Segment",
@@ -52,10 +53,15 @@ def segments_horizontal(
     offset: int = 0,
     gap_factor: float = 2.0,
     shift: float = 0.0,
+    kick_seconds: float | None = None,
+    seed: int = 0,
     time_limit: float = 10.0,
 ) -> list[Point]:
     """
     An open walk over horizontal lane segments.
+
+    `kick_seconds` is the time for the iterated local search on the order;
+    by default it grows with the number of segments.
     """
     segments = lane_segments(
         problem, max_gap=max_gap, offset=offset, gap_factor=gap_factor, shift=shift
@@ -63,8 +69,21 @@ def segments_horizontal(
     if not segments:
         return []
 
-    deadline = time.monotonic() + time_limit
+    if kick_seconds is None:
+        kick_seconds = auto_kick_seconds(len(segments))
+
+    deadline = time.monotonic() + time_limit + kick_seconds
     entries, exits = order_segments(segments, deadline=deadline)
+
+    # a single cutter closes its walk into a tour, so the way home counts too
+    entries, exits = improve_order(
+        entries,
+        exits,
+        closed=problem.k == 1,
+        deadline=deadline,
+        kick_seconds=kick_seconds,
+        seed=seed,
+    )
 
     # walk each segment from its entry to its exit, in order
     corners: list[Point] = []
@@ -82,6 +101,8 @@ def segments_vertical(
     offset: int = 0,
     gap_factor: float = 2.0,
     shift: float = 0.0,
+    kick_seconds: float | None = None,
+    seed: int = 0,
     time_limit: float = 10.0,
 ) -> list[Point]:
     """
@@ -93,11 +114,21 @@ def segments_vertical(
         offset=offset,
         gap_factor=gap_factor,
         shift=shift,
+        kick_seconds=kick_seconds,
+        seed=seed,
         time_limit=time_limit,
     )
 
     # mirror back across the diagonal
     return [(y, x) for x, y in walk]
+
+
+def auto_kick_seconds(segment_count: int) -> float:
+    """
+    More segments need more kicks before the order settles. Measured on the
+    challenge set: a few hundred segments still improve after 10 seconds.
+    """
+    return min(60.0, 2.0 + segment_count / 50)
 
 
 # step 1, cut lanes into segments

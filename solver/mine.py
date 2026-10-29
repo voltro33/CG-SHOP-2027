@@ -44,7 +44,7 @@ DEFAULT_INSTANCES = DATA / "instances" / "challenge_v0" / "instances"
 
 # instances this big get a cap on how many run at once, to protect memory
 HUGE_CELLS = 3_000_000
-MAX_HUGE_IN_FLIGHT = 6
+MAX_HUGE_IN_FLIGHT = 3
 
 # keep a candidate file only if it is this close to the best so far
 CANDIDATE_SLACK = 1.05
