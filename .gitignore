@@ -218,3 +218,4 @@ data/mine.log
 data/mine.stdout.txt
 data/mine.stderr.txt
 data/mine.pid
+data/*.bak

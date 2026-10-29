@@ -55,13 +55,15 @@ def segments_horizontal(
     shift: float = 0.0,
     kick_seconds: float | None = None,
     seed: int = 0,
+    anneal: float = 0.0,
     time_limit: float = 10.0,
 ) -> list[Point]:
     """
     An open walk over horizontal lane segments.
 
     `kick_seconds` is the time for the iterated local search on the order;
-    by default it grows with the number of segments.
+    by default it grows with the number of segments. `anneal` above zero
+    makes that search simulated annealing, see `ordering.improve_order`.
     """
     segments = lane_segments(
         problem, max_gap=max_gap, offset=offset, gap_factor=gap_factor, shift=shift
@@ -83,6 +85,7 @@ def segments_horizontal(
         deadline=deadline,
         kick_seconds=kick_seconds,
         seed=seed,
+        anneal=anneal,
     )
 
     # walk each segment from its entry to its exit, in order
@@ -103,6 +106,7 @@ def segments_vertical(
     shift: float = 0.0,
     kick_seconds: float | None = None,
     seed: int = 0,
+    anneal: float = 0.0,
     time_limit: float = 10.0,
 ) -> list[Point]:
     """
@@ -116,6 +120,7 @@ def segments_vertical(
         shift=shift,
         kick_seconds=kick_seconds,
         seed=seed,
+        anneal=anneal,
         time_limit=time_limit,
     )
 

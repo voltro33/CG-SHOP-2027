@@ -13,6 +13,11 @@ starts the next one, so the cheap safe configs land first:
     round 4   cross          partitions combined with gap and shift
     round 5   seeds          segments with other seeds for the random kicks
                              of the order search, with longer kick time
+    round 6   annealing      the order search as simulated annealing
+
+Rounds run in the order of `ROUND_ORDER`, not by number: the order search
+is where measured gains are, so its seeds and annealing go before the big
+cross product round.
 
 Rounds 0 and 1 together are the Phase 4 baseline in the leaderboard.
 Within a round the biggest instances go first, so the long jobs start early
@@ -34,6 +39,9 @@ COVER_TSP_MAX_CELLS = 60_000
 GAP_FACTORS = (0.0, 1.0, 4.0, 8.0)
 SHIFTS = (0.25, 0.5, 0.75)
 SEEDS = (1, 2, 3)
+
+# starting temperature as a fraction of the order length, see ordering.py
+ANNEAL = 0.003
 
 # bump when the solver code changes enough that old jobs are worth rerunning
 CODE_VERSION = 2
@@ -130,17 +138,23 @@ def configs_for(k: int, cells: int, round_number: int) -> list[dict]:
                 params = (("seed", seed), ("kick_seconds", 30.0))
                 configs.append({"method": method, "params": params, "seed": seed})
 
+    elif round_number == 6:
+        for method in orientations:
+            for seed in (1, 2):
+                params = (("seed", seed), ("kick_seconds", 30.0), ("anneal", ANNEAL))
+                configs.append({"method": method, "params": params, "seed": seed})
+
     return configs
 
 
-LAST_ROUND = 5
+ROUND_ORDER = (0, 1, 2, 5, 6, 3, 4)
 
 
 def build_jobs(
     source: Path,
     catalog: dict[str, dict[str, str]],
     *,
-    max_round: int = LAST_ROUND,
+    max_round: int = max(ROUND_ORDER),
     only: str = "",
 ) -> list[Job]:
     """
@@ -166,7 +180,10 @@ def build_jobs(
     instances.sort(key=lambda item: -item[1])
 
     jobs: list[Job] = []
-    for round_number in range(min(max_round, LAST_ROUND) + 1):
+    for round_number in ROUND_ORDER:
+        if round_number > max_round:
+            continue
+
         for uid, cells, k in instances:
             for config in configs_for(k, cells, round_number):
                 job = Job(

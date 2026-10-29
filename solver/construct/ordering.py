@@ -20,6 +20,7 @@ back to the first counts too. That is the right goal when the walk becomes
 a single closed tour.
 """
 
+import math
 import random
 import time
 
@@ -30,6 +31,9 @@ __all__ = ["improve_order", "nearest_ends", "order_length"]
 Pt = tuple[int, int]
 
 NEIGHBOURS = 8
+
+# annealing temperature shrinks by this factor after every kick
+COOLING = 0.995
 
 # how far apart, in positions, the cuts of one double bridge kick may be
 DOUBLE_BRIDGE_WINDOW = 30
@@ -110,10 +114,13 @@ def improve_order(
     deadline: float,
     kick_seconds: float = 3.0,
     seed: int = 0,
+    anneal: float = 0.0,
 ) -> tuple[np.ndarray, np.ndarray]:
     """
     Applies improving 2-opt and Or-opt moves until none is left, then keeps
     kicking the order and descending again for up to `kick_seconds`.
+    `anneal` turns the kicks into simulated annealing, starting at that
+    fraction of the order length as temperature. Zero keeps plain ILS.
     Returns new arrays, the inputs stay untouched.
     """
     n = len(entries)
@@ -140,7 +147,8 @@ def improve_order(
 
     # then kick and descend again, keeping whatever is best
     stop = min(deadline, time.monotonic() + kick_seconds)
-    state.iterate(stop, seed)
+    temperature = anneal * state.best_cost
+    state.iterate(stop, seed, temperature)
 
     ent, ext = state.best_ent, state.best_ext
 
@@ -215,25 +223,49 @@ class _State:
 
         return cost
 
-    def iterate(self, stop: float, seed: int) -> None:
+    def iterate(self, stop: float, seed: int, temperature: float = 0.0) -> None:
         """
         Iterated local search: kick, descend, keep if better, else go back.
+
+        With a `temperature` above zero this becomes simulated annealing: a
+        worse order is sometimes kept, with probability `exp(-worse / T)`,
+        and `T` cools a little every step. Going back then means back to the
+        last kept order, the best one is remembered separately.
         """
         rng = random.Random(seed)
         n = len(self.ent)
+
+        current_cost = order_length(self.ent, self.ext, self.closed)
+        kept_ent = list(self.ent)
+        kept_ext = list(self.ext)
+        kept_seg_at = list(self.seg_at)
 
         while time.monotonic() < stop:
             touched = self._kick(rng)
             self.descend(touched, stop)
 
             cost = self.remember_if_better()
-            if cost > self.best_cost:
-                # undo the kick by going back to the best order
-                self.ent[:] = self.best_ent
-                self.ext[:] = self.best_ext
-                self.seg_at[:] = self.best_seg_at
-                for position in range(n):
-                    self.pos_of[self.seg_at[position]] = position
+
+            worse_by = cost - current_cost
+            keep = worse_by <= 0
+            if not keep and temperature > 0:
+                keep = rng.random() < math.exp(-worse_by / temperature)
+
+            temperature *= COOLING
+
+            if keep:
+                current_cost = cost
+                kept_ent = list(self.ent)
+                kept_ext = list(self.ext)
+                kept_seg_at = list(self.seg_at)
+                continue
+
+            # undo the kick by going back to the last kept order
+            self.ent[:] = kept_ent
+            self.ext[:] = kept_ext
+            self.seg_at[:] = kept_seg_at
+            for position in range(n):
+                self.pos_of[self.seg_at[position]] = position
 
     def _kick(self, rng: random.Random) -> list[int]:
         """
