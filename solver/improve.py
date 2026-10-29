@@ -69,6 +69,12 @@ class VisitCounts:
         cells = cells[self._problem.region.contains_points(cells)]
         if len(cells) == 0:
             return True
+
+        # the anchors below are cells times cutter cells, which can be far
+        # more than removed times cutter cells for a big cutter
+        if len(cells) * len(self._offsets) > _POINTWISE_LIMIT:
+            return self._all_swept_windowed(removed)
+
         anchors = (cells[:, None, :] - self._offsets[None, :, :]).reshape(-1, 2)
         rows, cols, inside = self._index(anchors)
         hits = np.zeros(len(anchors), dtype=np.int32)
