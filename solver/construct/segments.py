@@ -50,12 +50,16 @@ def segments_horizontal(
     *,
     max_gap: int | None = None,
     offset: int = 0,
+    gap_factor: float = 2.0,
+    shift: float = 0.0,
     time_limit: float = 10.0,
 ) -> list[Point]:
     """
     An open walk over horizontal lane segments.
     """
-    segments = lane_segments(problem, max_gap=max_gap, offset=offset)
+    segments = lane_segments(
+        problem, max_gap=max_gap, offset=offset, gap_factor=gap_factor, shift=shift
+    )
     if not segments:
         return []
 
@@ -76,13 +80,20 @@ def segments_vertical(
     *,
     max_gap: int | None = None,
     offset: int = 0,
+    gap_factor: float = 2.0,
+    shift: float = 0.0,
     time_limit: float = 10.0,
 ) -> list[Point]:
     """
     The same over vertical lanes, by solving the mirrored problem.
     """
     walk = segments_horizontal(
-        problem.transposed(), max_gap=max_gap, offset=offset, time_limit=time_limit
+        problem.transposed(),
+        max_gap=max_gap,
+        offset=offset,
+        gap_factor=gap_factor,
+        shift=shift,
+        time_limit=time_limit,
     )
 
     # mirror back across the diagonal
@@ -93,13 +104,22 @@ def segments_vertical(
 
 
 def lane_segments(
-    problem: Problem, *, max_gap: int | None = None, offset: int = 0
+    problem: Problem,
+    *,
+    max_gap: int | None = None,
+    offset: int = 0,
+    gap_factor: float = 2.0,
+    shift: float = 0.0,
 ) -> list[Segment]:
     """
     The segments of every horizontal lane, bottom to top, left to right.
 
     Lanes are one cutter height apart. `offset` shifts all lanes down by that
-    many rows, which changes where the band borders fall.
+    many rows, which changes where the band borders fall. `shift` does the
+    same as a fraction of the lane height and adds to `offset`.
+
+    Without an explicit `max_gap`, gaps up to `gap_factor` lane heights get
+    bridged. A factor of 0 only joins intervals that touch or overlap.
     """
     extents = problem.row_extents()
     dy_low = min(extents)
@@ -107,7 +127,9 @@ def lane_segments(
     band = dy_high - dy_low + 1
 
     if max_gap is None:
-        max_gap = 2 * band
+        max_gap = int(gap_factor * band)
+
+    offset = offset + int(shift * band)
 
     runs_by_row = _row_runs(problem)
     if not runs_by_row:
