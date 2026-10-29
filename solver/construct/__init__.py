@@ -8,6 +8,7 @@ from collections.abc import Callable
 
 from ..model import Problem
 from ..tours import Point
+from .cells import segments_cells
 from .cover_tsp import cover_tsp
 from .lanes import lanes_horizontal, lanes_vertical
 from .mixed import segments_mixed
@@ -22,6 +23,7 @@ CONSTRUCTORS: dict[str, Constructor] = {
     "segments-h": segments_horizontal,
     "segments-v": segments_vertical,
     "segments-mixed": segments_mixed,
+    "segments-cells": segments_cells,
 }
 
 __all__ = ["CONSTRUCTORS", "Constructor"]
