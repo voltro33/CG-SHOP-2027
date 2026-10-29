@@ -11,6 +11,7 @@ import pytest
 
 from solver.jobs import build_jobs
 from solver.mine import BestStore, JobLog, JobResult, mine, run_job
+from solver.resources import Resources
 
 EXAMPLES = Path("example_instances.zip")
 CATALOG = Path("data/catalog.csv")
@@ -48,7 +49,7 @@ def run_small_mine(tmp_path: Path, runner=None) -> tuple[BestStore, JobLog]:
 
     mine(
         jobs,
-        workers=2,
+        resources=Resources(cores=2, memory_mb=4096),
         budget_seconds=300,
         store=store,
         job_log=job_log,

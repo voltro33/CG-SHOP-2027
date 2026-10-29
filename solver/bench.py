@@ -4,6 +4,7 @@ A fixed benchmark set, so an idea is judged in minutes instead of overnight.
     python -m solver.bench pick                                # write data/bench.txt once
     python -m solver.bench run best                            # overnight winner per instance
     python -m solver.bench run "segments-h/gap_factor=1/bands-x" --seconds 60
+    python -m solver.bench run best --cores 8 --memory-gb 12
 
 A config is written the way the leaderboard writes it: the method, then
 `key=value` params, then an optional partition, joined by `/`. The word
@@ -33,9 +34,10 @@ from typing import Any
 
 from cgshop2027_pyutils.io import read_solution
 
-from .jobs import Job, time_limit_for
+from .jobs import Job, box_cells_of, time_limit_for
 from .mine import DEFAULT_INSTANCES, BestStore, JobLog, mine
 from .report import family, pessimistic_score, write_leaderboard
+from .resources import system_resources
 
 __all__ = ["bench_jobs", "parse_config", "pick_bench", "score_run"]
 
@@ -175,6 +177,7 @@ def bench_jobs(
             instance=uid,
             source=str(source),
             cells=cells,
+            box_cells=box_cells_of(row),
             k=int(row["k"]),
             round=BENCH_ROUND,
             time_limit=limit,
@@ -279,7 +282,8 @@ def main(argv: list[str] | None = None) -> int:
     run = sub.add_parser("run", help="run one config on every benchmark instance")
     run.add_argument("config")
     run.add_argument("--seconds", type=float, default=None)
-    run.add_argument("--workers", type=int, default=15)
+    run.add_argument("--cores", type=int, default=None, help="core permits, default all but one")
+    run.add_argument("--memory-gb", type=float, default=None, help="memory permits, default most of what is free")
     run.add_argument("--instances", type=Path, default=DEFAULT_INSTANCES)
     run.add_argument("--only", default="", help="substring filter on instance names")
 
@@ -323,9 +327,12 @@ def main(argv: list[str] | None = None) -> int:
     run_folder.mkdir(parents=True, exist_ok=True)
     job_log = JobLog(run_folder / f"{stamp}.jsonl")
 
+    memory_mb = None if args.memory_gb is None else int(args.memory_gb * 1024)
+    resources = system_resources(cores=args.cores, memory_mb=memory_mb)
+
     mine(
         jobs,
-        workers=args.workers,
+        resources=resources,
         budget_seconds=24 * 3600,
         store=store,
         job_log=job_log,

@@ -2,6 +2,11 @@
 Parallel mining: run many `(instance, config)` jobs on all cores, keep every
 verified result, and promote the best one per instance.
 
+Each job runs in its own worker process, spawned only once the core and
+memory semaphores in `resources.py` have room for it. So the number of
+workers follows what the machine can hold: many small jobs at once, or a few
+big ones.
+
     python -m solver.mine --hours 8                       # challenge instances
     python -m solver.mine --instances example_instances.zip --hours 0.2
 
@@ -11,6 +16,8 @@ How it stays safe:
   verified solution leaves a worker.
 - Only the main process touches `best/`, and it writes through a temp file
   plus `os.replace`, so a crash never leaves half a file behind.
+- A worker that dies, from running out of memory or anything else, loses
+  only its own job, which is logged as failed.
 - Every finished job is appended to `jobs.jsonl`. A restart skips those jobs
   and starts from the stored bests, so killing the miner loses nothing that
   was verified.
@@ -20,13 +27,15 @@ import argparse
 import csv
 import json
 import logging
+import multiprocessing
+import multiprocessing.process
 import os
 import sys
 import time
-from concurrent.futures import FIRST_COMPLETED, Future, ProcessPoolExecutor, wait
-from concurrent.futures.process import BrokenProcessPool
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
+from multiprocessing.connection import Connection
+from multiprocessing.connection import wait as connection_wait
 from pathlib import Path
 from typing import Any
 
@@ -38,18 +47,28 @@ from .jobs import Job, build_jobs
 from .model import Problem
 from .pipeline import SolveConfig, solve
 from .report import write_leaderboard
+from .resources import Demand, Resources, system_resources
 
 log = logging.getLogger("mine")
 
 DATA = Path("data")
 DEFAULT_INSTANCES = DATA / "instances" / "challenge_v0" / "instances"
 
-# instances this big get a cap on how many run at once, to protect memory
-HUGE_CELLS = 3_000_000
-MAX_HUGE_IN_FLIGHT = 3
+# peak memory of one job grows with the box of the region, about 50 MB plus
+# 26 bytes per box cell measured on the largest challenge instances; these
+# leave half again as much room
+BASE_MEMORY_MB = 100
+MEMORY_BYTES_PER_BOX_CELL = 40
 
-# a job caught in this many broken pools is given up on even if never alone
-MAX_CRASHES = 3
+# once the head of the queue has waited this long, nothing jumps ahead of it
+HEAD_WAIT_SECONDS = 60
+
+# a worker this far over its own time limit is stuck and gets killed
+KILL_AFTER_LIMIT = 2.0
+KILL_GRACE_SECONDS = 120
+
+# how often the scheduler wakes up when no worker finishes
+WAKE_SECONDS = 5
 
 # keep a candidate file only if it is this close to the best so far
 CANDIDATE_SLACK = 1.05
@@ -72,18 +91,10 @@ class JobResult:
     solution_json: str | None = field(default=None, repr=False)
 
 
-# one instance stays loaded per worker, since jobs for it often come in a row
-_loaded: dict[str, tuple[Problem, SolutionValidator]] = {}
-
-
 def _load(source: str, uid: str) -> tuple[Problem, SolutionValidator]:
-    if uid not in _loaded:
-        _loaded.clear()
+    instance = InstanceDatabase(source)[uid]
 
-        instance = InstanceDatabase(source)[uid]
-        _loaded[uid] = (Problem.from_instance(instance), SolutionValidator(instance))
-
-    return _loaded[uid]
+    return Problem.from_instance(instance), SolutionValidator(instance)
 
 
 def run_job(job: Job) -> JobResult:
@@ -220,7 +231,7 @@ class JobLog:
 def mine(
     jobs: list[Job],
     *,
-    workers: int,
+    resources: Resources,
     budget_seconds: float,
     store: BestStore,
     job_log: JobLog,
@@ -228,6 +239,10 @@ def mine(
     catalog: dict[str, dict[str, str]],
     runner: Callable[[Job], JobResult] | None = None,
 ) -> None:
+    """
+    Runs `jobs` in order, each in its own worker process, as many at once as
+    the core and memory semaphores of `resources` allow.
+    """
     # tests swap in their own runner, it must be a module level function
     if runner is None:
         runner = run_job
@@ -235,65 +250,46 @@ def mine(
     done = job_log.done_ids()
     pending = [job for job in jobs if job.job_id not in done]
     log.info("%d jobs total, %d already done, %d to run", len(jobs), len(done), len(pending))
+    log.info("resources: %s", resources.describe())
 
+    context = multiprocessing.get_context("spawn")
     deadline = time.monotonic() + budget_seconds
-    in_flight: dict[Future, Job] = {}
-    crashes: dict[str, int] = {}
+    running: list[Running] = []
+    head_id: str | None = None
+    waiting_since: float | None = None
     last_board = 0.0
 
-    pool = ProcessPoolExecutor(max_workers=workers)
     try:
-        while pending or in_flight:
-            # keep every worker busy until time runs out
-            while pending and len(in_flight) < workers and time.monotonic() < deadline:
-                # a suspect from a broken pool runs alone, nothing joins it
-                if any(job.job_id in crashes for job in in_flight.values()):
+        while pending or running:
+            # start every job the semaphores have room for
+            while pending and time.monotonic() < deadline:
+                index = _next_admissible(pending, resources, waiting_since)
+                if index is None:
                     break
 
-                job = _next_runnable(pending, in_flight.values())
-                if job is None:
-                    break
+                job = pending.pop(index)
+                running.append(_start(context, runner, job, resources))
 
-                if job.job_id in crashes:
-                    if in_flight:
-                        # wait for the others to finish, then run it solo
-                        pending.insert(0, job)
-                        break
+            # how long the head of the queue has waited for room
+            if pending and pending[0].job_id != head_id:
+                head_id = pending[0].job_id
+                waiting_since = time.monotonic()
 
-                    in_flight[pool.submit(runner, job)] = job
-                    break
-
-                in_flight[pool.submit(runner, job)] = job
-
-            if not in_flight:
+            if not running:
                 break
 
-            finished, _ = wait(in_flight, timeout=30, return_when=FIRST_COMPLETED)
+            _wait_for_any(running, timeout=WAKE_SECONDS)
 
-            lost: list[Job] = []
-            for future in finished:
-                job = in_flight.pop(future)
-
-                if isinstance(future.exception(), BrokenProcessPool):
-                    lost.append(job)
+            still_running = []
+            for worker in running:
+                result = _collect(worker)
+                if result is None:
+                    still_running.append(worker)
                     continue
 
-                _handle(future, job, store, job_log)
-                crashes.pop(job.job_id, None)
-
-            if lost:
-                # one dead worker breaks the whole pool, so every job still
-                # in flight is lost too; requeue them and start a fresh pool
-                lost.extend(in_flight.values())
-                in_flight = {}
-
-                for job in lost:
-                    ran_alone = len(lost) == 1
-                    _requeue_or_give_up(job, crashes, pending, job_log, ran_alone)
-
-                pool.shutdown(wait=False, cancel_futures=True)
-                pool = ProcessPoolExecutor(max_workers=workers)
-                log.warning("worker pool broke, restarted it, %d jobs requeued", len(pending))
+                resources.release(worker.demand)
+                _handle(result, worker.job, store, job_log)
+            running = still_running
 
             if time.monotonic() - last_board > LEADERBOARD_EVERY_SECONDS:
                 write_leaderboard(leaderboard, catalog, store, job_log.records)
@@ -304,62 +300,142 @@ def mine(
                 log.info("budget used up, %d jobs left unstarted", len(pending))
                 pending = []
     finally:
-        pool.shutdown(wait=True, cancel_futures=True)
+        for worker in running:
+            worker.process.kill()
+            worker.process.join()
 
     write_leaderboard(leaderboard, catalog, store, job_log.records)
 
 
-def _requeue_or_give_up(
-    job: Job,
-    crashes: dict[str, int],
-    pending: list[Job],
-    job_log: JobLog,
-    ran_alone: bool,
-) -> None:
+@dataclass
+class Running:
     """
-    We cannot tell which job killed its worker, so every job caught in a
-    broken pool becomes a suspect and goes back to the front of the queue,
-    to run alone next time. A job that breaks the pool while running alone
-    is the culprit for sure, so it is logged as failed and not retried.
+    One job in its worker process, with the permits it holds.
     """
-    crashes[job.job_id] = crashes.get(job.job_id, 0) + 1
 
-    if not ran_alone and crashes[job.job_id] < MAX_CRASHES:
-        pending.insert(0, job)
-        return
+    job: Job
+    process: multiprocessing.process.BaseProcess
+    connection: Connection
+    demand: Demand
+    started: float
 
-    message = "worker crashed while running this job alone, given up"
-    job_log.append(
-        JobResult(job.job_id, job.instance, job.round, job.label, None, 0.0, message)
+
+def job_demand(job: Job) -> Demand:
+    """
+    One core, and the peak memory measured for jobs of this size.
+    """
+    # the box holds every cell, so the cells stand in when no box is known
+    box_cells = max(job.box_cells, job.cells)
+    memory_mb = BASE_MEMORY_MB + box_cells * MEMORY_BYTES_PER_BOX_CELL // 2**20
+
+    return Demand(cores=1, memory_mb=memory_mb)
+
+
+def _fitted_demand(job: Job, resources: Resources) -> Demand:
+    return resources.fit(job_demand(job))
+
+
+def _next_admissible(
+    pending: list[Job], resources: Resources, waiting_since: float | None
+) -> int | None:
+    """
+    Takes the permits of the first pending job that fits and returns its
+    index. Once the head of the queue has waited too long, only the head may
+    start, so a big job is never starved by a stream of small ones.
+    """
+    head_starving = (
+        waiting_since is not None and time.monotonic() - waiting_since > HEAD_WAIT_SECONDS
     )
-    log.warning("FAIL %-34s %-40s %s", job.instance, job.label, message)
+    candidates = range(1) if head_starving else range(len(pending))
 
-
-def _next_runnable(pending: list[Job], running) -> Job | None:
-    """
-    Takes the first pending job that does not break the huge instance cap.
-    """
-    huge_running = sum(1 for job in running if job.cells >= HUGE_CELLS)
-
-    for index, job in enumerate(pending):
-        if job.cells >= HUGE_CELLS and huge_running >= MAX_HUGE_IN_FLIGHT:
-            continue
-
-        return pending.pop(index)
+    for index in candidates:
+        if resources.try_acquire(_fitted_demand(pending[index], resources)):
+            return index
 
     return None
 
 
-def _handle(future: Future, job: Job, store: BestStore, job_log: JobLog) -> None:
-    try:
-        result = future.result()
-    except Exception as error:
-        # the worker process itself died, for example out of memory
-        result = JobResult(
-            job.job_id, job.instance, job.round, job.label, None, 0.0,
-            f"worker crashed: {type(error).__name__}: {error}",
-        )  # fmt: skip
+def _start(context, runner: Callable[[Job], JobResult], job: Job, resources: Resources) -> Running:
+    receiver, sender = context.Pipe(duplex=False)
 
+    process = context.Process(target=_worker_main, args=(runner, job, sender), daemon=True)
+    process.start()
+
+    # the child holds its own copy of the sending end
+    sender.close()
+
+    return Running(job, process, receiver, _fitted_demand(job, resources), time.monotonic())
+
+
+def _worker_main(runner: Callable[[Job], JobResult], job: Job, sender: Connection) -> None:
+    result = runner(job)
+    sender.send(result)
+    sender.close()
+
+
+def _wait_for_any(running: list[Running], timeout: float) -> None:
+    handles = []
+    for worker in running:
+        handles.append(worker.connection)
+        handles.append(worker.process.sentinel)
+
+    connection_wait(handles, timeout=timeout)
+
+
+def _collect(worker: Running) -> JobResult | None:
+    """
+    The result of a finished worker, a failure if it died or ran far over
+    its time, or None while it is still working.
+    """
+    job = worker.job
+
+    # read before joining, a big solution would block the child otherwise
+    if _has_data(worker.connection):
+        try:
+            result = worker.connection.recv()
+        except EOFError:
+            result = None
+
+        worker.process.join()
+        worker.connection.close()
+
+        if result is not None:
+            return result
+
+        return _failure(job, "worker died before sending its result")
+
+    if not worker.process.is_alive():
+        worker.process.join()
+        worker.connection.close()
+
+        # the process itself died, for example out of memory
+        code = worker.process.exitcode
+        return _failure(job, f"worker crashed with exit code {code}")
+
+    elapsed = time.monotonic() - worker.started
+    if elapsed > job.time_limit * KILL_AFTER_LIMIT + KILL_GRACE_SECONDS:
+        worker.process.kill()
+        worker.process.join()
+        worker.connection.close()
+
+        return _failure(job, f"worker killed after {elapsed:.0f}s, over its time limit")
+
+    return None
+
+
+def _has_data(connection: Connection) -> bool:
+    # on windows the pipe of a dead child raises instead of reading empty
+    try:
+        return connection.poll()
+    except (BrokenPipeError, EOFError):
+        return False
+
+
+def _failure(job: Job, message: str) -> JobResult:
+    return JobResult(job.job_id, job.instance, job.round, job.label, None, 0.0, message)
+
+
+def _handle(result: JobResult, job: Job, store: BestStore, job_log: JobLog) -> None:
     promoted = False
     if result.objective is not None:
         promoted = store.offer(result)
@@ -412,7 +488,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--catalog", type=Path, default=DATA / "catalog.csv")
     parser.add_argument("--out", type=Path, default=DATA)
     parser.add_argument("--hours", type=float, default=8.0)
-    parser.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 1))
+    parser.add_argument("--cores", type=int, default=None, help="core permits, default all but one")
+    parser.add_argument("--memory-gb", type=float, default=None, help="memory permits, default most of what is free")
     parser.add_argument("--max-round", type=int, default=99)
     parser.add_argument("--only", default="", help="substring filter on instance names")
     args = parser.parse_args(argv)
@@ -434,9 +511,12 @@ def main(argv: list[str] | None = None) -> int:
     store = BestStore(args.out / "solutions" / "best", args.out / "solutions" / "candidates")
     job_log = JobLog(args.out / "jobs.jsonl")
 
+    memory_mb = None if args.memory_gb is None else int(args.memory_gb * 1024)
+    resources = system_resources(cores=args.cores, memory_mb=memory_mb)
+
     mine(
         jobs,
-        workers=args.workers,
+        resources=resources,
         budget_seconds=args.hours * 3600,
         store=store,
         job_log=job_log,

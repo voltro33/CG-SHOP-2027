@@ -71,6 +71,9 @@ class Job:
     time_limit: float = 120.0
     seed: int = 0
 
+    # bounding box area of the region, which sets the memory a job needs
+    box_cells: int = 0
+
     @property
     def label(self) -> str:
         parts = [self.method]
@@ -86,6 +89,17 @@ class Job:
     @property
     def job_id(self) -> str:
         return f"{self.instance}|{self.label}|s{self.seed}|v{CODE_VERSION}"
+
+
+def box_cells_of(row: dict[str, str]) -> int:
+    """
+    Cells in the frame of all anchor positions: the region box grown by the
+    cutter box, from a catalog row.
+    """
+    width = int(row["width"]) + int(row["cutter_width"])
+    height = int(row["height"]) + int(row["cutter_height"])
+
+    return width * height
 
 
 def time_limit_for(cells: int) -> float:
@@ -189,10 +203,12 @@ def build_jobs(
         row = catalog.get(uid)
         if row is None:
             cells = 0
+            box_cells = 0
         else:
             cells = int(row["cells"])
+            box_cells = box_cells_of(row)
 
-        instances.append((uid, cells, instance.number_of_cutters))
+        instances.append((uid, cells, box_cells, instance.number_of_cutters))
 
     # biggest first inside every round
     instances.sort(key=lambda item: -item[1])
@@ -202,12 +218,13 @@ def build_jobs(
         if round_number > max_round:
             continue
 
-        for uid, cells, k in instances:
+        for uid, cells, box_cells, k in instances:
             for config in configs_for(k, cells, round_number):
                 job = Job(
                     instance=uid,
                     source=str(source),
                     cells=cells,
+                    box_cells=box_cells,
                     k=k,
                     round=round_number,
                     time_limit=time_limit_for(cells),
