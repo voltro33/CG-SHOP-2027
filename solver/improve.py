@@ -22,10 +22,16 @@ from itertools import pairwise
 
 import numpy as np
 
-from .model import Problem
+from cgshop2027_pyutils.grid import CellSet, dilate
+
+from .model import Problem, points_to_cellset
 from .tours import Point, densify, l1, normalize_cycle, passes_straight
 
 __all__ = ["VisitCounts", "prune_routes"]
+
+# above this many removed positions times cutter cells, check coverage with
+# masks instead of point lists
+_POINTWISE_LIMIT = 2_000_000
 
 
 class VisitCounts:
@@ -53,6 +59,11 @@ class VisitCounts:
         """
         if len(removed) == 0:
             return True
+
+        # big cutters times long removals blow up memory, so switch to masks
+        if len(removed) * len(self._offsets) > _POINTWISE_LIMIT:
+            return self._all_swept_windowed(removed)
+
         cells = (removed[:, None, :] + self._offsets[None, :, :]).reshape(-1, 2)
         cells = np.unique(cells, axis=0)
         cells = cells[self._problem.region.contains_points(cells)]
@@ -63,6 +74,50 @@ class VisitCounts:
         hits = np.zeros(len(anchors), dtype=np.int32)
         hits[inside] = self._counts[rows[inside], cols[inside]]
         return bool(np.all(hits.reshape(len(cells), -1).sum(axis=1) > 0))
+
+    def _all_swept_windowed(self, removed: np.ndarray) -> bool:
+        """
+        Same answer as `all_swept_around`, computed with whole masks inside a
+        window around `removed` instead of one cell at a time. Memory grows
+        with the window area, not with removed positions times cutter cells.
+        """
+        cutter = self._problem.cutter
+        cx0, cy0, cx1, cy1 = cutter.bounds
+
+        # the region cells the removed stamps used to sweep
+        footprint = dilate(points_to_cellset(removed), cutter)
+        needed = self._problem.region & footprint
+        if len(needed) == 0:
+            return True
+
+        # every anchor whose stamp could reach one of those cells
+        nx0, ny0, nx1, ny1 = needed.bounds
+        ax0 = nx0 - cx1
+        ay0 = ny0 - cy1
+        ax1 = nx1 - cx0
+        ay1 = ny1 - cy0
+
+        visited = np.zeros((ay1 - ay0 + 1, ax1 - ax0 + 1), dtype=bool)
+
+        # copy the part of the counts frame that overlaps the window
+        fx0, fy0 = self._origin
+        height, width = self._counts.shape
+        left = max(ax0, fx0)
+        right = min(ax1, fx0 + width - 1)
+        bottom = max(ay0, fy0)
+        top = min(ay1, fy0 + height - 1)
+
+        if left <= right and bottom <= top:
+            counts_window = self._counts[
+                bottom - fy0 : top - fy0 + 1, left - fx0 : right - fx0 + 1
+            ]
+            visited[
+                bottom - ay0 : top - ay0 + 1, left - ax0 : right - ax0 + 1
+            ] = counts_window > 0
+
+        swept = dilate(CellSet(visited, (ax0, ay0)), cutter)
+
+        return len(needed.difference(swept)) == 0
 
     def _index(self, positions: np.ndarray):
         pts = np.asarray(positions, dtype=np.int64).reshape(-1, 2)
