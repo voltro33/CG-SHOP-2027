@@ -32,6 +32,7 @@ __all__ = [
     "order_segments",
     "segments_horizontal",
     "segments_vertical",
+    "walk_segments",
 ]
 
 
@@ -71,17 +72,47 @@ def segments_horizontal(
     if not segments:
         return []
 
+    left = np.array([(s.a, s.y) for s in segments], dtype=np.int64)
+    right = np.array([(s.b, s.y) for s in segments], dtype=np.int64)
+
+    return walk_segments(
+        left,
+        right,
+        closed=problem.k == 1,
+        kick_seconds=kick_seconds,
+        seed=seed,
+        anneal=anneal,
+        time_limit=time_limit,
+    )
+
+
+def walk_segments(
+    left: np.ndarray,
+    right: np.ndarray,
+    *,
+    closed: bool,
+    kick_seconds: float | None = None,
+    seed: int = 0,
+    anneal: float = 0.0,
+    time_limit: float = 10.0,
+) -> list[Point]:
+    """
+    Orders straight segments, given by their two end points, and drives
+    them one after the other. Segments may point any way, the order only
+    sees their ends.
+    """
     if kick_seconds is None:
-        kick_seconds = auto_kick_seconds(len(segments))
+        kick_seconds = auto_kick_seconds(len(left))
 
     deadline = time.monotonic() + time_limit + kick_seconds
-    entries, exits = order_segments(segments, deadline=deadline)
+    entries, exits = _nearest_neighbor(left, right)
+    entries, exits = _two_opt(entries, exits, deadline=deadline, window=60)
 
     # a single cutter closes its walk into a tour, so the way home counts too
     entries, exits = improve_order(
         entries,
         exits,
-        closed=problem.k == 1,
+        closed=closed,
         deadline=deadline,
         kick_seconds=kick_seconds,
         seed=seed,

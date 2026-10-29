@@ -73,18 +73,18 @@ iso3131_107k_2x10,2,107460,other,X,1674,6752,6632,iso3131_107k_2x10|segments-v/g
 iso3131_387k_3x4,3,386712,square,X,5348,10784,10614,iso3131_387k_3x4|segments-v/gap_factor=0|s0|v2,98.5,-1.6,1.0323,0.2539
 iso331_102k_2p3,2,101536,other,plus,8458,9796,9796,iso331_102k_2p3|segments-h/bands-y|s0|v2,15.8,0.0,1.0,0.7455
 iso331_400k_3p4,3,399852,other,plus,5536,7608,7452,iso331_400k_3p4|segments-v/shift=0.5|s0|v2,34.6,-2.1,1.0423,0.5519
-iso3713_104k_2p5,2,103736,other,plus,5180,7550,7550,iso3713_104k_2p5|segments-h/bands-y|s0|v2,45.8,0.0,1.0,0.4707
+iso3713_104k_2p5,2,103736,other,plus,5180,7550,7366,iso3713_104k_2p5|segments-mixed/gap_factor=0|s0|v2,42.2,-2.4,1.0506,0.4945
 iso3713_144k_3l3,3,144288,other,diamond,2662,4488,4416,iso3713_144k_3l3|segments-h/seed=1/kick_seconds=30/anneal=0.003|s1|v2,65.9,-1.6,1.0329,0.3634
 iso4319_112k_2l5,2,112016,other,diamond,5596,10744,10744,iso4319_112k_2l5|segments-h|s0|v2,92.0,0.0,1.0,0.2713
 iso4319_1832k_2x11,2,1831540,other,X,26926,72706,69888,iso4319_1832k_2x11|segments-h/gap_factor=0/shift=0/bands-y|s0|v2,159.6,-3.9,1.0823,0.1484
 iso4763_6282_1x3,1,6282,square,X,2092,3988,3822,iso4763_6282_1x3|segments-h/gap_factor=1|s0|v2,82.7,-4.2,1.0888,0.2996
 iso4763_848k_3x3,3,847764,square,X,15682,25122,24992,iso4763_848k_3x3|segments-h/seed=1/kick_seconds=30|s1|v2,59.4,-0.5,1.0104,0.3937
 iso5009_26k_1x6,1,26101,other,X,3260,6854,6624,iso5009_26k_1x6|segments-v/gap_factor=0|s0|v2,103.2,-3.4,1.0707,0.2422
-iso5009_399k_3x5,3,399492,other,X,3154,7794,7720,iso5009_399k_3x5|segments-h/gap_factor=1|s0|v2,144.8,-0.9,1.0193,0.1669
+iso5009_399k_3x5,3,399492,other,X,3154,7794,7616,segments-mixed/gap_factor=0/bands-x,141.5,-2.3,1.0473,0.1715
 iso5009_524k_1d4,1,523520,other,clipped square,130878,151704,150770,iso5009_524k_1d4|segments-v/shift=0.25|s0|v2,15.2,-0.6,1.0124,0.7535
-iso8005_105k_2s3,2,105084,square,square,8752,11856,11856,iso8005_105k_2s3|segments-h/bands-x|s0|v2,35.5,0.0,1.0,0.5449
+iso8005_105k_2s3,2,105084,square,square,8752,11856,11806,iso8005_105k_2s3|segments-mixed/tile_lanes=16/segment_cost=4|s0|v2,34.9,-0.4,1.0085,0.5496
 iso8005_26k_1p9,1,26271,other,plus,2914,5586,5446,iso8005_26k_1p9|segments-v/gap_factor=0|s0|v2,86.9,-2.5,1.0521,0.2863
-iso8005_26k_1s3,1,26271,square,square,8754,11742,11548,segments-v/gap_factor=1,31.9,-1.7,1.0339,0.5746
+iso8005_26k_1s3,1,26271,square,square,8754,11742,11468,iso8005_26k_1s3|segments-mixed|s0|v2,31.0,-2.3,1.0484,0.5827
 iso8005_946k_3s3,3,945756,square,square,17496,24084,24084,iso8005_946k_3s3|segments-v/bands-y|s0|v2,37.7,0.0,1.0,0.5277
 isoa1099_401k_3d4,3,401040,other,clipped square,5552,8616,8474,isoa1099_401k_3d4|segments-v/gap_factor=0|s0|v2,52.6,-1.6,1.0338,0.4293
 isoa1099_928k_3l4,3,928224,other,diamond,12874,17508,17398,isoa1099_928k_3l4|segments-h/seed=2/kick_seconds=30/anneal=0.003|s2|v2,35.1,-0.6,1.0127,0.5476
@@ -94,7 +94,7 @@ isoa18569_45k_2d4,2,44632,other,clipped square,2784,5244,5172,isoa18569_45k_2d4|
 isoa18569_45k_2x5,2,44632,other,X,1588,4280,4280,isoa18569_45k_2x5|segments-v/bands-x|s0|v2,169.5,0.0,1.0,0.1377
 isoa22945_110k_2x10,2,109636,other,X,1708,5754,5654,isoa22945_110k_2x10|segments-h/gap_factor=1|s0|v2,231.0,-1.7,1.0357,0.0913
 isoa22945_6183k_3l3,3,6183072,other,diamond,114492,171640,170100,isoa22945_6183k_3l3|segments-v/gap_factor=1|s0|v2,48.6,-0.9,1.0182,0.453
-isoa22945_987k_3x10,3,986724,other,X,3408,11556,11478,isoa22945_987k_3x10|segments-v/shift=0.25|s0|v2,236.8,-0.7,1.0136,0.0882
+isoa22945_987k_3x10,3,986724,other,X,3408,11556,11448,isoa22945_987k_3x10|segments-mixed|s0|v2,235.9,-0.9,1.019,0.0886
 isoa4425_26k_1l4,1,26127,other,diamond,6530,9344,9188,isoa4425_26k_1l4|segments-h/gap_factor=0|s0|v2,40.7,-1.7,1.0342,0.5051
 isoa4425_45k_2l5,2,44652,other,diamond,2228,4030,3992,isoa4425_45k_2l5|segments-h/gap_factor=1|s0|v2,79.2,-0.9,1.0191,0.3115
 isoa4725_11k_1l4,1,11110,other,diamond,2776,4300,4224,isoa4725_11k_1l4|segments-v/gap_factor=1|s0|v2,52.2,-1.8,1.0363,0.4319
@@ -132,7 +132,7 @@ octa20637_44k_2d4,2,44456,other,clipped square,2774,4784,4784,octa20637_44k_2d4|
 octa2104_400k_3l3,3,400104,other,diamond,7400,11052,10844,octa2104_400k_3l3|segments-v/gap_factor=0|s0|v2,46.5,-1.9,1.0387,0.4657
 octa2104_8486k_3l8,3,8486028,other,diamond,58902,79272,78492,octa2104_8486k_3l8|segments-v/gap_factor=1|s0|v2,33.3,-1.0,1.02,0.5631
 octa28351_397k_3d4,3,396828,other,clipped square,5494,11154,10728,octa28351_397k_3d4|segments-v/gap_factor=1|s0|v2,95.3,-3.8,1.081,0.2623
-octa28351_946k_3x7,3,946404,other,X,4762,14864,14814,segments-h/seed=1/kick_seconds=30,211.1,-0.3,1.0068,0.1033
+octa28351_946k_3x7,3,946404,other,X,4762,14864,14814,octa28351_946k_3x7|segments-h/seed=1/kick_seconds=30|s1|v2,211.1,-0.3,1.0068,0.1033
 octa29860_334k_3p4,3,333612,other,plus,4616,9606,9324,octa29860_334k_3p4|segments-v/shift=0.5|s0|v2,102.0,-2.9,1.0614,0.2451
 octa29860_37k_2p4,2,37068,other,plus,2312,4676,4664,octa29860_37k_2p4|segments-v/shift=0.5|s0|v2,101.7,-0.3,1.0052,0.2457
 octa29860_9267_1p4,1,9267,other,plus,2314,4680,4468,octa29860_9267_1p4|segments-h/gap_factor=0|s0|v2,93.1,-4.5,1.0971,0.2682
@@ -142,7 +142,7 @@ octa3435_925k_3d6,3,925344,other,clipped square,8536,13352,13062,octa3435_925k_3
 octa383_102k_2d6,2,101736,other,clipped square,4230,5872,5872,octa383_102k_2d6|segments-v/bands-x|s0|v2,38.8,0.0,1.0,0.5189
 octa383_25k_1l9,1,25434,other,diamond,2822,4518,4396,octa383_25k_1l9|segments-v/gap_factor=0|s0|v2,55.8,-2.7,1.0563,0.4121
 octa6025_3600k_3p12,3,3599532,other,plus,16626,36482,36482,octa6025_3600k_3p12|segments-v|s0|v2,119.4,0.0,1.0,0.2077
-octa6025_952k_3x9,3,951948,other,X,3508,13362,13242,octa6025_952k_3x9|segments-v/gap_factor=0|s0|v2,277.5,-0.9,1.0182,0.0702
+octa6025_952k_3x9,3,951948,other,X,3508,13362,13216,octa6025_952k_3x9|segments-mixed/gap_factor=0|s0|v2,276.7,-1.1,1.0222,0.0705
 octa84581_128k_2l6,2,128112,other,diamond,5330,11714,11714,octa84581_128k_2l6|segments-v/bands-x|s0|v2,119.8,0.0,1.0,0.207
 octa84581_26k_2s3,2,26336,square,square,2190,4688,4548,octa84581_26k_2s3|segments-v/gap_factor=0|s0|v2,107.7,-3.0,1.0625,0.2319
 paris0003000_2020k_3x10,3,2020212,other,X,6996,17088,16680,paris0003000_2020k_3x10|segments-v/gap_factor=0|s0|v2,138.4,-2.4,1.0495,0.1759
@@ -170,7 +170,7 @@ smo45215_43k_2p6,2,42524,other,plus,1766,3654,3584,smo45215_43k_2p6|segments-v/g
 smo45215_954k_3d3,3,954036,square,clipped square,17650,27556,26166,smo45215_954k_3d3|segments-v/gap_factor=0/shift=0/bands-y|s0|v2,48.2,-5.0,1.1091,0.455
 smo4975_26k_1p9,1,26167,other,plus,2904,7266,6974,smo4975_26k_1p9|segments-h/gap_factor=0|s0|v2,140.2,-4.0,1.0855,0.1734
 smo4975_487k_1x6,1,486650,other,X,60828,100774,99904,smo4975_487k_1x6|segments-v/seed=2/kick_seconds=30/anneal=0.003|s2|v2,64.2,-0.9,1.0175,0.3707
-smo64431_103k_2l9,2,102780,other,diamond,2846,5632,5632,smo64431_103k_2l9|segments-v/bands-y|s0|v2,97.9,0.0,1.0,0.2554
+smo64431_103k_2l9,2,102780,other,diamond,2846,5632,5610,smo64431_103k_2l9|segments-mixed|s0|v2,97.1,-0.4,1.0079,0.2574
 smo64431_103k_2x5,2,102780,other,X,3666,7822,7822,smo64431_103k_2x5|segments-h/bands-y|s0|v2,113.4,0.0,1.0,0.2197
 smo64431_26k_1l9,1,25695,other,diamond,2852,5410,5318,smo64431_26k_1l9|segments-v/gap_factor=0|s0|v2,86.5,-1.7,1.0349,0.2876
 smo64431_925k_3l9,3,925020,other,diamond,5684,11604,11256,smo64431_925k_3l9|segments-h/gap_factor=0|s0|v2,98.0,-3.0,1.0628,0.255
@@ -212,18 +212,18 @@ srpg126_25k_1p5,1,25395,other,plus,5076,6838,6768,srpg126_25k_1p5|segments-h/gap
 srpg133_3600k_3d12,3,3599676,other,clipped square,16610,26088,26088,srpg133_3600k_3d12|segments-v/bands-x|s0|v2,57.1,0.0,1.0,0.4054
 srpg133_44k_2l5,2,44472,other,diamond,2220,3632,3632,srpg133_44k_2l5|segments-v/bands-x|s0|v2,63.6,0.0,1.0,0.3736
 srpg22373_26k_1p3,1,25646,other,plus,8548,11290,11128,srpg22373_26k_1p3|segments-v/gap_factor=1|s0|v2,30.2,-1.4,1.0293,0.5901
-srpg22373_399k_3d4,3,398880,other,clipped square,5522,8760,8636,srpg22373_399k_3d4|segments-h/gap_factor=1|s0|v2,56.4,-1.4,1.0289,0.4089
+srpg22373_399k_3d4,3,398880,other,clipped square,5522,8760,8424,srpg22373_399k_3d4|segments-mixed/gap_factor=0/tile_lanes=2/segment_cost=4|s0|v2,52.6,-3.8,1.0814,0.4297
 srpg224_11k_1d4,1,11131,other,clipped square,2780,4208,4102,srpg224_11k_1d4|segments-h/gap_factor=0|s0|v2,47.6,-2.5,1.0523,0.4593
 srpg224_917k_3s4,3,917244,square,square,12716,17012,16886,srpg224_917k_3s4|segments-v/shift=0.5|s0|v2,32.8,-0.7,1.015,0.5671
-srpg2839_25k_1d7,1,25298,other,clipped square,3610,4892,4874,srpg2839_25k_1d7|segments-v/gap_factor=1|s0|v2,35.0,-0.4,1.0074,0.5486
+srpg2839_25k_1d7,1,25298,other,clipped square,3610,4892,4862,srpg2839_25k_1d7|segments-mixed/gap_factor=0/tile_lanes=2/segment_cost=4|s0|v2,34.7,-0.6,1.0124,0.5513
 srpg2839_25k_1d7b,1,25298,other,clipped square,3610,4892,4874,srpg2839_25k_1d7b|segments-v/gap_factor=1|s0|v2,35.0,-0.4,1.0074,0.5486
 srpg2991_27k_1l5,1,26779,other,diamond,5354,11992,11502,srpg2991_27k_1l5|segments-h/gap_factor=0|s0|v2,114.8,-4.1,1.087,0.2167
 srpg2991_46k_2x4,2,45816,square,X,2856,5320,5304,srpg2991_46k_2x4|segments-h/shift=0.5|s0|v2,85.7,-0.3,1.006,0.2899
 srpg41087_15k_1d7,1,15408,other,clipped square,2196,5288,5130,srpg41087_15k_1d7|segments-h/gap_factor=0|s0|v2,133.6,-3.0,1.0625,0.1832
-srpg41087_15k_1s5,1,15408,square,square,3078,6794,6544,srpg41087_15k_1s5|segments-h/gap_factor=1|s0|v2,112.6,-3.7,1.0779,0.2212
+srpg41087_15k_1s5,1,15408,square,square,3078,6794,6512,srpg41087_15k_1s5|segments-mixed/gap_factor=0/tile_lanes=2/segment_cost=4|s0|v2,111.6,-4.2,1.0885,0.2234
 srpg41087_555k_3s5,3,554688,square,square,6134,14254,13680,srpg41087_555k_3s5|segments-v/gap_factor=0|s0|v2,123.0,-4.0,1.0857,0.2011
-srpg41087_62k_2s5,2,61632,square,square,3072,6954,6820,srpg41087_62k_2s5|segments-v/gap_factor=0|s0|v2,122.0,-1.9,1.0397,0.2029
-srpg5461_22k_1l3,1,22251,other,diamond,7416,14744,14088,srpg5461_22k_1l3|segments-h/gap_factor=0|s0|v2,90.0,-4.4,1.0953,0.2771
+srpg41087_62k_2s5,2,61632,square,square,3072,6954,6760,srpg41087_62k_2s5|segments-mixed/gap_factor=0|s0|v2,120.1,-2.8,1.0582,0.2065
+srpg5461_22k_1l3,1,22251,other,diamond,7416,14744,14070,srpg5461_22k_1l3|segments-mixed|s0|v2,89.7,-4.6,1.0981,0.2778
 srpg5461_801k_3l3,3,801036,other,diamond,14824,30362,29100,srpg5461_801k_3l3|segments-v/gap_factor=0|s0|v2,96.3,-4.2,1.0886,0.2595
 srpg5461_82k_1s11,1,81538,square,square,7402,19432,17974,srpg5461_82k_1s11|segments-v/gap_factor=0|s0|v2,142.8,-7.5,1.1688,0.1696
 srpg5461_89k_2l3,2,89004,other,diamond,7414,14808,14476,srpg5461_89k_2l3|segments-v/gap_factor=0|s0|v2,95.3,-2.2,1.0464,0.2623

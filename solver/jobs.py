@@ -14,10 +14,13 @@ starts the next one, so the cheap safe configs land first:
     round 5   seeds          segments with other seeds for the random kicks
                              of the order search, with longer kick time
     round 6   annealing      the order search as simulated annealing
+    round 7   mixed          segments with horizontal and vertical tiles, see
+                             construct/mixed.py, plus band partitions when k > 1
 
 Rounds run in the order of `ROUND_ORDER`, not by number: the order search
 is where measured gains are, so its seeds and annealing go before the big
-cross product round.
+cross product round. Mixed lanes came last and won 11 of 31 benchmark
+instances, so they go right after the gap sweep.
 
 Rounds 0 and 1 together are the Phase 4 baseline in the leaderboard.
 Within a round the biggest instances go first, so the long jobs start early
@@ -42,6 +45,14 @@ SEEDS = (1, 2, 3)
 
 # starting temperature as a fraction of the order length, see ordering.py
 ANNEAL = 0.003
+
+# mixed lane variants that each won benchmark instances on 2026-10-29
+MIXED_PARAMS = (
+    (("gap_factor", 0.0),),
+    (("gap_factor", 0.0), ("tile_lanes", 2.0), ("segment_cost", 4.0)),
+    (("tile_lanes", 16.0), ("segment_cost", 4.0)),
+    (("gap_factor", 2.0),),
+)
 
 # bump when the solver code changes enough that old jobs are worth rerunning
 CODE_VERSION = 2
@@ -144,10 +155,17 @@ def configs_for(k: int, cells: int, round_number: int) -> list[dict]:
                 params = (("seed", seed), ("kick_seconds", 30.0), ("anneal", ANNEAL))
                 configs.append({"method": method, "params": params, "seed": seed})
 
+    elif round_number == 7:
+        for params in MIXED_PARAMS:
+            configs.append({"method": "segments-mixed", "params": params})
+
+        for partition in partitions:
+            configs.append({"method": "segments-mixed", "params": MIXED_PARAMS[0], "partition": partition})
+
     return configs
 
 
-ROUND_ORDER = (0, 1, 2, 5, 6, 3, 4)
+ROUND_ORDER = (0, 1, 2, 7, 5, 6, 3, 4)
 
 
 def build_jobs(

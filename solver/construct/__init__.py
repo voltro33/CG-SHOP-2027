@@ -10,6 +10,7 @@ from ..model import Problem
 from ..tours import Point
 from .cover_tsp import cover_tsp
 from .lanes import lanes_horizontal, lanes_vertical
+from .mixed import segments_mixed
 from .segments import segments_horizontal, segments_vertical
 
 Constructor = Callable[[Problem], list[Point]]
@@ -20,6 +21,7 @@ CONSTRUCTORS: dict[str, Constructor] = {
     "cover-tsp": cover_tsp,
     "segments-h": segments_horizontal,
     "segments-v": segments_vertical,
+    "segments-mixed": segments_mixed,
 }
 
 __all__ = ["CONSTRUCTORS", "Constructor"]
