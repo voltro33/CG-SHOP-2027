@@ -1,0 +1,7 @@
+flowchart LR
+    S[nearest neighbour order] --> D[descent: 2-opt + Or-opt on neighbour lists]
+    D --> K[kick: block reversal or double bridge]
+    K --> D2[descent around the kick]
+    D2 --> Q{better than best?}
+    Q -- yes --> B[remember] --> K
+    Q -- no --> R[restore best] --> K

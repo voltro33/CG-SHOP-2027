@@ -1,0 +1,12 @@
+flowchart TB
+    Q[job grid: instance x config x seed, rounds 0..5] --> W1[worker 1]
+    Q --> W2[worker 2]
+    Q --> Wn[worker 15]
+    W1 --> V[verify in worker]
+    W2 --> V
+    Wn --> V
+    V -- feasible --> M{better than best?}
+    M -- yes --> B[atomic write to best/]
+    M -- within 5% --> C[candidates/]
+    V --> J[jobs.jsonl]
+    B --> L[leaderboard.csv]

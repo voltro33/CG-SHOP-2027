@@ -1,0 +1,16 @@
+flowchart LR
+    A[Instance JSON] --> B[Catalog features]
+    B --> C[Grid model + cutter footprint]
+    C --> D{partition?}
+    D -- no --> W[one walk: lane segments + ILS order]
+    W --> S[split into k pieces, close each]
+    D -- bands-x / bands-y --> P[k bands, one tour each, rebalance]
+    S --> F[prune: cut corners while covered]
+    P --> F
+    F --> G{official verifier}
+    G -- errors --> X[discard + log]
+    G -- feasible --> H[candidate store]
+    H --> I[best per instance]
+    C --> L[lower bound]
+    L --> R[leaderboard: gap to bound]
+    I --> R

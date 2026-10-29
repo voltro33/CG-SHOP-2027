@@ -1,0 +1,7 @@
+flowchart LR
+    T[tour corners] --> D[densify: every unit step position]
+    D --> U[union of positions over all tours]
+    U --> M[Minkowski sum with cutter]
+    M --> R{region minus swept}
+    R -- empty --> OK[feasible]
+    R -- not empty --> BAD[uncovered cells]

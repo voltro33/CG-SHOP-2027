@@ -1,0 +1,6 @@
+flowchart TB
+    B1[cut region into k bands with given cell shares] --> B2[solve each band as k = 1]
+    B2 --> B3[measure tour lengths]
+    B3 --> B4{rounds left?}
+    B4 -- yes --> B5[shares times sqrt of mean over length] --> B1
+    B4 -- no --> B6[keep round with shortest longest tour]
