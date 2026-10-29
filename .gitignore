@@ -208,3 +208,9 @@ __marimo__/
 
 # solver output
 results/
+
+# large inputs and mining output (catalog.csv and leaderboard.csv are tracked)
+data/instances/
+data/solutions/
+data/jobs.jsonl
+data/mine.log
