@@ -16,11 +16,15 @@ starts the next one, so the cheap safe configs land first:
     round 6   annealing      the order search as simulated annealing
     round 7   mixed          segments with horizontal and vertical tiles, see
                              construct/mixed.py, plus band partitions when k > 1
+    round 8   groups         k > 1 only: k closed tours built directly from the
+                             lane segments, see construct/groups.py
 
 Rounds run in the order of `ROUND_ORDER`, not by number: the order search
 is where measured gains are, so its seeds and annealing go before the big
 cross product round. Mixed lanes came last and won 11 of 31 benchmark
-instances, so they go right after the gap sweep.
+instances, so they go right after the gap sweep. Groups remove the return
+trip that splitting one walk leaves in every tour, the biggest measured loss
+for k > 1, so they go before everything not run yet.
 
 Rounds 0 and 1 together are the Phase 4 baseline in the leaderboard.
 Within a round the biggest instances go first, so the long jobs start early
@@ -45,6 +49,9 @@ SEEDS = (1, 2, 3)
 
 # starting temperature as a fraction of the order length, see ordering.py
 ANNEAL = 0.003
+
+GROUP_GAP_FACTORS = (0.0, 1.0)
+GROUP_SEEDS = (0, 1)
 
 # mixed lane variants that each won benchmark instances on 2026-10-29
 MIXED_PARAMS = (
@@ -176,10 +183,17 @@ def configs_for(k: int, cells: int, round_number: int) -> list[dict]:
         for partition in partitions:
             configs.append({"method": "segments-mixed", "params": MIXED_PARAMS[0], "partition": partition})
 
+    elif round_number == 8 and k > 1:
+        for method in ("groups-h", "groups-v"):
+            for gap in GROUP_GAP_FACTORS:
+                for seed in GROUP_SEEDS:
+                    params = (("gap_factor", gap), ("seed", seed))
+                    configs.append({"method": method, "params": params, "seed": seed})
+
     return configs
 
 
-ROUND_ORDER = (0, 1, 2, 7, 5, 6, 3, 4)
+ROUND_ORDER = (0, 1, 2, 8, 7, 5, 6, 3, 4)
 
 
 def build_jobs(

@@ -23,11 +23,11 @@ import numpy as np
 from cgshop2027_pyutils.schemas import CGSHOP2027Solution
 from cgshop2027_pyutils.verify import SolutionValidator
 
-from .construct import CONSTRUCTORS
+from .construct import CONSTRUCTORS, GROUP_CONSTRUCTORS
 from .improve import prune_routes
 from .model import Problem
 from .partition import solve_in_bands
-from .repair import repair_walk
+from .repair import repair_tours, repair_walk
 from .split import split_walk
 from .tours import Point, close_route, compress, densify, to_cutter_tour
 
@@ -95,7 +95,9 @@ def solve(
     deadline = started + time_limit
 
     try:
-        if config.partition is None:
+        if config.method in GROUP_CONSTRUCTORS:
+            tours = _tours_grouped(problem, config, deadline)
+        elif config.partition is None:
             tours = _tours_single_walk(problem, config, deadline)
         else:
             tours = _tours_partitioned(problem, config, deadline)
@@ -151,6 +153,25 @@ def _tours_single_walk(
     tours = prune_routes(problem, tours, closed=True, deadline=deadline)
 
     return _pad_with_idle(tours, problem.k, _point(positions[0]))
+
+
+def _tours_grouped(
+    problem: Problem, config: SolveConfig, deadline: float
+) -> list[list[Point]]:
+    constructor = GROUP_CONSTRUCTORS[config.method]
+    tours = constructor(problem, **config.params)
+
+    if not tours:
+        msg = f"{config.method} produced no tours"
+        raise ValueError(msg)
+
+    dense = [densify(tour, closed=True) for tour in tours]
+    repaired = repair_tours(problem, dense)
+
+    closed = [close_route(compress(walk)) for walk in repaired]
+    tours = prune_routes(problem, closed, closed=True, deadline=deadline)
+
+    return _pad_with_idle(tours, problem.k, tours[0][0])
 
 
 def _tours_partitioned(

@@ -10,6 +10,7 @@ from ..model import Problem
 from ..tours import Point
 from .cells import segments_cells
 from .cover_tsp import cover_tsp
+from .groups import groups_horizontal, groups_vertical
 from .lanes import lanes_horizontal, lanes_vertical
 from .mixed import segments_mixed
 from .segments import segments_horizontal, segments_vertical
@@ -26,4 +27,12 @@ CONSTRUCTORS: dict[str, Constructor] = {
     "segments-cells": segments_cells,
 }
 
-__all__ = ["CONSTRUCTORS", "Constructor"]
+# these build the k closed tours themselves instead of one walk to split
+GroupConstructor = Callable[[Problem], list[list[Point]]]
+
+GROUP_CONSTRUCTORS: dict[str, GroupConstructor] = {
+    "groups-h": groups_horizontal,
+    "groups-v": groups_vertical,
+}
+
+__all__ = ["CONSTRUCTORS", "GROUP_CONSTRUCTORS", "Constructor", "GroupConstructor"]
