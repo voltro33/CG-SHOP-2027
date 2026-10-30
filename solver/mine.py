@@ -188,7 +188,16 @@ class BestStore:
         if not is_better:
             return False
 
+        # another run may have stored a better one since we loaded, so the
+        # file on disk has the last word
         target = self.folder / f"{result.instance}.solution.json"
+        if target.exists():
+            on_disk = read_solution(target)
+            if on_disk.objective <= result.objective:
+                self.objective[result.instance] = on_disk.objective
+                self.label[result.instance] = str(on_disk.meta.get("job", "?"))
+                return False
+
         _atomic_write(target, result.solution_json)
 
         self.objective[result.instance] = result.objective
@@ -491,6 +500,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--cores", type=int, default=None, help="core permits, default all but one")
     parser.add_argument("--memory-gb", type=float, default=None, help="memory permits, default most of what is free")
     parser.add_argument("--max-round", type=int, default=99)
+    parser.add_argument("--rounds", default="", help="only these rounds, comma separated, for example 7")
     parser.add_argument("--only", default="", help="substring filter on instance names")
     args = parser.parse_args(argv)
 
@@ -507,6 +517,11 @@ def main(argv: list[str] | None = None) -> int:
 
     catalog = _read_catalog(args.catalog)
     jobs = build_jobs(args.instances, catalog, max_round=args.max_round, only=args.only)
+
+    # rounds run by ROUND_ORDER, not by number, so a cap alone cannot pick round 7
+    if args.rounds:
+        wanted = {int(text) for text in args.rounds.split(",")}
+        jobs = [job for job in jobs if job.round in wanted]
 
     store = BestStore(args.out / "solutions" / "best", args.out / "solutions" / "candidates")
     job_log = JobLog(args.out / "jobs.jsonl")

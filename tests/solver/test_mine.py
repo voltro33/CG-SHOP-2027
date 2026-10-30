@@ -89,16 +89,23 @@ def test_restart_skips_finished_jobs_and_keeps_bests(tmp_path):
     assert store.objective[SMALL_INSTANCE] == first_best
 
 
+def stored_result(objective: int, job: str) -> JobResult:
+    """
+    A minimal solution body whose one tour, out and back along the x axis,
+    is exactly `objective` long, as the store reads it back from disk.
+    """
+    half = objective // 2
+    body = (
+        '{"content_type":"CGSHOP2027_Solution","instance_uid":"x",'
+        '"tours":[{"x":[0,' + str(half) + '],"y":[0,0]}],"meta":{"job":"' + job + '"}}'
+    )
+
+    return JobResult(job, "x", 0, job, objective, 1.0, None, body)
+
+
 def test_best_store_only_promotes_strictly_better(tmp_path):
     store = BestStore(tmp_path / "best", tmp_path / "candidates")
-
-    def result(objective: int, job: str) -> JobResult:
-        # a minimal valid solution file body is enough for the store
-        body = (
-            '{"content_type":"CGSHOP2027_Solution","instance_uid":"x",'
-            '"tours":[{"x":[0],"y":[0]}],"meta":{"job":"' + job + '"}}'
-        )
-        return JobResult(job, "x", 0, job, objective, 1.0, None, body)
+    result = stored_result
 
     assert store.offer(result(100, "a"))
     assert not store.offer(result(100, "b"))
@@ -107,6 +114,19 @@ def test_best_store_only_promotes_strictly_better(tmp_path):
 
     assert store.objective["x"] == 90
     assert store.label["x"] == "d"
+
+
+def test_two_stores_on_one_folder_never_overwrite_a_better_best(tmp_path):
+    # two runs at once each load the bests when they start
+    first = BestStore(tmp_path / "best", tmp_path / "candidates")
+    second = BestStore(tmp_path / "best", tmp_path / "candidates")
+
+    assert first.offer(stored_result(80, "a"))
+    assert not second.offer(stored_result(90, "b"))
+
+    # the second run learns the better best from disk
+    assert second.objective["x"] == 80
+    assert BestStore(tmp_path / "best", tmp_path / "candidates").objective["x"] == 80
 
 
 def test_job_log_ignores_a_torn_last_line(tmp_path):
