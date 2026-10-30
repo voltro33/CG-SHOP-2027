@@ -1,251 +1,251 @@
 instance,k,cells,cutter,family,lower_bound,baseline,best,best_config,gap_pct,vs_baseline_pct,score_gain,pessimistic_score
 ara238025_353k_1l5,1,352618,other,diamond,70522,78072,77712,ara238025_353k_1l5|segments-h/gap_factor=0|s0|v2,10.2,-0.5,1.0093,0.8235
-bby34656_1372k_3x3,3,1372212,square,X,25394,32316,32106,bby34656_1372k_3x3|segments-h/gap_factor=0/shift=0/bands-x|s0|v2,26.4,-0.6,1.0131,0.6256
-bch2762_1508k_3p5,3,1507788,other,plus,16728,24112,23946,bch2762_1508k_3p5|segments-v/gap_factor=0|s0|v2,43.1,-0.7,1.0139,0.488
+bby34656_1372k_3x3,3,1372212,square,X,25394,32316,31932,groups-v/gap_factor=0/seed=1,25.7,-1.2,1.0242,0.6324
+bch2762_1508k_3p5,3,1507788,other,plus,16728,24112,23808,groups-h/gap_factor=1/seed=1,42.3,-1.3,1.0257,0.4937
 bck2217_18k_1d6,1,18152,other,clipped square,3020,3762,3736,bck2217_18k_1d6|segments-v/shift=0.75|s0|v2,23.7,-0.7,1.014,0.6534
-bgb4355_76k_2l3,2,75540,other,diamond,6292,8840,8764,bgb4355_76k_2l3|segments-v/gap_factor=0|s0|v2,39.3,-0.9,1.0174,0.5154
-bgd4396_172k_2l4,2,171500,other,diamond,10714,13780,13780,bgd4396_172k_2l4|segments-h/bands-y|s0|v2,28.6,0.0,1.0,0.6045
-bgf4475_195k_3l3,3,195012,other,diamond,3602,4884,4800,bgf4475_195k_3l3|groups-h/gap_factor=0|s0|v2,33.3,-1.7,1.0353,0.5631
-bna56769_1471k_2x10,2,1470832,other,X,22976,46656,46366,bna56769_1471k_2x10|segments-v/gap_factor=0/shift=0/bands-x|s0|v2,101.8,-0.6,1.0125,0.2456
+bgb4355_76k_2l3,2,75540,other,diamond,6292,8840,8680,groups-h/gap_factor=0/seed=0,38.0,-1.8,1.0372,0.5255
+bgd4396_172k_2l4,2,171500,other,diamond,10714,13780,13630,groups-h/gap_factor=0/seed=0,27.2,-1.1,1.0221,0.6179
+bgf4475_195k_3l3,3,195012,other,diamond,3602,4884,4788,groups-h/gap_factor=0/seed=1,32.9,-2.0,1.0405,0.566
+bna56769_1471k_2x10,2,1470832,other,X,22976,46656,46192,groups-h/gap_factor=1/seed=0,101.0,-1.0,1.0202,0.2474
 bnd7168_28k_1p7,1,27920,other,plus,3984,5804,5770,bnd7168_28k_1p7|segments-v/gap_factor=1|s0|v2,44.8,-0.6,1.0118,0.4767
 boa28924_2546k_3l12,3,2545668,other,diamond,11744,15720,15528,boa28924_2546k_3l12|segments-h/shift=0.75|s0|v2,32.2,-1.2,1.0249,0.572
-bva2144_2081k_3d5,3,2081484,other,clipped square,23104,26808,26628,bva2144_2081k_3d5|segments-v/gap_factor=0/shift=0/bands-x|s0|v2,15.3,-0.7,1.0136,0.7528
-bva2144_231k_2d5,2,231276,other,clipped square,11556,13288,13260,bva2144_231k_2d5|segments-mixed/gap_factor=0/bands-x|s0|v2,14.7,-0.2,1.0042,0.7595
+bva2144_2081k_3d5,3,2081484,other,clipped square,23104,26808,26532,groups-v/gap_factor=0/seed=1,14.8,-1.0,1.0209,0.7583
+bva2144_231k_2d5,2,231276,other,clipped square,11556,13288,13172,groups-v/gap_factor=1/seed=1,14.0,-0.9,1.0177,0.7697
 bva2144_58k_1d5,1,57819,other,clipped square,11560,13140,13090,bva2144_58k_1d5|segments-v/gap_factor=1|s0|v2,13.2,-0.4,1.0077,0.7799
-d2103_195k_2x6,2,195076,other,X,6090,9684,9432,d2103_195k_2x6|segments-h/gap_factor=0|s0|v2,54.9,-2.6,1.0541,0.4169
+d2103_195k_2x6,2,195076,other,X,6090,9684,9412,groups-h/gap_factor=0/seed=0,54.5,-2.8,1.0586,0.4187
 dan59296_530k_1s10,1,530463,square,square,53038,69344,68140,dan59296_530k_1s10|segments-v/gap_factor=1|s0|v2,28.5,-1.7,1.0357,0.6059
-dbj2924_32k_2p4,2,32052,other,plus,1998,3114,3056,dbj2924_32k_2p4|segments-v/shift=0.5|s0|v2,53.0,-1.9,1.0383,0.4274
-dca1389_1773k_3x12,3,1773108,other,X,5442,12252,12030,dca1389_1773k_3x12|segments-h/gap_factor=0|s0|v2,121.1,-1.8,1.0372,0.2046
-dca1389_197k_2x12,2,197012,other,X,2726,5986,5920,dca1389_197k_2x12|segments-v/gap_factor=0|s0|v2,117.2,-1.1,1.0224,0.212
+dbj2924_32k_2p4,2,32052,other,plus,1998,3114,3032,groups-v/gap_factor=0/seed=0,51.8,-2.6,1.0548,0.4342
+dca1389_1773k_3x12,3,1773108,other,X,5442,12252,11754,groups-h/gap_factor=0/seed=1,116.0,-4.1,1.0865,0.2144
+dca1389_197k_2x12,2,197012,other,X,2726,5986,5776,groups-h/gap_factor=0/seed=1,111.9,-3.5,1.074,0.2227
 dca1389_49k_1x12,1,49253,other,X,2732,5908,5774,dca1389_49k_1x12|segments-h/gap_factor=0|s0|v2,111.3,-2.3,1.047,0.2239
-dcb2086_1835k_3p11,3,1835496,other,plus,9224,15468,15348,dcb2086_1835k_3p11|segments-v/gap_factor=0|s0|v2,66.4,-0.8,1.0157,0.3612
+dcb2086_1835k_3p11,3,1835496,other,plus,9224,15468,14748,groups-h/gap_factor=0/seed=1,59.9,-4.7,1.1,0.3912
 dcc1911_10k_1l4,1,10003,other,diamond,2498,3974,3852,dcc1911_10k_1l4|segments-v/gap_factor=0|s0|v2,54.2,-3.1,1.0643,0.4205
-dea2382_562k_3l6,3,562212,other,diamond,5182,7422,7272,dea2382_562k_3l6|segments-h/shift=0.5|s0|v2,40.3,-2.0,1.0417,0.5078
-dga9698_479k_3x4,3,478800,square,X,6626,9864,9704,dga9698_479k_3x4|segments-v/gap_factor=1|s0|v2,46.5,-1.6,1.0332,0.4662
-dja1436_1243k_3p6,3,1242792,other,plus,11488,15524,15456,dja1436_1243k_3p6|segments-h/gap_factor=0|s0|v2,34.5,-0.4,1.0088,0.5525
+dea2382_562k_3l6,3,562212,other,diamond,5182,7422,7236,segments-mixed/gap_factor=0/bands-y,39.6,-2.5,1.0521,0.5129
+dga9698_479k_3x4,3,478800,square,X,6626,9864,9438,groups-h/gap_factor=0/seed=0,42.4,-4.3,1.0923,0.4929
+dja1436_1243k_3p6,3,1242792,other,plus,11488,15524,15396,groups-v/gap_factor=0/seed=0,34.0,-0.8,1.0167,0.5568
 djb2036_158k_2p8,2,158112,other,plus,4930,6276,5942,djb2036_158k_2p8|segments-h/shift=0.75|s0|v2,20.5,-5.3,1.1156,0.6884
 dka1376_23k_1p7,1,22894,other,plus,3266,4904,4764,dka1376_23k_1p7|segments-h/gap_factor=0|s0|v2,45.9,-2.9,1.0596,0.47
-dkc3938_493k_3p6,3,492984,other,plus,4546,6888,6888,dkc3938_493k_3p6|segments-v/bands-x|s0|v2,51.5,0.0,1.0,0.4356
+dkc3938_493k_3p6,3,492984,other,plus,4546,6888,6780,groups-v/gap_factor=0/seed=0,49.1,-1.6,1.0321,0.4496
 dkd1973_1154k_3d8,3,1154232,other,clipped square,7978,10788,10788,dkd1973_1154k_3d8|segments-v/bands-x|s0|v2,35.2,0.0,1.0,0.5469
 dkd1973_128k_2d8,2,128248,other,clipped square,3996,5388,5332,dkd1973_128k_2d8|groups-h/gap_factor=0|s0|v2,33.4,-1.0,1.0211,0.5617
 dkd1973_32k_1d8,1,32062,other,clipped square,4002,5282,5266,dkd1973_32k_1d8|segments-h/gap_factor=0|s0|v2,31.6,-0.3,1.0061,0.5776
 dke3097_19k_1d6,1,18593,other,clipped square,3094,3990,3910,dke3097_19k_1d6|segments-v/shift=0.5|s0|v2,26.4,-2.0,1.0413,0.6262
-dlb3694_192k_2d9,2,191848,other,clipped square,5314,6500,6428,dlb3694_192k_2d9|segments-mixed/gap_factor=0/bands-y|s0|v2,21.0,-1.1,1.0225,0.6834
-dsj1000_38k_2l3,2,37572,other,diamond,3128,4012,4012,dsj1000_38k_2l3|segments-v/bands-y|s0|v2,28.3,0.0,1.0,0.6079
-euronight0070000_8749k_3s12,3,8748612,square,square,40432,51168,49740,euronight0070000_8749k_3s12|segments-v/gap_factor=0|s0|v2,23.0,-2.8,1.0582,0.6608
-fea5557_581k_3p4,3,581292,other,plus,8056,12414,12336,fea5557_581k_3p4|segments-h/gap_factor=0|s0|v2,53.1,-0.6,1.0127,0.4265
-fht47608_34k_2p4,2,33524,other,plus,2090,3188,3188,fht47608_34k_2p4|segments-h/bands-y|s0|v2,52.5,0.0,1.0,0.4298
+dlb3694_192k_2d9,2,191848,other,clipped square,5314,6500,6412,groups-h/gap_factor=0/seed=0,20.7,-1.4,1.0276,0.6868
+dsj1000_38k_2l3,2,37572,other,diamond,3128,4012,3948,groups-h/gap_factor=0/seed=0,26.2,-1.6,1.0327,0.6277
+euronight0070000_8749k_3s12,3,8748612,square,square,40432,51168,48828,groups-v/gap_factor=0/seed=1,20.8,-4.6,1.0981,0.6857
+fea5557_581k_3p4,3,581292,other,plus,8056,12414,12012,groups-h/gap_factor=0/seed=0,49.1,-3.2,1.0681,0.4498
+fht47608_34k_2p4,2,33524,other,plus,2090,3188,3136,groups-v/gap_factor=1/seed=0,50.0,-1.6,1.0334,0.4442
 fjr3672_65k_2p4,2,65408,other,plus,4082,6676,6584,fjr3672_65k_2p4|groups-h/gap_factor=0|s0|v2,61.3,-1.4,1.0281,0.3844
 fjs3649_17k_1x7,1,17305,other,X,1572,4370,4304,fjs3649_17k_1x7|segments-v/gap_factor=1|s0|v2,173.8,-1.5,1.0309,0.1334
-fma21553_34k_2l3,2,34428,other,diamond,2866,3812,3812,fma21553_34k_2l3|segments-v/bands-x|s0|v2,33.0,0.0,1.0,0.5653
+fma21553_34k_2l3,2,34428,other,diamond,2866,3812,3752,groups-v/gap_factor=0/seed=1,30.9,-1.6,1.0322,0.5835
 fna52057_1415k_2x6,2,1415100,other,X,44216,71128,70902,fna52057_1415k_2x6|segments-h/gap_factor=0/shift=0/bands-y|s0|v2,60.4,-0.3,1.0064,0.3889
 fnb1615_603k_3p4,3,603288,other,plus,8362,10788,10640,fnb1615_603k_3p4|segments-v/seed=1/kick_seconds=30|s1|v2,27.2,-1.4,1.028,0.6176
 fnl4461_57k_2d5,2,56876,other,clipped square,2836,3520,3504,fnl4461_57k_2d5|groups-h/gap_factor=0|s0|v2,23.6,-0.5,1.0092,0.6551
 fqm5087_1335k_3l3,3,1334988,other,diamond,24712,28788,28552,fqm5087_1335k_3l3|segments-h/gap_factor=0/shift=0/bands-x|s0|v2,15.5,-0.8,1.0166,0.7491
-fra1488_81k_2x4,2,81056,square,X,5058,6896,6776,fra1488_81k_2x4|segments-v/gap_factor=0|s0|v2,34.0,-1.7,1.0357,0.5572
+fra1488_81k_2x4,2,81056,square,X,5058,6896,6660,segments-mixed/gap_factor=0/bands-x,31.7,-3.4,1.0721,0.5768
 frh19289_14k_1p6,1,13567,other,plus,2258,3366,3330,frh19289_14k_1p6|segments-h/shift=0.25|s0|v2,47.5,-1.1,1.0217,0.4598
 fry33203_11k_1p4,1,11463,other,plus,2864,3644,3622,fry33203_11k_1p4|segments-h/gap_factor=1|s0|v2,26.5,-0.6,1.0122,0.6252
 fyg28534_1137k_3d8,3,1136880,other,clipped square,7856,10484,10400,fyg28534_1137k_3d8|segments-v/gap_factor=1|s0|v2,32.4,-0.8,1.0162,0.5706
 ics39603_9468_1l5,1,9468,other,diamond,1892,2408,2406,ics39603_9468_1l5|segments-h/gap_factor=0|s0|v2,27.2,-0.1,1.0017,0.6184
-ida8197_50k_2x4,2,49828,square,X,3108,3966,3940,ida8197_50k_2x4|segments-h/gap_factor=1|s0|v2,26.8,-0.7,1.0132,0.6223
+ida8197_50k_2x4,2,49828,square,X,3108,3966,3906,groups-h/gap_factor=1/seed=0,25.7,-1.5,1.031,0.6331
 ido21215_23k_1x9,1,22937,other,X,1528,4172,4118,ido21215_23k_1x9|segments-v/gap_factor=0|s0|v2,169.5,-1.3,1.0264,0.1377
-ido21215_826k_3x9,3,825732,other,X,3042,8940,8772,ido21215_826k_3x9|segments-v/shift=0.25|s0|v2,188.4,-1.9,1.0387,0.1203
-ido21215_92k_2x9,2,91748,other,X,1524,4258,4258,ido21215_92k_2x9|segments-v|s0|v2,179.4,0.0,1.0,0.1281
+ido21215_826k_3x9,3,825732,other,X,3042,8940,8460,groups-v/gap_factor=1/seed=0,178.1,-5.4,1.1167,0.1293
+ido21215_92k_2x9,2,91748,other,X,1524,4258,4152,groups-h/gap_factor=0/seed=1,172.4,-2.5,1.0517,0.1347
 ird29514_64k_1l4,1,64361,other,diamond,16088,18624,18442,ird29514_64k_1l4|segments-h/gap_factor=0|s0|v2,14.6,-1.0,1.0198,0.761
-irw2802_1137k_3x6,3,1137096,other,X,7876,12504,12504,irw2802_1137k_3x6|segments-h|s0|v2,58.8,0.0,1.0,0.3967
+irw2802_1137k_3x6,3,1137096,other,X,7876,12504,12444,groups-h/gap_factor=0/seed=1,58.0,-0.5,1.0097,0.4006
 irx28268_1223k_3p9,3,1223100,other,plus,7520,10512,10512,irx28268_1223k_3p9|segments-v|s0,39.8,0.0,1.0,0.5118
-irx28268_136k_2p9,2,135900,other,plus,3766,5122,5122,irx28268_136k_2p9|segments-v|s0,36.0,0.0,1.0,0.5406
+irx28268_136k_2p9,2,135900,other,plus,3766,5122,5076,segments-h/gap_factor=0/shift=0/bands-x,34.8,-0.9,1.0182,0.5504
 irx28268_34k_1p9,1,33975,other,plus,3770,5044,4984,irx28268_34k_1p9|segments-v/shift=0.75|s0|v2,32.2,-1.2,1.0242,0.5722
-iso14835_28k_2x3,2,28032,square,X,2330,4614,4502,iso14835_28k_2x3|segments-v/gap_factor=1|s0|v2,93.2,-2.4,1.0504,0.2679
-iso14835_5525k_3d5,3,5525172,other,clipped square,61366,114438,114258,iso14835_5525k_3d5|segments-v/gap_factor=0|s0|v2,86.2,-0.2,1.0032,0.2885
-iso2071_2273k_2l3,2,2273132,other,diamond,189426,206020,206020,iso2071_2273k_2l3|segments-v/bands-x|s0|v2,8.8,0.0,1.0,0.8454
-iso2071_44k_2l4,2,44384,other,diamond,2768,4294,4288,iso2071_44k_2l4|segments-v/gap_factor=1|s0|v2,54.9,-0.1,1.0028,0.4167
-iso2071_935k_3s5,3,934560,square,square,10354,14980,14980,iso2071_935k_3s5|segments-h/bands-x|s0|v2,44.7,0.0,1.0,0.4777
-iso252735_121k_2s3,2,120940,square,square,10074,14610,14360,iso252735_121k_2s3|segments-v/gap_factor=1|s0|v2,42.5,-1.7,1.0351,0.4921
+iso14835_28k_2x3,2,28032,square,X,2330,4614,4276,groups-v/gap_factor=0/seed=1,83.5,-7.3,1.1643,0.2969
+iso14835_5525k_3d5,3,5525172,other,clipped square,61366,114438,112494,groups-v/gap_factor=0/seed=0,83.3,-1.7,1.0349,0.2976
+iso2071_2273k_2l3,2,2273132,other,diamond,189426,206020,205556,groups-v/gap_factor=0/seed=0,8.5,-0.2,1.0045,0.8492
+iso2071_44k_2l4,2,44384,other,diamond,2768,4294,4144,groups-h/gap_factor=1/seed=0,49.7,-3.5,1.0737,0.4462
+iso2071_935k_3s5,3,934560,square,square,10354,14980,14400,groups-v/gap_factor=0/seed=0,39.1,-3.9,1.0822,0.517
+iso252735_121k_2s3,2,120940,square,square,10074,14610,14036,groups-v/gap_factor=1/seed=1,39.3,-3.9,1.0835,0.5151
 iso252735_2982k_2l4,2,2982148,other,diamond,186380,254576,250628,iso252735_2982k_2l4|segments-v/gap_factor=0/shift=0.5/bands-x|s0|v2,34.5,-1.6,1.0318,0.553
 iso26643_27k_1s4,1,26565,square,square,6638,11886,11110,iso26643_27k_1s4|segments-h/gap_factor=1|s0|v2,67.4,-6.5,1.1446,0.357
-iso26643_8292_1d4,1,8292,other,clipped square,2070,4460,4274,iso26643_8292_1d4|segments-v/gap_factor=0|s0|v2,106.5,-4.2,1.0889,0.2346
-iso299_103k_2l6,2,103108,other,diamond,4290,6524,6524,iso299_103k_2l6|segments-v/bands-y|s0|v2,52.1,0.0,1.0,0.4324
+iso26643_8292_1d4,1,8292,other,clipped square,2070,4460,4256,segments-mixed/gap_factor=0/tile_lanes=2/segment_cost=4,105.6,-4.6,1.0982,0.2366
+iso299_103k_2l6,2,103108,other,diamond,4290,6524,6460,groups-h/gap_factor=0/seed=1,50.6,-1.0,1.0199,0.441
 iso299_26k_1l6,1,25777,other,diamond,4294,6302,6294,iso299_26k_1l6|segments-v/shift=0.75|s0|v2,46.6,-0.1,1.0025,0.4654
-iso299_928k_3d7,3,927972,other,clipped square,7334,11928,11544,iso299_928k_3d7|segments-v/seed=2/kick_seconds=30/anneal=0.003|s2|v2,57.4,-3.2,1.0676,0.4036
-iso299_928k_3l6,3,927972,other,diamond,8570,13476,13368,iso299_928k_3l6|segments-v/seed=3/kick_seconds=30|s3|v2,56.0,-0.8,1.0162,0.411
-iso3131_107k_2x10,2,107460,other,X,1674,6752,6632,iso3131_107k_2x10|segments-v/gap_factor=1|s0|v2,296.2,-1.8,1.0365,0.0637
-iso3131_387k_3x4,3,386712,square,X,5348,10784,10614,iso3131_387k_3x4|segments-v/gap_factor=0|s0|v2,98.5,-1.6,1.0323,0.2539
-iso331_102k_2p3,2,101536,other,plus,8458,9796,9796,iso331_102k_2p3|segments-h/bands-y|s0|v2,15.8,0.0,1.0,0.7455
+iso299_928k_3d7,3,927972,other,clipped square,7334,11928,11484,groups-v/gap_factor=0/seed=0,56.6,-3.7,1.0788,0.4078
+iso299_928k_3l6,3,927972,other,diamond,8570,13476,13116,groups-v/gap_factor=0/seed=1,53.0,-2.7,1.0556,0.4269
+iso3131_107k_2x10,2,107460,other,X,1674,6752,6434,groups-v/gap_factor=1/seed=1,284.3,-4.7,1.1013,0.0677
+iso3131_387k_3x4,3,386712,square,X,5348,10784,10170,groups-v/gap_factor=1/seed=1,90.2,-5.7,1.1244,0.2765
+iso331_102k_2p3,2,101536,other,plus,8458,9796,9784,segments-mixed/gap_factor=0/bands-y,15.7,-0.1,1.0025,0.7473
 iso331_400k_3p4,3,399852,other,plus,5536,7608,7380,iso331_400k_3p4|groups-v/gap_factor=0|s0|v2,33.3,-3.0,1.0627,0.5627
 iso3713_104k_2p5,2,103736,other,plus,5180,7550,7366,iso3713_104k_2p5|segments-mixed/gap_factor=0|s0|v2,42.2,-2.4,1.0506,0.4945
-iso3713_144k_3l3,3,144288,other,diamond,2662,4488,4416,iso3713_144k_3l3|segments-h/seed=1/kick_seconds=30/anneal=0.003|s1|v2,65.9,-1.6,1.0329,0.3634
-iso4319_112k_2l5,2,112016,other,diamond,5596,10744,10744,iso4319_112k_2l5|segments-h|s0|v2,92.0,0.0,1.0,0.2713
-iso4319_1832k_2x11,2,1831540,other,X,26926,72706,69888,iso4319_1832k_2x11|segments-h/gap_factor=0/shift=0/bands-y|s0|v2,159.6,-3.9,1.0823,0.1484
-iso4763_6282_1x3,1,6282,square,X,2092,3988,3822,iso4763_6282_1x3|segments-h/gap_factor=1|s0|v2,82.7,-4.2,1.0888,0.2996
-iso4763_848k_3x3,3,847764,square,X,15682,25122,24992,iso4763_848k_3x3|segments-h/seed=1/kick_seconds=30|s1|v2,59.4,-0.5,1.0104,0.3937
+iso3713_144k_3l3,3,144288,other,diamond,2662,4488,4236,groups-v/gap_factor=0/seed=1,59.1,-5.6,1.1225,0.3949
+iso4319_112k_2l5,2,112016,other,diamond,5596,10744,10446,groups-h/gap_factor=0/seed=1,86.7,-2.8,1.0579,0.287
+iso4319_1832k_2x11,2,1831540,other,X,26926,72706,69486,groups-h/gap_factor=0/seed=1,158.1,-4.4,1.0948,0.1502
+iso4763_6282_1x3,1,6282,square,X,2092,3988,3778,segments-mixed/gap_factor=0/tile_lanes=2/segment_cost=4,80.6,-5.3,1.1143,0.3066
+iso4763_848k_3x3,3,847764,square,X,15682,25122,24660,groups-v/gap_factor=1/seed=1,57.3,-1.8,1.0378,0.4044
 iso5009_26k_1x6,1,26101,other,X,3260,6854,6624,iso5009_26k_1x6|segments-v/gap_factor=0|s0|v2,103.2,-3.4,1.0707,0.2422
-iso5009_399k_3x5,3,399492,other,X,3154,7794,7616,iso5009_399k_3x5|segments-mixed/gap_factor=0/bands-x|s0|v2,141.5,-2.3,1.0473,0.1715
+iso5009_399k_3x5,3,399492,other,X,3154,7794,7488,groups-h/gap_factor=0/seed=1,137.4,-3.9,1.0834,0.1774
 iso5009_524k_1d4,1,523520,other,clipped square,130878,151704,150770,iso5009_524k_1d4|segments-v/shift=0.25|s0|v2,15.2,-0.6,1.0124,0.7535
-iso8005_105k_2s3,2,105084,square,square,8752,11856,11650,iso8005_105k_2s3|groups-h/gap_factor=0|s0|v2,33.1,-1.7,1.0357,0.5644
+iso8005_105k_2s3,2,105084,square,square,8752,11856,11622,groups-h/gap_factor=1/seed=0,32.8,-2.0,1.0407,0.5671
 iso8005_26k_1p9,1,26271,other,plus,2914,5586,5446,iso8005_26k_1p9|segments-v/gap_factor=0|s0|v2,86.9,-2.5,1.0521,0.2863
 iso8005_26k_1s3,1,26271,square,square,8754,11742,11468,iso8005_26k_1s3|segments-mixed|s0|v2,31.0,-2.3,1.0484,0.5827
-iso8005_946k_3s3,3,945756,square,square,17496,24084,24084,iso8005_946k_3s3|segments-v/bands-y|s0|v2,37.7,0.0,1.0,0.5277
-isoa1099_401k_3d4,3,401040,other,clipped square,5552,8616,8474,isoa1099_401k_3d4|segments-v/gap_factor=0|s0|v2,52.6,-1.6,1.0338,0.4293
-isoa1099_928k_3l4,3,928224,other,diamond,12874,17508,17398,isoa1099_928k_3l4|segments-h/seed=2/kick_seconds=30/anneal=0.003|s2|v2,35.1,-0.6,1.0127,0.5476
+iso8005_946k_3s3,3,945756,square,square,17496,24084,23526,groups-h/gap_factor=0/seed=0,34.5,-2.3,1.048,0.5531
+isoa1099_401k_3d4,3,401040,other,clipped square,5552,8616,8214,groups-v/gap_factor=0/seed=0,47.9,-4.7,1.1003,0.4569
+isoa1099_928k_3l4,3,928224,other,diamond,12874,17508,17022,groups-h/gap_factor=0/seed=1,32.2,-2.8,1.0579,0.572
 isoa1301_26k_1l4,1,25624,other,diamond,6404,8018,7958,isoa1301_26k_1l4|segments-h/gap_factor=0|s0|v2,24.3,-0.7,1.0151,0.6476
-isoa1301_44k_2p4,2,44440,other,plus,2772,3854,3854,isoa1301_44k_2p4|segments-v/bands-x|s0|v2,39.0,0.0,1.0,0.5173
-isoa18569_45k_2d4,2,44632,other,clipped square,2784,5244,5172,isoa18569_45k_2d4|segments-h/gap_factor=0|s0|v2,85.8,-1.4,1.028,0.2897
-isoa18569_45k_2x5,2,44632,other,X,1588,4280,4280,isoa18569_45k_2x5|segments-v/bands-x|s0|v2,169.5,0.0,1.0,0.1377
-isoa22945_110k_2x10,2,109636,other,X,1708,5754,5654,isoa22945_110k_2x10|segments-h/gap_factor=1|s0|v2,231.0,-1.7,1.0357,0.0913
-isoa22945_6183k_3l3,3,6183072,other,diamond,114492,171640,170100,isoa22945_6183k_3l3|segments-v/gap_factor=1|s0|v2,48.6,-0.9,1.0182,0.453
-isoa22945_987k_3x10,3,986724,other,X,3408,11556,11430,isoa22945_987k_3x10|segments-h/gap_factor=0/kick_seconds=60|s0|v2,235.4,-1.1,1.0222,0.0889
+isoa1301_44k_2p4,2,44440,other,plus,2772,3854,3768,groups-h/gap_factor=1/seed=0,35.9,-2.2,1.0462,0.5412
+isoa18569_45k_2d4,2,44632,other,clipped square,2784,5244,5006,groups-h/gap_factor=0/seed=1,79.8,-4.5,1.0973,0.3093
+isoa18569_45k_2x5,2,44632,other,X,1588,4280,4092,groups-h/gap_factor=0/seed=1,157.7,-4.4,1.094,0.1506
+isoa22945_110k_2x10,2,109636,other,X,1708,5754,5620,segments-mixed/gap_factor=0/bands-y,229.0,-2.3,1.0483,0.0924
+isoa22945_6183k_3l3,3,6183072,other,diamond,114492,171640,167784,groups-v/gap_factor=0/seed=1,46.5,-2.2,1.0465,0.4656
+isoa22945_987k_3x10,3,986724,other,X,3408,11556,11426,segments-mixed/gap_factor=2,235.3,-1.1,1.0229,0.089
 isoa4425_26k_1l4,1,26127,other,diamond,6530,9344,9188,isoa4425_26k_1l4|segments-h/gap_factor=0|s0|v2,40.7,-1.7,1.0342,0.5051
-isoa4425_45k_2l5,2,44652,other,diamond,2228,4030,3992,isoa4425_45k_2l5|segments-h/gap_factor=1|s0|v2,79.2,-0.9,1.0191,0.3115
-isoa4725_11k_1l4,1,11110,other,diamond,2776,4300,4224,isoa4725_11k_1l4|segments-v/gap_factor=1|s0|v2,52.2,-1.8,1.0363,0.4319
-isoa4725_11k_1l5,1,11110,other,diamond,2220,3864,3760,isoa4725_11k_1l5|segments-v/gap_factor=1|s0|v2,69.4,-2.7,1.0561,0.3486
-isoa4725_400k_3l4,3,399960,other,diamond,5538,8944,8694,isoa4725_400k_3l4|groups-v/gap_factor=0|s0|v2,57.0,-2.8,1.0583,0.4058
-isoa4725_44k_2l4,2,44440,other,diamond,2772,4424,4386,isoa4725_44k_2l4|segments-h/gap_factor=0|s0|v2,58.2,-0.9,1.0174,0.3994
+isoa4425_45k_2l5,2,44652,other,diamond,2228,4030,3906,groups-v/gap_factor=0/seed=1,75.3,-3.1,1.0645,0.3254
+isoa4725_11k_1l4,1,11110,other,diamond,2776,4300,4208,segments-mixed/gap_factor=0/tile_lanes=2/segment_cost=4,51.6,-2.1,1.0442,0.4352
+isoa4725_11k_1l5,1,11110,other,diamond,2220,3864,3716,segments-mixed/gap_factor=0,67.4,-3.8,1.0812,0.3569
+isoa4725_400k_3l4,3,399960,other,diamond,5538,8944,8556,groups-v/gap_factor=1/seed=0,54.5,-4.3,1.0928,0.419
+isoa4725_44k_2l4,2,44440,other,diamond,2772,4424,4280,groups-v/gap_factor=0/seed=1,54.4,-3.3,1.0684,0.4195
 jupiter0010000_14k_1d5,1,13830,other,clipped square,2762,3616,3536,jupiter0010000_14k_1d5|groups-v/gap_factor=0|s0|v2,28.0,-2.2,1.0458,0.6101
-lap7454_1629k_3d10,3,1629072,other,clipped square,9004,14160,14010,lap7454_1629k_3d10|segments-h/gap_factor=1|s0|v2,55.6,-1.1,1.0215,0.413
-lsb22777_67k_2x6,2,67024,other,X,2088,4142,4018,lsb22777_67k_2x6|segments-h/gap_factor=0|s0|v2,92.4,-3.0,1.0627,0.27
-lsn3119_105k_2p3,2,105300,other,plus,8772,12496,12380,lsn3119_105k_2p3|segments-h/gap_factor=0|s0|v2,41.1,-0.9,1.0188,0.5021
+lap7454_1629k_3d10,3,1629072,other,clipped square,9004,14160,13692,groups-v/gap_factor=0/seed=1,52.1,-3.3,1.0695,0.4325
+lsb22777_67k_2x6,2,67024,other,X,2088,4142,3920,groups-h/gap_factor=0/seed=0,87.7,-5.4,1.1165,0.2837
+lsn3119_105k_2p3,2,105300,other,plus,8772,12496,12152,groups-v/gap_factor=0/seed=0,38.5,-2.8,1.0574,0.5211
 lsn3119_26k_1p3,1,26325,other,plus,8774,12354,12098,lsn3119_26k_1p3|segments-h/gap_factor=0/kick_seconds=60|s0|v2,37.9,-2.1,1.0428,0.526
-lsn3119_948k_3p3,3,947700,other,plus,17540,25296,24888,lsn3119_948k_3p3|segments-h/gap_factor=0|s0|v2,41.9,-1.6,1.0331,0.4967
+lsn3119_948k_3p3,3,947700,other,plus,17540,25296,24324,groups-h/gap_factor=0/seed=1,38.7,-3.8,1.0815,0.52
 lta3140_54k_2x5,2,54256,other,X,1932,3696,3652,lta3140_54k_2x5|groups-h/gap_factor=0|s0|v2,89.0,-1.2,1.0242,0.2799
 map_apt_15k_1l4,1,14517,other,diamond,3628,4636,4588,map_apt_15k_1l4|segments-h/gap_factor=1|s0|v2,26.5,-1.0,1.021,0.6253
-map_apt_523k_3p6,3,522612,other,plus,4820,7272,7200,map_apt_523k_3p6|segments-h/gap_factor=4|s0|v2,49.4,-1.0,1.0201,0.4482
-map_checkpoint_400k_2l6,2,400008,other,diamond,16660,19204,19070,map_checkpoint_400k_2l6|segments-h/gap_factor=0|s0|v2,14.5,-0.7,1.0141,0.7632
-map_fl4_20250813_1725_181k_2l6,2,180768,other,diamond,7524,9928,9928,map_fl4_20250813_1725_181k_2l6|segments-h/bands-y|s0|v2,32.0,0.0,1.0,0.5743
-map_fl4_20250813_1725_79k_2p6,2,78840,other,plus,3280,4932,4932,map_fl4_20250813_1725_79k_2p6|segments-h/bands-y|s0|v2,50.4,0.0,1.0,0.4423
-map_fl4_v2_901k_3x8,3,900648,other,X,4150,9464,9402,map_fl4_v2_901k_3x8|segments-h/shift=0.75|s0|v2,126.6,-0.7,1.0132,0.1948
+map_apt_523k_3p6,3,522612,other,plus,4820,7272,7056,groups-h/gap_factor=0/seed=0,46.4,-3.0,1.0622,0.4666
+map_checkpoint_400k_2l6,2,400008,other,diamond,16660,19204,18956,groups-h/gap_factor=0/seed=0,13.8,-1.3,1.0263,0.7724
+map_fl4_20250813_1725_181k_2l6,2,180768,other,diamond,7524,9928,9892,segments-mixed/gap_factor=0/bands-y,31.5,-0.4,1.0073,0.5785
+map_fl4_20250813_1725_79k_2p6,2,78840,other,plus,3280,4932,4750,groups-h/gap_factor=0/seed=1,44.8,-3.7,1.0781,0.4768
+map_fl4_v2_901k_3x8,3,900648,other,X,4150,9464,9168,groups-h/gap_factor=0/seed=0,120.9,-3.1,1.0656,0.2049
 map_frog_21k_1d7,1,20914,other,clipped square,2984,5112,4994,map_frog_21k_1d7|segments-h/gap_factor=0|s0|v2,67.4,-2.3,1.0478,0.357
 map_frog_48k_1x9,1,47639,other,X,3174,8640,8504,map_frog_48k_1x9|segments-h/gap_factor=0|s0|v2,167.9,-1.6,1.0322,0.1393
 map_lab_refined3_822k_3p6,3,822348,other,plus,7596,9348,9348,map_lab_refined3_822k_3p6|segments-v|s0|v2,23.1,0.0,1.0,0.6603
 map_new_fl4_10k_1d4,1,10073,other,clipped square,2516,3248,3224,map_new_fl4_10k_1d4|segments-v/gap_factor=0|s0|v2,28.1,-0.7,1.0149,0.609
-monalisa100k_389k_1l4,1,388671,other,diamond,97166,113746,113430,monalisa100k_389k_1l4|segments-h/gap_factor=0|s0|v2,16.7,-0.3,1.0056,0.7338
+monalisa100k_389k_1l4,1,388671,other,diamond,97166,113746,113312,segments-mixed/gap_factor=0/tile_lanes=2/segment_cost=4,16.6,-0.4,1.0077,0.7353
 nrw1379_14k_1d5,1,13514,other,clipped square,2700,3720,3658,nrw1379_14k_1d5|segments-v/gap_factor=0|s0|v2,35.5,-1.7,1.0342,0.5448
-octa136_26k_1d7,1,25596,other,clipped square,3652,5498,5386,octa136_26k_1d7|segments-h/gap_factor=0|s0|v2,47.5,-2.0,1.042,0.4598
-octa136_403k_3p4,3,403020,other,plus,5580,8208,8112,octa136_403k_3p4|segments-v/gap_factor=0|s0|v2,45.4,-1.2,1.0238,0.4732
-octa1392_103k_2p4,2,102512,other,plus,6402,8476,8476,octa1392_103k_2p4|segments-v/bands-x|s0|v2,32.4,0.0,1.0,0.5705
-octa1392_44k_2l5,2,44212,other,diamond,2206,3496,3496,octa1392_44k_2l5|segments-v|s0,58.5,0.0,1.0,0.3982
-octa14582_108k_2p7,2,107740,other,plus,3840,7894,7852,octa14582_108k_2p7|segments-v/gap_factor=0|s0|v2,104.5,-0.5,1.0107,0.2392
+octa136_26k_1d7,1,25596,other,clipped square,3652,5498,5384,segments-mixed/gap_factor=0,47.4,-2.1,1.0428,0.4601
+octa136_403k_3p4,3,403020,other,plus,5580,8208,8004,groups-v/gap_factor=0/seed=0,43.4,-2.5,1.0516,0.486
+octa1392_103k_2p4,2,102512,other,plus,6402,8476,8336,segments-mixed/gap_factor=0/bands-x,30.2,-1.7,1.0339,0.5898
+octa1392_44k_2l5,2,44212,other,diamond,2206,3496,3336,segments-mixed/gap_factor=0/bands-y,51.2,-4.6,1.0982,0.4373
+octa14582_108k_2p7,2,107740,other,plus,3840,7894,7686,segments-mixed/gap_factor=0/bands-x,100.2,-2.6,1.0549,0.2496
 octa14582_27k_1l9,1,26935,other,diamond,2990,6608,6448,octa14582_27k_1l9|segments-v/gap_factor=0|s0|v2,115.7,-2.4,1.0502,0.215
-octa14582_7203k_3s4,3,7203204,square,square,100022,139798,139798,octa14582_7203k_3s4|segments-v/bands-y|s0|v2,39.8,0.0,1.0,0.5119
+octa14582_7203k_3s4,3,7203204,square,square,100022,139798,138552,groups-v/gap_factor=1/seed=0,38.5,-0.9,1.0181,0.5212
 octa20637_1732k_2l5,2,1732376,other,diamond,86614,111114,109552,octa20637_1732k_2l5|segments-h/gap_factor=0/shift=0/bands-y|s0|v2,26.5,-1.4,1.0287,0.6251
-octa20637_44k_2d4,2,44456,other,clipped square,2774,4784,4784,octa20637_44k_2d4|segments-v/bands-y|s0|v2,72.5,0.0,1.0,0.3362
-octa2104_400k_3l3,3,400104,other,diamond,7400,11052,10844,octa2104_400k_3l3|segments-v/gap_factor=0|s0|v2,46.5,-1.9,1.0387,0.4657
-octa2104_8486k_3l8,3,8486028,other,diamond,58902,79272,78492,octa2104_8486k_3l8|segments-v/gap_factor=1|s0|v2,33.3,-1.0,1.02,0.5631
+octa20637_44k_2d4,2,44456,other,clipped square,2774,4784,4642,groups-h/gap_factor=1/seed=1,67.3,-3.0,1.0621,0.3571
+octa2104_400k_3l3,3,400104,other,diamond,7400,11052,10644,groups-h/gap_factor=0/seed=0,43.8,-3.7,1.0781,0.4833
+octa2104_8486k_3l8,3,8486028,other,diamond,58902,79272,77136,groups-v/gap_factor=0/seed=1,31.0,-2.7,1.0561,0.5831
 octa28351_397k_3d4,3,396828,other,clipped square,5494,11154,10338,octa28351_397k_3d4|groups-h/gap_factor=0|s0|v2,88.2,-7.3,1.1641,0.2824
-octa28351_946k_3x7,3,946404,other,X,4762,14864,14526,octa28351_946k_3x7|groups-v/gap_factor=0|s0|v2,205.0,-2.3,1.0471,0.1075
-octa29860_334k_3p4,3,333612,other,plus,4616,9606,9324,octa29860_334k_3p4|segments-v/shift=0.5|s0|v2,102.0,-2.9,1.0614,0.2451
-octa29860_37k_2p4,2,37068,other,plus,2312,4676,4664,octa29860_37k_2p4|segments-v/shift=0.5|s0|v2,101.7,-0.3,1.0052,0.2457
-octa29860_9267_1p4,1,9267,other,plus,2314,4680,4468,octa29860_9267_1p4|segments-h/gap_factor=0|s0|v2,93.1,-4.5,1.0971,0.2682
+octa28351_946k_3x7,3,946404,other,X,4762,14864,14424,groups-h/gap_factor=1/seed=1,202.9,-3.0,1.0619,0.109
+octa29860_334k_3p4,3,333612,other,plus,4616,9606,9242,segments-mixed/gap_factor=0/bands-y,100.2,-3.8,1.0803,0.2495
+octa29860_37k_2p4,2,37068,other,plus,2312,4676,4596,segments-mixed/gap_factor=0/bands-y,98.8,-1.7,1.0351,0.2531
+octa29860_9267_1p4,1,9267,other,plus,2314,4680,4466,segments-mixed/tile_lanes=16/segment_cost=4,93.0,-4.6,1.0981,0.2685
 octa29860_979k_3p10,3,978588,other,plus,5400,11550,11166,octa29860_979k_3p10|segments-v/shift=0.5|s0|v2,106.8,-3.3,1.07,0.2339
 octa3435_100k_1p12,1,100072,other,plus,8334,13158,12922,octa3435_100k_1p12|segments-h/gap_factor=0|s0|v2,55.1,-1.8,1.0369,0.416
-octa3435_925k_3d6,3,925344,other,clipped square,8536,13352,13062,octa3435_925k_3d6|segments-h/gap_factor=0|s0|v2,53.0,-2.2,1.0449,0.4271
-octa383_102k_2d6,2,101736,other,clipped square,4230,5872,5872,octa383_102k_2d6|segments-v/bands-x|s0|v2,38.8,0.0,1.0,0.5189
+octa3435_925k_3d6,3,925344,other,clipped square,8536,13352,12906,groups-v/gap_factor=1/seed=1,51.2,-3.3,1.0703,0.4374
+octa383_102k_2d6,2,101736,other,clipped square,4230,5872,5776,groups-v/gap_factor=0/seed=1,36.5,-1.6,1.0335,0.5363
 octa383_25k_1l9,1,25434,other,diamond,2822,4518,4396,octa383_25k_1l9|segments-v/gap_factor=0|s0|v2,55.8,-2.7,1.0563,0.4121
-octa6025_3600k_3p12,3,3599532,other,plus,16626,36482,35568,octa6025_3600k_3p12|segments-v/gap_factor=1|s0|v2,113.9,-2.5,1.0521,0.2185
-octa6025_952k_3x9,3,951948,other,X,3508,13362,12810,octa6025_952k_3x9|groups-h/gap_factor=0|s0|v2,265.2,-4.1,1.088,0.075
-octa84581_128k_2l6,2,128112,other,diamond,5330,11714,11714,octa84581_128k_2l6|segments-v/bands-x|s0|v2,119.8,0.0,1.0,0.207
-octa84581_26k_2s3,2,26336,square,square,2190,4688,4548,octa84581_26k_2s3|segments-v/gap_factor=0|s0|v2,107.7,-3.0,1.0625,0.2319
-paris0003000_2020k_3x10,3,2020212,other,X,6996,17088,16680,paris0003000_2020k_3x10|segments-v/gap_factor=0|s0|v2,138.4,-2.4,1.0495,0.1759
+octa6025_3600k_3p12,3,3599532,other,plus,16626,36482,34446,groups-h/gap_factor=0/seed=0,107.2,-5.6,1.1217,0.233
+octa6025_952k_3x9,3,951948,other,X,3508,13362,12774,groups-h/gap_factor=1/seed=1,264.1,-4.4,1.0942,0.0754
+octa84581_128k_2l6,2,128112,other,diamond,5330,11714,11622,groups-v/gap_factor=1/seed=0,118.0,-0.8,1.0159,0.2103
+octa84581_26k_2s3,2,26336,square,square,2190,4688,4450,groups-v/gap_factor=0/seed=0,103.2,-5.1,1.1098,0.2422
+paris0003000_2020k_3x10,3,2020212,other,X,6996,17088,16152,groups-v/gap_factor=0/seed=1,130.9,-5.5,1.1193,0.1876
 pbh30440_67k_2l7,2,66540,other,diamond,2370,3304,3304,pbh30440_67k_2l7|segments-h/bands-y|s0|v2,39.4,0.0,1.0,0.5145
 pcb1173_41k_1x11,1,41283,other,X,2424,4684,4682,pcb1173_41k_1x11|segments-v/gap_factor=0|s0|v2,93.2,-0.0,1.0009,0.268
-pds2566_826k_3x8,3,825552,other,X,3802,8568,8394,pds2566_826k_3x8|segments-h/gap_factor=1|s0|v2,120.8,-2.0,1.0419,0.2052
-pjh17845_13k_1s4,1,12508,square,square,3124,3994,3904,pjh17845_13k_1s4|segments-v/gap_factor=1|s0|v2,25.0,-2.3,1.0466,0.6403
-pla85900_7154k_3p8,3,7154388,other,plus,49648,62520,62080,pla85900_7154k_3p8|segments-v/gap_factor=1|s0|v2,25.0,-0.7,1.0142,0.6396
-pntset0040000_90k_2s3,2,90448,square,square,7532,10420,10168,pntset0040000_90k_2s3|segments-h/gap_factor=1|s0|v2,35.0,-2.4,1.0502,0.5487
-pntset0090000_6809k_3d6,3,6809040,other,clipped square,63016,78308,76722,pntset0090000_6809k_3d6|segments-mixed/gap_factor=0|s0|v2,21.8,-2.0,1.0418,0.6746
-pntset0200000_1140k_2x6,2,1140164,other,X,35624,58394,57454,pntset0200000_1140k_2x6|segments-v/gap_factor=0/shift=0/bands-x|s0|v2,61.3,-1.6,1.033,0.3845
-pr1002_332k_2d12,2,331668,other,clipped square,6892,9544,9544,pr1002_332k_2d12|segments-h/bands-y|s0|v2,38.5,0.0,1.0,0.5215
+pds2566_826k_3x8,3,825552,other,X,3802,8568,8130,groups-h/gap_factor=0/seed=1,113.8,-5.1,1.1107,0.2187
+pjh17845_13k_1s4,1,12508,square,square,3124,3994,3902,segments-mixed/gap_factor=0/tile_lanes=2/segment_cost=4,24.9,-2.3,1.0477,0.641
+pla85900_7154k_3p8,3,7154388,other,plus,49648,62520,61656,groups-v/gap_factor=0/seed=1,24.2,-1.4,1.0282,0.6484
+pntset0040000_90k_2s3,2,90448,square,square,7532,10420,9990,groups-h/gap_factor=0/seed=1,32.6,-4.1,1.0879,0.5684
+pntset0090000_6809k_3d6,3,6809040,other,clipped square,63016,78308,75738,groups-v/gap_factor=1/seed=1,20.2,-3.3,1.069,0.6923
+pntset0200000_1140k_2x6,2,1140164,other,X,35624,58394,57400,groups-v/gap_factor=0/seed=1,61.1,-1.7,1.0349,0.3852
+pr1002_332k_2d12,2,331668,other,clipped square,6892,9544,9384,segments-mixed/gap_factor=0/bands-y,36.2,-1.7,1.0344,0.5394
 protein0090000_463k_1p6,1,463463,other,plus,77242,90638,90260,protein0090000_463k_1p6|segments-mixed/gap_factor=0/tile_lanes=2/segment_cost=4|s0|v2,16.9,-0.4,1.0084,0.7323
-rbw2481_964k_3s6,3,963936,square,square,8890,12096,11578,rbw2481_964k_3s6|segments-h/gap_factor=0|s0|v2,30.2,-4.3,1.0915,0.5896
+rbw2481_964k_3s6,3,963936,square,square,8890,12096,11544,groups-h/gap_factor=0/seed=1,29.9,-4.6,1.0979,0.593
 rby1599_17k_1x6,1,17143,other,X,2140,4212,4018,rby1599_17k_1x6|segments-h/gap_factor=0|s0|v2,87.8,-4.6,1.0989,0.2837
 skylake0001000_29k_1x10,1,28668,other,X,1790,3896,3878,skylake0001000_29k_1x10|segments-v/gap_factor=0|s0|v2,116.6,-0.5,1.0093,0.2131
-smo10575_26k_2s3,2,25856,square,square,2150,4024,3896,smo10575_26k_2s3|segments-v/gap_factor=0|s0|v2,81.2,-3.2,1.0668,0.3045
-smo10575_6398k_3x9,3,6397632,other,X,23678,69594,68250,smo10575_6398k_3x9|segments-h/gap_factor=1|s0|v2,188.2,-1.9,1.0398,0.1204
+smo10575_26k_2s3,2,25856,square,square,2150,4024,3728,groups-v/gap_factor=0/seed=1,73.4,-7.4,1.1651,0.3326
+smo10575_6398k_3x9,3,6397632,other,X,23678,69594,67410,groups-h/gap_factor=0/seed=0,184.7,-3.1,1.0658,0.1234
 smo10575_949k_3p6,3,949176,other,plus,8770,16956,16892,smo10575_949k_3p6|segments-v/shift=0.5|s0|v2,92.6,-0.4,1.0076,0.2695
-smo1523_102k_2d6,2,101536,other,clipped square,4220,6188,6108,smo1523_102k_2d6|segments-h/shift=0.5|s0|v2,44.7,-1.3,1.0264,0.4773
-smo1523_400k_3x3,3,399996,square,X,7390,9662,9662,smo1523_400k_3x3|segments-h|s0|v2,30.7,0.0,1.0,0.585
-smo3467_102k_2s6,2,102096,square,square,4242,6530,6530,smo3467_102k_2s6|segments-h/bands-y|s0|v2,53.9,0.0,1.0,0.422
+smo1523_102k_2d6,2,101536,other,clipped square,4220,6188,5940,groups-h/gap_factor=0/seed=1,40.8,-4.0,1.0852,0.5047
+smo1523_400k_3x3,3,399996,square,X,7390,9662,9450,groups-h/gap_factor=0/seed=1,27.9,-2.2,1.0454,0.6115
+smo3467_102k_2s6,2,102096,square,square,4242,6530,6404,segments-mixed/gap_factor=0/bands-y,51.0,-1.9,1.0397,0.4388
 smo3467_11k_1x5,1,11088,other,X,1582,3676,3564,smo3467_11k_1x5|segments-h/gap_factor=0|s0|v2,125.3,-3.0,1.0638,0.197
-smo45215_43k_2p6,2,42524,other,plus,1766,3654,3584,smo45215_43k_2p6|segments-v/gap_factor=0|s0|v2,102.9,-1.9,1.0394,0.2428
-smo45215_954k_3d3,3,954036,square,clipped square,17650,27556,26166,smo45215_954k_3d3|segments-v/gap_factor=0/shift=0/bands-y|s0|v2,48.2,-5.0,1.1091,0.455
+smo45215_43k_2p6,2,42524,other,plus,1766,3654,3518,segments-mixed/gap_factor=0/bands-x,99.2,-3.7,1.0788,0.252
+smo45215_954k_3d3,3,954036,square,clipped square,17650,27556,25866,groups-h/gap_factor=0/seed=0,46.5,-6.1,1.1349,0.4656
 smo4975_26k_1p9,1,26167,other,plus,2904,7266,6974,smo4975_26k_1p9|segments-h/gap_factor=0|s0|v2,140.2,-4.0,1.0855,0.1734
 smo4975_487k_1x6,1,486650,other,X,60828,100774,99904,smo4975_487k_1x6|segments-v/seed=2/kick_seconds=30/anneal=0.003|s2|v2,64.2,-0.9,1.0175,0.3707
 smo64431_103k_2l9,2,102780,other,diamond,2846,5632,5406,smo64431_103k_2l9|groups-h/gap_factor=0|s0|v2,90.0,-4.0,1.0854,0.2772
-smo64431_103k_2x5,2,102780,other,X,3666,7822,7822,smo64431_103k_2x5|segments-h/bands-y|s0|v2,113.4,0.0,1.0,0.2197
+smo64431_103k_2x5,2,102780,other,X,3666,7822,7642,segments-mixed/gap_factor=0/bands-y,108.5,-2.3,1.0477,0.2301
 smo64431_26k_1l9,1,25695,other,diamond,2852,5410,5318,smo64431_26k_1l9|segments-v/gap_factor=0|s0|v2,86.5,-1.7,1.0349,0.2876
-smo64431_925k_3l9,3,925020,other,diamond,5684,11604,11256,smo64431_925k_3l9|segments-h/gap_factor=0|s0|v2,98.0,-3.0,1.0628,0.255
-smo64863_1931k_2s3,2,1930932,square,square,160906,202620,201242,smo64863_1931k_2s3|segments-v/gap_factor=0/shift=0/bands-y|s0|v2,25.1,-0.7,1.0137,0.6393
+smo64431_925k_3l9,3,925020,other,diamond,5684,11604,11064,groups-h/gap_factor=1/seed=1,94.7,-4.7,1.1,0.2639
+smo64863_1931k_2s3,2,1930932,square,square,160906,202620,201230,groups-h/gap_factor=1/seed=0,25.1,-0.7,1.0139,0.6394
 smo64863_393k_3p6,3,393228,other,plus,3622,8664,8340,smo64863_393k_3p6|groups-h/gap_factor=0|s0|v2,130.3,-3.7,1.0792,0.1886
-smo860323_6491_1d3,1,6491,square,clipped square,2162,3988,3750,smo860323_6491_1d3|segments-h/gap_factor=0|s0|v2,73.5,-6.0,1.131,0.3324
+smo860323_6491_1d3,1,6491,square,clipped square,2162,3988,3744,segments-mixed/gap_factor=0/tile_lanes=2/segment_cost=4,73.2,-6.1,1.1346,0.3335
 smo860323_9291_1s4,1,9291,square,square,2320,4444,4206,smo860323_9291_1s4|segments-v/gap_factor=0|s0|v2,81.3,-5.4,1.1164,0.3043
 smr10271_103k_2p4,2,102676,other,plus,6412,8988,8988,smr10271_103k_2p4|segments-h/bands-x|s0|v2,40.2,0.0,1.0,0.5089
-smr10271_924k_3s5,3,924084,square,square,10238,15018,15018,smr10271_924k_3s5|segments-h/bands-x|s0|v2,46.7,0.0,1.0,0.4647
-smr12511_400k_3x4,3,399672,square,X,5528,8268,8190,smr12511_400k_3x4|groups-h/gap_factor=0|s0|v2,48.2,-0.9,1.0191,0.4556
-smr12511_915k_3p9,3,915264,other,plus,5620,10554,10368,smr12511_915k_3p9|segments-h/gap_factor=1|s0|v2,84.5,-1.8,1.0362,0.2938
+smr10271_924k_3s5,3,924084,square,square,10238,15018,14694,groups-v/gap_factor=0/seed=1,43.5,-2.2,1.0446,0.4855
+smr12511_400k_3x4,3,399672,square,X,5528,8268,8088,groups-h/gap_factor=1/seed=0,46.3,-2.2,1.045,0.4671
+smr12511_915k_3p9,3,915264,other,plus,5620,10554,9960,groups-h/gap_factor=0/seed=1,77.2,-5.6,1.1228,0.3184
 smr16111_11k_1d4,1,11129,other,clipped square,2780,5122,4884,smr16111_11k_1d4|segments-v/gap_factor=0|s0|v2,75.7,-4.6,1.0998,0.324
 smr16111_26k_1s6,1,25804,square,square,4296,7362,7074,smr16111_26k_1s6|segments-v/gap_factor=0|s0|v2,64.7,-3.9,1.0831,0.3688
 smr16111_876k_1d10,1,876295,other,clipped square,87622,116108,116108,smr16111_876k_1d10|segments-v|s0|v2,32.5,0.0,1.0,0.5695
-smr23551_100k_1l12,1,100011,other,diamond,8328,12012,11940,smr23551_100k_1l12|segments-h/gap_factor=0|s0|v2,43.4,-0.6,1.0121,0.4865
-smr23551_914k_3s6,3,913752,square,square,8426,12024,11946,smr23551_914k_3s6|segments-v/shift=0.5|s0|v2,41.8,-0.6,1.0131,0.4975
+smr23551_100k_1l12,1,100011,other,diamond,8328,12012,11886,segments-mixed/gap_factor=0,42.7,-1.0,1.0213,0.4909
+smr23551_914k_3s6,3,913752,square,square,8426,12024,11616,groups-v/gap_factor=1/seed=0,37.9,-3.4,1.0715,0.5262
 smr37503_26k_1x7,1,25527,other,X,2318,4876,4726,smr37503_26k_1x7|segments-h/gap_factor=0|s0|v2,103.9,-3.1,1.0645,0.2406
-smr37503_44k_2d4,2,44368,other,clipped square,2768,3760,3748,smr37503_44k_2d4|segments-v/shift=0.25|s0|v2,35.4,-0.3,1.0064,0.5454
-smr40575_102k_2d5,2,102236,other,clipped square,5104,6596,6564,smr40575_102k_2d5|segments-v/shift=0.75|s0|v2,28.6,-0.5,1.0098,0.6046
+smr37503_44k_2d4,2,44368,other,clipped square,2768,3760,3656,segments-mixed/gap_factor=0/bands-y,32.1,-2.8,1.0577,0.5732
+smr40575_102k_2d5,2,102236,other,clipped square,5104,6596,6544,segments-mixed/gap_factor=0/bands-y,28.2,-0.8,1.016,0.6083
 smr40575_401k_3d4,3,400536,other,clipped square,5546,7680,7512,smr40575_401k_3d4|segments-v/shift=0.5|s0|v2,35.4,-2.2,1.0452,0.5451
-smr4703_2030k_2l11,2,2029788,other,diamond,46122,59936,59936,smr4703_2030k_2l11|segments-v/bands-x|s0|v2,30.0,0.0,1.0,0.5922
-smr4703_3600k_3s8,3,3600072,square,square,24954,33480,33480,smr4703_3600k_3s8|segments-h/bands-x|s0|v2,34.2,0.0,1.0,0.5555
+smr4703_2030k_2l11,2,2029788,other,diamond,46122,59936,59232,groups-v/gap_factor=0/seed=1,28.4,-1.2,1.0239,0.6063
+smr4703_3600k_3s8,3,3600072,square,square,24954,33480,32922,groups-v/gap_factor=0/seed=1,31.9,-1.7,1.0342,0.5745
 smr51583_11k_1l4,1,11094,other,diamond,2772,5156,5000,smr51583_11k_1l4|segments-v/gap_factor=0|s0|v2,80.4,-3.0,1.0634,0.3074
-smr51583_400k_2s8,2,399584,square,square,12472,20438,20378,smr51583_400k_2s8|segments-v/gap_factor=1|s0|v2,63.4,-0.3,1.0059,0.3746
-smr93519_26k_1s5,1,26205,square,square,5236,9230,8788,smr93519_26k_1s5|segments-h/gap_factor=0|s0|v2,67.8,-4.8,1.1031,0.355
-smr93519_395k_3d5,3,395136,other,clipped square,4366,9440,9182,smr93519_395k_3d5|segments-h/gap_factor=1|s0|v2,110.3,-2.7,1.057,0.2261
-spg-c-poly6002_111k_2s4,2,110588,square,square,6904,10286,9428,spg-c-poly6002_111k_2s4|segments-h/gap_factor=1|s0|v2,36.6,-8.3,1.1903,0.5362
+smr51583_400k_2s8,2,399584,square,square,12472,20438,20042,groups-v/gap_factor=1/seed=1,60.7,-1.9,1.0399,0.3872
+smr93519_26k_1s5,1,26205,square,square,5236,9230,8774,segments-mixed/gap_factor=0/tile_lanes=2/segment_cost=4,67.6,-4.9,1.1066,0.3561
+smr93519_395k_3d5,3,395136,other,clipped square,4366,9440,8796,groups-h/gap_factor=0/seed=1,101.5,-6.8,1.1518,0.2464
+spg-c-poly6002_111k_2s4,2,110588,square,square,6904,10286,9228,groups-h/gap_factor=1/seed=0,33.7,-10.3,1.2424,0.5597
 spg-c-poly6002_28k_1s4,1,27647,square,square,6908,10292,9176,spg-c-poly6002_28k_1s4|segments-h/gap_factor=0|s0|v2,32.8,-10.8,1.258,0.5668
-spg-c-poly6002_33k_2l5,2,32560,other,diamond,1624,2784,2716,spg-c-poly6002_33k_2l5|segments-h/gap_factor=0|s0|v2,67.2,-2.4,1.0507,0.3575
+spg-c-poly6002_33k_2l5,2,32560,other,diamond,1624,2784,2652,groups-h/gap_factor=0/seed=1,63.3,-4.7,1.102,0.375
 spg-c-poly6002_515k_1l9,1,514521,other,diamond,57166,87220,85670,spg-c-poly6002_515k_1l9|segments-h/gap_factor=1|s0|v2,49.9,-1.8,1.0365,0.4453
 spg-c-poly6002_995k_3s4,3,995292,square,square,13800,20844,18682,spg-c-poly6002_995k_3s4|segments-h/gap_factor=0/shift=0/bands-x|s0|v2,35.4,-10.4,1.2448,0.5456
-sra104815_5458k_3l7,3,5458248,other,diamond,43298,64464,62556,sra104815_5458k_3l7|segments-mixed/gap_factor=0/tile_lanes=2/segment_cost=4|s0|v2,44.5,-3.0,1.0619,0.4791
-srpg110103_32k_1l3,1,31829,other,diamond,10608,20438,19802,srpg110103_32k_1l3|segments-v/gap_factor=0|s0|v2,86.7,-3.1,1.0653,0.287
+sra104815_5458k_3l7,3,5458248,other,diamond,43298,64464,62196,groups-v/gap_factor=0/seed=0,43.6,-3.5,1.0743,0.4846
+srpg110103_32k_1l3,1,31829,other,diamond,10608,20438,19770,segments-mixed/gap_factor=0,86.4,-3.3,1.0687,0.2879
 srpg110103_7405_1x3,1,7405,square,X,2466,3580,3522,srpg110103_7405_1x3|segments-h/gap_factor=1|s0|v2,42.8,-1.6,1.0332,0.4902
-srpg115_101k_2p5,2,100908,other,plus,5038,6074,6074,srpg115_101k_2p5|segments-h/bands-y|s0|v2,20.6,0.0,1.0,0.688
+srpg115_101k_2p5,2,100908,other,plus,5038,6074,6054,segments-mixed/gap_factor=0/bands-y,20.2,-0.3,1.0066,0.6925
 srpg115_908k_3l9,3,908172,other,diamond,5580,7944,7848,srpg115_908k_3l9|segments-v/gap_factor=0|s0|v2,40.6,-1.2,1.0246,0.5055
 srpg126_25k_1d5,1,25395,other,clipped square,5076,6838,6768,srpg126_25k_1d5|segments-h/gap_factor=0|s0|v2,33.3,-1.0,1.0208,0.5625
 srpg126_25k_1p5,1,25395,other,plus,5076,6838,6768,srpg126_25k_1p5|segments-h/gap_factor=0|s0|v2,33.3,-1.0,1.0208,0.5625
-srpg133_3600k_3d12,3,3599676,other,clipped square,16610,26088,26088,srpg133_3600k_3d12|segments-v/bands-x|s0|v2,57.1,0.0,1.0,0.4054
-srpg133_44k_2l5,2,44472,other,diamond,2220,3632,3632,srpg133_44k_2l5|segments-v/bands-x|s0|v2,63.6,0.0,1.0,0.3736
-srpg22373_26k_1p3,1,25646,other,plus,8548,11290,11128,srpg22373_26k_1p3|segments-v/gap_factor=1|s0|v2,30.2,-1.4,1.0293,0.5901
+srpg133_3600k_3d12,3,3599676,other,clipped square,16610,26088,25224,groups-v/gap_factor=1/seed=0,51.9,-3.3,1.0697,0.4336
+srpg133_44k_2l5,2,44472,other,diamond,2220,3632,3584,groups-v/gap_factor=1/seed=0,61.4,-1.3,1.027,0.3837
+srpg22373_26k_1p3,1,25646,other,plus,8548,11290,11086,segments-mixed/gap_factor=0/tile_lanes=2/segment_cost=4,29.7,-1.8,1.0371,0.5945
 srpg22373_399k_3d4,3,398880,other,clipped square,5522,8760,8388,srpg22373_399k_3d4|groups-h/gap_factor=0|s0|v2,51.9,-4.2,1.0907,0.4334
 srpg224_11k_1d4,1,11131,other,clipped square,2780,4208,4102,srpg224_11k_1d4|segments-h/gap_factor=0|s0|v2,47.6,-2.5,1.0523,0.4593
-srpg224_917k_3s4,3,917244,square,square,12716,17012,16886,srpg224_917k_3s4|segments-v/shift=0.5|s0|v2,32.8,-0.7,1.015,0.5671
+srpg224_917k_3s4,3,917244,square,square,12716,17012,16596,groups-v/gap_factor=0/seed=0,30.5,-2.4,1.0508,0.5871
 srpg2839_25k_1d7,1,25298,other,clipped square,3610,4892,4862,srpg2839_25k_1d7|segments-mixed/gap_factor=0/tile_lanes=2/segment_cost=4|s0|v2,34.7,-0.6,1.0124,0.5513
-srpg2839_25k_1d7b,1,25298,other,clipped square,3610,4892,4874,srpg2839_25k_1d7b|segments-v/gap_factor=1|s0|v2,35.0,-0.4,1.0074,0.5486
-srpg2991_27k_1l5,1,26779,other,diamond,5354,11992,11502,srpg2991_27k_1l5|segments-h/gap_factor=0|s0|v2,114.8,-4.1,1.087,0.2167
-srpg2991_46k_2x4,2,45816,square,X,2856,5320,5304,srpg2991_46k_2x4|segments-h/shift=0.5|s0|v2,85.7,-0.3,1.006,0.2899
+srpg2839_25k_1d7b,1,25298,other,clipped square,3610,4892,4862,segments-mixed/gap_factor=0/tile_lanes=2/segment_cost=4,34.7,-0.6,1.0124,0.5513
+srpg2991_27k_1l5,1,26779,other,diamond,5354,11992,11482,segments-mixed/gap_factor=0,114.5,-4.3,1.0908,0.2174
+srpg2991_46k_2x4,2,45816,square,X,2856,5320,5100,groups-v/gap_factor=0/seed=1,78.6,-4.1,1.0881,0.3136
 srpg41087_15k_1d7,1,15408,other,clipped square,2196,5288,5130,srpg41087_15k_1d7|segments-h/gap_factor=0|s0|v2,133.6,-3.0,1.0625,0.1832
 srpg41087_15k_1s5,1,15408,square,square,3078,6794,6480,srpg41087_15k_1s5|groups-h/gap_factor=0|s0|v2,110.5,-4.6,1.0993,0.2256
-srpg41087_555k_3s5,3,554688,square,square,6134,14254,13680,srpg41087_555k_3s5|segments-v/gap_factor=0|s0|v2,123.0,-4.0,1.0857,0.2011
-srpg41087_62k_2s5,2,61632,square,square,3072,6954,6674,srpg41087_62k_2s5|groups-h/gap_factor=0|s0|v2,117.3,-4.0,1.0857,0.2119
+srpg41087_555k_3s5,3,554688,square,square,6134,14254,13524,groups-h/gap_factor=1/seed=0,120.5,-5.1,1.1109,0.2057
+srpg41087_62k_2s5,2,61632,square,square,3072,6954,6594,groups-h/gap_factor=1/seed=1,114.6,-5.2,1.1122,0.217
 srpg5461_22k_1l3,1,22251,other,diamond,7416,14744,13840,srpg5461_22k_1l3|segments-cells/gap_factor=0|s0|v2,86.6,-6.1,1.1349,0.2871
-srpg5461_801k_3l3,3,801036,other,diamond,14824,30362,29100,srpg5461_801k_3l3|segments-v/gap_factor=0|s0|v2,96.3,-4.2,1.0886,0.2595
+srpg5461_801k_3l3,3,801036,other,diamond,14824,30362,28488,groups-h/gap_factor=1/seed=0,92.2,-6.2,1.1359,0.2708
 srpg5461_82k_1s11,1,81538,square,square,7402,19432,17974,srpg5461_82k_1s11|segments-v/gap_factor=0|s0|v2,142.8,-7.5,1.1688,0.1696
-srpg5461_89k_2l3,2,89004,other,diamond,7414,14808,14476,srpg5461_89k_2l3|segments-v/gap_factor=0|s0|v2,95.3,-2.2,1.0464,0.2623
+srpg5461_89k_2l3,2,89004,other,diamond,7414,14808,14144,groups-h/gap_factor=1/seed=0,90.8,-4.5,1.0961,0.2748
 srpg8529_26k_1d4,1,26139,other,clipped square,6532,11308,11052,srpg8529_26k_1d4|segments-v/gap_factor=1|s0|v2,69.2,-2.3,1.0469,0.3493
-srpg8529_28k_2s2,2,28440,square,square,3552,4864,4864,srpg8529_28k_2s2|segments-v/bands-y|s0|v2,36.9,0.0,1.0,0.5333
+srpg8529_28k_2s2,2,28440,square,square,3552,4864,4832,groups-v/gap_factor=1/seed=1,36.0,-0.7,1.0133,0.5404
 sun0100000_1000k_1p8,1,1000137,other,plus,125012,147144,147128,sun0100000_1000k_1p8|segments-h/gap_factor=1|s0|v2,17.7,-0.0,1.0002,0.722
-u1817_69k_2x5,2,69392,other,X,2474,4604,4592,u1817_69k_2x5|segments-v/gap_factor=1|s0|v2,85.6,-0.3,1.0052,0.2903
+u1817_69k_2x5,2,69392,other,X,2474,4604,4508,groups-h/gap_factor=0/seed=1,82.2,-2.1,1.043,0.3012
 uniform00030001_23k_1x8,1,23488,other,X,1954,3738,3666,uniform00030001_23k_1x8|segments-h/gap_factor=0|s0|v2,87.6,-1.9,1.0397,0.2841
 uniform00030001_846k_3x8,3,845568,other,X,3896,7692,7692,uniform00030001_846k_3x8|segments-h|s0|v2,97.4,0.0,1.0,0.2565
 uniform00030001_94k_2x8,2,93952,other,X,1952,3748,3652,uniform00030001_94k_2x8|groups-h/gap_factor=0|s0|v2,87.1,-2.6,1.0533,0.2857
 uniform00800001_708k_1s5,1,708386,square,square,141674,161714,161606,uniform00800001_708k_1s5|segments-h/seed=3/kick_seconds=30|s3|v2,14.1,-0.1,1.0013,0.7685
-uniform00900002_7283k_3p8,3,7282656,other,plus,50538,70104,68700,uniform00900002_7283k_3p8|segments-mixed/gap_factor=0/bands-y|s0|v2,35.9,-2.0,1.0413,0.5412
-usnight0060000_3644k_2p11,2,3644188,other,plus,82808,95504,95240,usnight0060000_3644k_2p11|segments-mixed/gap_factor=0/tile_lanes=2/segment_cost=4|s0|v2,15.0,-0.3,1.0056,0.756
-vm1084_31k_2x3,2,31420,square,X,2614,3566,3478,vm1084_31k_2x3|segments-v/gap_factor=0|s0|v2,33.1,-2.5,1.0512,0.5649
+uniform00900002_7283k_3p8,3,7282656,other,plus,50538,70104,67572,groups-v/gap_factor=0/seed=0,33.7,-3.6,1.0763,0.5594
+usnight0060000_3644k_2p11,2,3644188,other,plus,82808,95504,94832,groups-v/gap_factor=0/seed=1,14.5,-0.7,1.0142,0.7625
+vm1084_31k_2x3,2,31420,square,X,2614,3566,3384,groups-v/gap_factor=0/seed=1,29.5,-5.1,1.1105,0.5967
 world0006000_42k_1p4,1,42484,other,plus,10618,12236,12072,world0006000_42k_1p4|segments-mixed/gap_factor=0|s0|v2,13.7,-1.3,1.0274,0.7736
 xia16928_10k_1p4,1,10378,other,plus,2592,3928,3770,xia16928_10k_1p4|segments-h/gap_factor=0|s0|v2,45.4,-4.0,1.0856,0.4727
 xib32892_14k_1s4,1,13977,square,square,3492,4300,4196,xib32892_14k_1s4|segments-h/gap_factor=1|s0|v2,20.2,-2.4,1.0502,0.6926
-xmc10150_64k_2l5,2,63640,other,diamond,3178,3992,3984,xmc10150_64k_2l5|segments-h/gap_factor=1|s0|v2,25.4,-0.2,1.004,0.6363
-xpr2308_1119k_3d4,3,1118808,other,clipped square,15522,22740,21786,xpr2308_1119k_3d4|segments-h/gap_factor=0/shift=0.5/bands-x|s0|v2,40.4,-4.2,1.0895,0.5076
+xmc10150_64k_2l5,2,63640,other,diamond,3178,3992,3940,groups-v/gap_factor=0/seed=0,24.0,-1.3,1.0266,0.6506
+xpr2308_1119k_3d4,3,1118808,other,clipped square,15522,22740,21540,groups-h/gap_factor=1/seed=1,38.8,-5.3,1.1145,0.5193
 xqc2175_223k_2p12,2,223064,other,plus,4634,6088,6068,xqc2175_223k_2p12|segments-v/shift=0.75|s0|v2,30.9,-0.3,1.0066,0.5832
 xqd4966_18k_1p5,1,18473,other,plus,3692,4894,4818,xqd4966_18k_1p5|segments-h/gap_factor=0|s0|v2,30.5,-1.6,1.0318,0.5872
-xqe3891_2835k_3l3,3,2835036,other,diamond,52492,59460,58984,xqe3891_2835k_3l3|segments-v/gap_factor=1|s0|v2,12.4,-0.8,1.0162,0.792
+xqe3891_2835k_3l3,3,2835036,other,diamond,52492,59460,58680,groups-v/gap_factor=0/seed=0,11.8,-1.3,1.0268,0.8002
 xrb14233_21k_1d6,1,20617,other,clipped square,3432,4932,4812,xrb14233_21k_1d6|segments-v/gap_factor=0|s0|v2,40.2,-2.4,1.0505,0.5087
 xua3937_61k_1l3,1,61266,other,diamond,20422,23018,22820,xua3937_61k_1l3|segments-v/gap_factor=0|s0|v2,11.7,-0.9,1.0174,0.8009
-xvb13584_499k_3p5,3,498600,other,plus,5516,8446,8244,xvb13584_499k_3p5|segments-h/gap_factor=0|s0|v2,49.5,-2.4,1.0496,0.4477
+xvb13584_499k_3p5,3,498600,other,plus,5516,8446,7956,groups-h/gap_factor=0/seed=0,44.2,-5.8,1.127,0.4807
