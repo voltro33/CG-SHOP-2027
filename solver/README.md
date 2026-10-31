@@ -6,6 +6,8 @@ Builds feasible solutions for every instance, verifies them with the official
 ```bash
 python -m solver.mine --hours 8 --workers 15            # overnight mining on the challenge instances
 python -m solver.mine --instances example_instances.zip --hours 0.2
+python -m solver.polish --all --hours 5                 # CP-SAT window polish of every stored best
+python -m solver.plot_app                               # a window for drawing pictures of runs and bests
 python -m solver.report                                 # headline numbers from data/leaderboard.csv
 python -m solver.catalog                                # data/catalog.csv, one row per instance
 python -m solver.run --only pla7k --time-limit 5        # quick single run, results/ (older runner)
@@ -43,8 +45,42 @@ partitioned:  k bands -> per band (segments, order, repair, close, prune) -> reb
 | `pipeline.py` | `SolveConfig` + `solve`: one config through all stages, verified `Attempt` |
 | `jobs.py` | the mining job grid, in rounds |
 | `mine.py` | parallel resumable miner, best store, crash recovery |
+| `polish.py` | re-solves 20 x 20 windows of the longest tour with CP-SAT, splices in shorter walks |
+| `plot.py` | pictures of stored bests and runs with the official plot, into `plots/` |
+| `plot_app.py` | a Tkinter window over `plot.py`: pick runs or instances, draw, preview |
 | `report.py` | leaderboard and summary numbers |
 | `run.py` | the original batch runner (writes `results/`) |
+
+## Pictures of solutions
+
+Run these from the repo root with the virtual environment active (Git Bash:
+`source .venv/Scripts/activate`, or call `.venv/Scripts/python` directly).
+
+The window:
+
+```bash
+python -m solver.plot_app
+```
+
+- Left: every instance with a stored best and its length. Type in the box to filter.
+- Middle: the stored runs of the instance clicked last, shortest first.
+- Click selects one, shift click a range, ctrl click adds one, ctrl a selects all.
+- **Draw selected runs** draws every selected run, **Draw bests of selected instances** the best of each.
+- `bare` drops axes and titles for slides, `gif` also writes an animation, `dpi` sets the resolution.
+- The last picture shows on the right; double click it to open it full size. **Stop** ends a long batch.
+
+The same from the command line:
+
+```bash
+python -m solver.plot fjs3649_17k_1x7                  # the best of one instance
+python -m solver.plot fjs3649_17k_1x7 --runs           # list its stored runs
+python -m solver.plot fjs3649_17k_1x7 --run groups-v   # the runs whose name has that text
+python -m solver.plot --bench                          # the bests of the benchmark set
+python -m solver.plot --all --max-cells 200000         # every best up to that size
+```
+
+A best goes to `plots/<instance>.png`, a run to `plots/<instance>/<run>.png`.
+Instances above a million cells take a while to draw.
 
 ## Adding an idea
 

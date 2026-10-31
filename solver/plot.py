@@ -39,7 +39,7 @@ from cgshop2027_pyutils.visualize import (
 from .bench import read_bench_list
 from .mine import DEFAULT_INSTANCES
 
-__all__ = ["Target", "find_targets"]
+__all__ = ["Target", "draw", "find_targets", "run_name", "runs_of"]
 
 DATA = Path("data")
 BEST = DATA / "solutions" / "best"
@@ -84,21 +84,21 @@ def find_targets(
             targets.append(Target(best / f"{name}{SUFFIX}", out / f"{name}.png"))
             continue
 
-        for found in _runs_of(name, candidates):
-            run_name = _run_name(name, found)
-            if run in run_name:
-                targets.append(Target(found, out / name / f"{run_name}.png"))
+        for found in runs_of(name, candidates):
+            label = run_name(name, found)
+            if run in label:
+                targets.append(Target(found, out / name / f"{label}.png"))
 
     return targets
 
 
-def _runs_of(uid: str, candidates: Path) -> list[Path]:
+def runs_of(uid: str, candidates: Path) -> list[Path]:
     folder = candidates / uid
 
     return sorted(folder.glob(f"*{SUFFIX}"))
 
 
-def _run_name(uid: str, path: Path) -> str:
+def run_name(uid: str, path: Path) -> str:
     # candidate files are named after the job, which starts with the instance
     stem = path.name.removesuffix(SUFFIX)
 
@@ -122,15 +122,15 @@ def _all_instances(max_cells: int | None) -> list[str]:
 
 def _list_runs(uids: list[str]) -> None:
     for uid in uids:
-        runs = _runs_of(uid, CANDIDATES)
+        runs = runs_of(uid, CANDIDATES)
         print(f"{uid}: {len(runs)} stored runs")
 
         for path in runs:
             objective = read_solution(path).objective
-            print(f"  {objective:>8}  {_run_name(uid, path)}")
+            print(f"  {objective:>8}  {run_name(uid, path)}")
 
 
-def _draw(target: Target, database: InstanceDatabase, *, bare: bool, dpi: int, gif: bool) -> None:
+def draw(target: Target, database: InstanceDatabase, *, bare: bool, dpi: int, gif: bool) -> None:
     solution = read_solution(target.solution)
     instance = database[solution.instance_uid]
 
@@ -195,7 +195,7 @@ def main(argv: list[str] | None = None) -> int:
 
         # one broken picture should not stop a long batch
         try:
-            _draw(target, database, bare=args.bare, dpi=args.dpi, gif=args.gif)
+            draw(target, database, bare=args.bare, dpi=args.dpi, gif=args.gif)
         except Exception as error:
             print(f"failed {target.solution}: {type(error).__name__}: {error}")
             failures += 1
