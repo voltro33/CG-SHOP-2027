@@ -18,13 +18,17 @@ starts the next one, so the cheap safe configs land first:
                              construct/mixed.py, plus band partitions when k > 1
     round 8   groups         k > 1 only: k closed tours built directly from the
                              lane segments, see construct/groups.py
+    round 9   group variants k > 1 only: groups with new seeds, shifted lanes
+                             and a half lane gap, with twice the time cap on
+                             instances above 400k cells
 
 Rounds run in the order of `ROUND_ORDER`, not by number: the order search
 is where measured gains are, so its seeds and annealing go before the big
 cross product round. Mixed lanes came last and won 11 of 31 benchmark
 instances, so they go right after the gap sweep. Groups remove the return
 trip that splitting one walk leaves in every tour, the biggest measured loss
-for k > 1, so they go before everything not run yet.
+for k > 1, so they go before everything not run yet. Round 8 paid 15 times
+more per cpu hour than any other round overnight, so its variants come next.
 
 Rounds 0 and 1 together are the Phase 4 baseline in the leaderboard.
 Within a round the biggest instances go first, so the long jobs start early
@@ -52,6 +56,15 @@ ANNEAL = 0.003
 
 GROUP_GAP_FACTORS = (0.0, 1.0)
 GROUP_SEEDS = (0, 1)
+
+# round 9, what round 8 left out
+VARIANT_SEEDS = (2, 3)
+VARIANT_SHIFTS = (0.25, 0.5)
+VARIANT_GAP = 0.5
+
+# 15 to 26% of the jobs above this many cells hit their cap in round 8
+LONG_CAP_CELLS = 400_000
+LONG_CAP_FACTOR = 2.0
 
 # mixed lane variants that each won benchmark instances on 2026-10-29
 MIXED_PARAMS = (
@@ -190,10 +203,22 @@ def configs_for(k: int, cells: int, round_number: int) -> list[dict]:
                     params = (("gap_factor", gap), ("seed", seed))
                     configs.append({"method": method, "params": params, "seed": seed})
 
+    elif round_number == 9 and k > 1:
+        for method in ("groups-h", "groups-v"):
+            for seed in VARIANT_SEEDS:
+                params = (("gap_factor", 0.0), ("seed", seed))
+                configs.append({"method": method, "params": params, "seed": seed})
+
+            for shift in VARIANT_SHIFTS:
+                params = (("gap_factor", 0.0), ("shift", shift))
+                configs.append({"method": method, "params": params})
+
+            configs.append({"method": method, "params": (("gap_factor", VARIANT_GAP),)})
+
     return configs
 
 
-ROUND_ORDER = (0, 1, 2, 8, 7, 5, 6, 3, 4)
+ROUND_ORDER = (0, 1, 2, 8, 9, 7, 5, 6, 3, 4)
 
 
 def build_jobs(
@@ -233,6 +258,10 @@ def build_jobs(
             continue
 
         for uid, cells, box_cells, k in instances:
+            limit = time_limit_for(cells)
+            if round_number == 9 and cells > LONG_CAP_CELLS:
+                limit = limit * LONG_CAP_FACTOR
+
             for config in configs_for(k, cells, round_number):
                 job = Job(
                     instance=uid,
@@ -241,7 +270,7 @@ def build_jobs(
                     box_cells=box_cells,
                     k=k,
                     round=round_number,
-                    time_limit=time_limit_for(cells),
+                    time_limit=limit,
                     **config,
                 )
                 jobs.append(job)
