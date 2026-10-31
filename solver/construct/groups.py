@@ -33,6 +33,7 @@ def groups_horizontal(
     *,
     gap_factor: float = 0.0,
     shift: float = 0.0,
+    pitch: float = 1.0,
     kick_seconds: float | None = None,
     seed: int = 0,
     time_limit: float = 10.0,
@@ -40,7 +41,7 @@ def groups_horizontal(
     """
     Up to k closed tours over horizontal lane segments.
     """
-    segments = lane_segments(problem, gap_factor=gap_factor, shift=shift)
+    segments = lane_segments(problem, gap_factor=gap_factor, shift=shift, pitch=pitch)
     if not segments:
         return []
 
