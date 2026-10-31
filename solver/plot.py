@@ -27,17 +27,17 @@ import matplotlib
 
 matplotlib.use("Agg")
 
-import matplotlib.pyplot as plt  # noqa: E402
+import matplotlib.pyplot as plt
 
-from cgshop2027_pyutils.instance_database import InstanceDatabase  # noqa: E402
-from cgshop2027_pyutils.io import read_solution  # noqa: E402
-from cgshop2027_pyutils.visualize import (  # noqa: E402
+from cgshop2027_pyutils.instance_database import InstanceDatabase
+from cgshop2027_pyutils.io import read_solution
+from cgshop2027_pyutils.visualize import (
     create_solution_animation,
     create_solution_plot,
 )
 
-from .bench import read_bench_list  # noqa: E402
-from .mine import DEFAULT_INSTANCES  # noqa: E402
+from .bench import read_bench_list
+from .mine import DEFAULT_INSTANCES
 
 __all__ = ["Target", "find_targets"]
 
