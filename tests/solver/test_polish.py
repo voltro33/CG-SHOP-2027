@@ -11,7 +11,7 @@ import numpy as np
 from cgshop2027_pyutils.grid import CellSet
 
 from solver.model import Problem
-from solver.polish import _tiles, polish_tours
+from solver.polish import _tiles, polish_seconds, polish_tours
 from solver.tours import densify
 
 
@@ -52,3 +52,7 @@ def test_polish_shortens_and_keeps_coverage():
     assert len(polished[0]) < len(tour)
     assert stats.improved >= 1
     assert len(list(problem.uncovered(polished[0]).cells())) == 0
+
+
+def test_polishing_time_grows_with_the_instance():
+    assert polish_seconds(20_000) < polish_seconds(1_000_000) < polish_seconds(5_000_000)

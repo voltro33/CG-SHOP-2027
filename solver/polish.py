@@ -2,8 +2,13 @@
 Polish finished solutions window by window, the improvement half of the
 search: mining only builds tours from scratch, this works on the best one.
 
-    python -m solver.polish --seconds 300
+    python -m solver.polish --seconds 300                  # the benchmark set
     python -m solver.polish --seconds 120 --side 16 --only _1s
+    python -m solver.polish --all --hours 6                # every stored best
+
+With `--all` the jobs go through the miner's scheduler: memory permits, the
+resumable job log, the best store and the leaderboard work as in mining, and
+the polishing time grows with the instance.
 
 The longest tour is cut into square windows of anchors, laid as tiles with a
 random offset. The windows are re-solved with CP-SAT (`window.py`) in random
@@ -16,8 +21,11 @@ enter the best store, and the store only takes strictly better ones.
 """
 
 import argparse
+import dataclasses
 import json
+import logging
 import random
+import sys
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass
@@ -31,7 +39,8 @@ from cgshop2027_pyutils.schemas import CGSHOP2027Solution
 from cgshop2027_pyutils.verify import SolutionValidator
 
 from .bench import _print_report, _read_csv, read_bench_list, score_run
-from .mine import DEFAULT_INSTANCES, BestStore, JobLog, JobResult
+from .jobs import Job, box_cells_of
+from .mine import DEFAULT_INSTANCES, BestStore, JobLog, JobResult, _read_catalog, mine
 from .model import Problem
 from .report import write_leaderboard
 from .resources import system_resources
@@ -48,6 +57,13 @@ DEFAULT_WINDOW_SECONDS = 3.0
 
 # a round number no mining round uses
 POLISH_ROUND = -2
+
+BEST = DATA / "solutions" / "best"
+
+# polishing time per instance, by size: a full pass over the windows of a
+# big instance did not fit in 5 minutes
+POLISH_SECONDS = ((400_000, 600.0), (2_000_000, 1200.0))
+POLISH_SECONDS_LARGEST = 1800.0
 
 
 @dataclass(frozen=True)
@@ -154,6 +170,7 @@ class PolishJob:
     side: int
     window_seconds: float
     seed: int
+    job_id: str = ""
 
 
 def run_polish(job: PolishJob) -> tuple[JobResult, PolishStats | None]:
@@ -161,7 +178,7 @@ def run_polish(job: PolishJob) -> tuple[JobResult, PolishStats | None]:
     Worker entry point. Never raises, a failure comes back as an error.
     """
     started = time.monotonic()
-    job_id = f"{job.instance}|polish/side={job.side}|s{job.seed}"
+    job_id = job.job_id or f"{job.instance}|polish/side={job.side}|s{job.seed}"
 
     try:
         instance = InstanceDatabase(job.source)[job.instance]
@@ -214,6 +231,102 @@ def run_polish(job: PolishJob) -> tuple[JobResult, PolishStats | None]:
     return result, stats
 
 
+# every instance, through the miner
+
+
+def polish_seconds(cells: int) -> float:
+    for limit_cells, seconds in POLISH_SECONDS:
+        if cells <= limit_cells:
+            return seconds
+
+    return POLISH_SECONDS_LARGEST
+
+
+def polish_all_jobs(
+    catalog: dict[str, dict[str, str]], source: Path, *, seed: int, only: str = ""
+) -> list[Job]:
+    """
+    One polishing job per stored best, biggest first like the mining rounds.
+    """
+    params = (("side", float(DEFAULT_SIDE)), ("window_seconds", DEFAULT_WINDOW_SECONDS))
+
+    jobs = []
+    for path in sorted(BEST.glob("*.solution.json")):
+        uid = path.name.removesuffix(".solution.json")
+        row = catalog.get(uid)
+        if row is None or only not in uid:
+            continue
+
+        cells = int(row["cells"])
+        job = Job(
+            instance=uid,
+            source=str(source),
+            cells=cells,
+            box_cells=box_cells_of(row),
+            k=int(row["k"]),
+            round=POLISH_ROUND,
+            method="polish",
+            params=params,
+            time_limit=polish_seconds(cells),
+            seed=seed,
+        )
+        jobs.append(job)
+
+    jobs.sort(key=lambda job: -job.cells)
+
+    return jobs
+
+
+def run_polish_job(job: Job) -> JobResult:
+    """
+    The miner's worker entry point for a polishing job. The best is read
+    when the job starts, so it polishes whatever mining left there.
+    """
+    params = dict(job.params)
+    polish_job = PolishJob(
+        instance=job.instance,
+        source=job.source,
+        best_path=str(BEST / f"{job.instance}.solution.json"),
+        seconds=job.time_limit,
+        side=int(params["side"]),
+        window_seconds=params["window_seconds"],
+        seed=job.seed,
+        job_id=job.job_id,
+    )
+
+    result, _ = run_polish(polish_job)
+
+    return dataclasses.replace(result, round=job.round, label=job.label)
+
+
+def _polish_all(args: argparse.Namespace) -> int:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(message)s",
+        datefmt="%H:%M:%S",
+        handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler(DATA / "polish.log")],
+    )
+
+    catalog = _read_catalog(DATA / "catalog.csv")
+    jobs = polish_all_jobs(catalog, args.instances, seed=args.seed, only=args.only)
+
+    store = BestStore(BEST, DATA / "solutions" / "candidates")
+    memory_mb = None if args.memory_gb is None else int(args.memory_gb * 1024)
+
+    mine(
+        jobs,
+        resources=system_resources(cores=args.cores, memory_mb=memory_mb),
+        budget_seconds=args.hours * 3600,
+        store=store,
+        job_log=JobLog(DATA / "jobs.jsonl"),
+        leaderboard=DATA / "leaderboard.csv",
+        catalog=catalog,
+        runner=run_polish_job,
+    )
+
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
@@ -225,7 +338,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--only", default="", help="substring filter on instance names")
     parser.add_argument("--instances", type=Path, default=DEFAULT_INSTANCES)
+    parser.add_argument("--all", action="store_true", help="every stored best, through the miner")
+    parser.add_argument("--hours", type=float, default=6.0, help="budget with --all")
+    parser.add_argument("--memory-gb", type=float, default=None, help="memory permits with --all")
     args = parser.parse_args(argv)
+
+    if args.all:
+        return _polish_all(args)
 
     catalog = {row["instance"]: row for row in _read_csv(DATA / "catalog.csv")}
     uids = [uid for uid in read_bench_list() if args.only in uid]
