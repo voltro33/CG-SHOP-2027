@@ -10,7 +10,6 @@ python -m solver.polish --all --hours 5                 # CP-SAT window polish o
 python -m solver.plot_app                               # a window for drawing pictures of runs and bests
 python -m solver.report                                 # headline numbers from data/leaderboard.csv
 python -m solver.catalog                                # data/catalog.csv, one row per instance
-python -m solver.run --only pla7k --time-limit 5        # quick single run, results/ (older runner)
 python -m pytest tests/solver                           # solver tests
 ```
 
@@ -37,7 +36,6 @@ partitioned:  k bands -> per band (segments, order, repair, close, prune) -> reb
 | `construct/segments.py` | lanes cut into segments at gaps; knobs `gap_factor`, `shift`, `seed`, `kick_seconds`, `anneal` |
 | `construct/ordering.py` | segment order: 2-opt + Or-opt on neighbour lists, iterated local search, optional annealing |
 | `construct/lanes.py` | plain back-and-forth lanes, horizontal and vertical |
-| `construct/cover_tsp.py` | greedy set cover of anchor spots, nearest neighbour + windowed 2-opt |
 | `repair.py` | adds out-and-back detours for any cell a walk misses |
 | `split.py` | splits one walk into `k` closed tours, minimizing the longest |
 | `partition.py` | `k` equal-cell bands with rebalancing rounds |
@@ -49,7 +47,6 @@ partitioned:  k bands -> per band (segments, order, repair, close, prune) -> reb
 | `plot.py` | pictures of stored bests and runs with the official plot, into `plots/` |
 | `plot_app.py` | a Tkinter window over `plot.py`: pick runs or instances, draw, preview |
 | `report.py` | leaderboard and summary numbers |
-| `run.py` | the original batch runner (writes `results/`) |
 
 ## Pictures of solutions
 
