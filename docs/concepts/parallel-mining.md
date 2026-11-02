@@ -29,7 +29,7 @@ flowchart TB
 | round | what | why |
 |---|---|---|
 | 0 | segments h and v | feasible solution for every instance first |
-| 1 | plain lanes, cover-tsp (small), band partitions | the Phase 4 baseline |
+| 1 | plain lanes, band partitions | the Phase 4 baseline |
 | 2 | gap factor 0, 1, 4, 8 | split vs bridge gaps |
 | 3 | lane shift 1/4, 1/2, 3/4 | where band borders fall |
 | 4 | partitions x gap x shift | combinations |

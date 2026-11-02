@@ -15,7 +15,7 @@ miner job has a deadline and returns what it has. (`solver/mine.py`)
 given to one cutter. (`solver/partition.py`)
 
 **Baseline.** In the leaderboard, the best result from mining rounds 0 and 1 (default segments, plain lanes,
-cover-tsp, band partitions): the Phase 4 starting point that later rounds are measured against. (`solver/jobs.py`)
+band partitions): the Phase 4 starting point that later rounds are measured against. (`solver/jobs.py`)
 
 **Boustrophedon.** Back-and-forth strip sweeping, like plowing a field ("as the ox turns"). (`solver/construct/lanes.py`)
 
@@ -31,8 +31,6 @@ cover-tsp, band partitions): the Phase 4 starting point that later rounds are me
 splits and polishes it. (`solver/construct/`)
 
 **Corner.** A point where a tour changes direction; the solution file stores only corners.
-
-**Cover-TSP.** A constructor: pick stamp spots by greedy set cover, then visit them in a short order. (`solver/construct/cover_tsp.py`)
 
 **Coverage / sweep.** The set of cells the cutters pass over: all visited anchors, Minkowski-summed with the
 cutter. See `docs/concepts/coverage.md`.

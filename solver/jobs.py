@@ -5,7 +5,7 @@ Jobs come in rounds, and every instance finishes a round before anyone
 starts the next one, so the cheap safe configs land first:
 
     round 0   feasibility    segments, both orientations, default knobs
-    round 1   baseline       plain lanes, cover-tsp on small instances,
+    round 1   baseline       plain lanes,
                              band partitions when k > 1
     round 2   gap sweep      segments with other gap factors
     round 3   shift sweep    segments with lanes shifted by a quarter, half
@@ -43,9 +43,6 @@ from cgshop2027_pyutils.instance_database import InstanceDatabase
 __all__ = ["BASELINE_ROUNDS", "Job", "build_jobs"]
 
 BASELINE_ROUNDS = (0, 1)
-
-# cover-tsp uses a quadratic nearest neighbour, keep it to small instances
-COVER_TSP_MAX_CELLS = 60_000
 
 GAP_FACTORS = (0.0, 1.0, 4.0, 8.0)
 SHIFTS = (0.25, 0.5, 0.75)
@@ -133,7 +130,7 @@ def time_limit_for(cells: int) -> float:
     return 120.0
 
 
-def configs_for(k: int, cells: int, round_number: int) -> list[dict]:
+def configs_for(k: int, round_number: int) -> list[dict]:
     """
     The configs of one round for one instance, as keyword dicts for `Job`.
     """
@@ -149,9 +146,6 @@ def configs_for(k: int, cells: int, round_number: int) -> list[dict]:
     elif round_number == 1:
         configs.append({"method": "lanes-h"})
         configs.append({"method": "lanes-v"})
-
-        if cells <= COVER_TSP_MAX_CELLS:
-            configs.append({"method": "cover-tsp"})
 
         for method in orientations:
             for partition in partitions:
@@ -262,7 +256,7 @@ def build_jobs(
             if round_number == 9 and cells > LONG_CAP_CELLS:
                 limit = limit * LONG_CAP_FACTOR
 
-            for config in configs_for(k, cells, round_number):
+            for config in configs_for(k, round_number):
                 job = Job(
                     instance=uid,
                     source=str(source),

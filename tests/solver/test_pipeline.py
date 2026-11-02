@@ -12,7 +12,6 @@ from cgshop2027_pyutils.schemas import CGSHOP2027Instance
 from cgshop2027_pyutils.verify import SolutionValidator
 from solver.bounds import area_bound, extent_bound, lower_bound
 from solver.construct import CONSTRUCTORS
-from solver.construct.cover_tsp import greedy_cover
 from solver.improve import prune_routes
 from solver.model import Problem
 from solver.pipeline import solve
@@ -98,11 +97,6 @@ def test_constructor_plus_repair_covers_region(problem, method):
     assert len(problem.uncovered(walk)) == 0
 
 
-def test_greedy_cover_footprints_cover_region(problem):
-    anchors = greedy_cover(problem)
-    assert len(problem.uncovered(anchors)) == 0
-
-
 def test_repair_fixes_a_walk_that_covers_nothing(problem):
     lonely = np.array([[-50, -50]])
     assert len(problem.uncovered(repair_walk(problem, lonely))) == 0
@@ -126,7 +120,7 @@ def test_split_balances_pieces():
 
 
 def test_prune_never_breaks_coverage_or_grows(problem):
-    walk = repair_walk(problem, densify(CONSTRUCTORS["cover-tsp"](problem)))
+    walk = repair_walk(problem, densify(CONSTRUCTORS["lanes-h"](problem)))
     before = compress(walk)
     (after,) = prune_routes(
         problem, [before], closed=False, deadline=time.monotonic() + 5
