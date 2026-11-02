@@ -6,7 +6,6 @@ group longer, and the k tours together must still sweep every cell.
 import numpy as np
 
 from cgshop2027_pyutils.grid import CellSet
-
 from solver.construct.groups import (
     _closed_length,
     group_order,

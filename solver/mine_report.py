@@ -47,7 +47,12 @@ DATA = Path("data")
 # a job counts as capped when it ran this close to its time limit
 CAP_SHARE = 0.95
 
-SIZE_BANDS = ((0, 50_000, "<50k"), (50_000, 400_000, "50k-400k"), (400_000, 2_000_000, "400k-2M"), (2_000_000, 10**12, ">2M"))
+SIZE_BANDS = (
+    (0, 50_000, "<50k"),
+    (50_000, 400_000, "50k-400k"),
+    (400_000, 2_000_000, "400k-2M"),
+    (2_000_000, 10**12, ">2M"),
+)
 
 TOP_PER_STRATUM = 3
 
@@ -84,14 +89,18 @@ def config_of(record: dict[str, Any]) -> str:
     return f"{parts[1]}|{parts[2]}"
 
 
-def round_stats(records: list[dict[str, Any]], bounds: dict[str, int]) -> list[RoundStats]:
+def round_stats(
+    records: list[dict[str, Any]], bounds: dict[str, int]
+) -> list[RoundStats]:
     """
     Walks the log in the order jobs finished. A job improves when it is
     shorter than every earlier result for its instance; the first result of
     an instance sets the start and buys nothing.
     """
     running_best: dict[str, int] = {}
-    per_round: dict[int, dict[str, float]] = defaultdict(lambda: {"jobs": 0, "seconds": 0.0, "improvements": 0, "points": 0.0})
+    per_round: dict[int, dict[str, float]] = defaultdict(
+        lambda: {"jobs": 0, "seconds": 0.0, "improvements": 0, "points": 0.0}
+    )
 
     for record in records:
         totals = per_round[record["round"]]
@@ -107,7 +116,9 @@ def round_stats(records: list[dict[str, Any]], bounds: dict[str, int]) -> list[R
 
         if before is not None and objective < before:
             bound = bounds[uid]
-            gained = pessimistic_score(bound, objective) - pessimistic_score(bound, before)
+            gained = pessimistic_score(bound, objective) - pessimistic_score(
+                bound, before
+            )
             totals["improvements"] += 1
             totals["points"] += gained
 
@@ -129,7 +140,9 @@ def round_stats(records: list[dict[str, Any]], bounds: dict[str, int]) -> list[R
     return result
 
 
-def config_stats(records: list[dict[str, Any]], bounds: dict[str, int]) -> list[ConfigStats]:
+def config_stats(
+    records: list[dict[str, Any]], bounds: dict[str, int]
+) -> list[ConfigStats]:
     """
     Per config: wins, wins nobody else ties, and the points lost on the
     instances it wins if it had never run. Most points at stake first.
@@ -171,13 +184,15 @@ def config_stats(records: list[dict[str, Any]], bounds: dict[str, int]) -> list[
         sole = winners[0]
         sole_wins[sole] += 1
         bound = bounds[uid]
-        at_stake[sole] += pessimistic_score(bound, shortest) - pessimistic_score(bound, ordered[1])
+        at_stake[sole] += pessimistic_score(bound, shortest) - pessimistic_score(
+            bound, ordered[1]
+        )
 
     result = []
-    for config in jobs:
+    for config, count in jobs.items():
         stats = ConfigStats(
             config=config,
-            jobs=jobs[config],
+            jobs=count,
             cpu_hours=seconds[config] / 3600,
             wins=wins[config],
             sole_wins=sole_wins[config],
@@ -214,7 +229,9 @@ def strata_winners(
         if config not in mine or record["objective"] < mine[config]:
             mine[config] = record["objective"]
 
-    counts: dict[tuple[str, str], dict[str, int]] = defaultdict(lambda: defaultdict(int))
+    counts: dict[tuple[str, str], dict[str, int]] = defaultdict(
+        lambda: defaultdict(int)
+    )
     for uid, by_config in best.items():
         shortest = min(by_config.values())
         stratum = (family(uid), size_band(cells[uid]))
@@ -231,7 +248,9 @@ def strata_winners(
     return result
 
 
-def time_cap_shares(records: list[dict[str, Any]], cells: dict[str, int]) -> dict[str, dict[str, float]]:
+def time_cap_shares(
+    records: list[dict[str, Any]], cells: dict[str, int]
+) -> dict[str, dict[str, float]]:
     """
     Per size band: the share of jobs that ran into their cap, and the median
     run time as a share of the cap.
@@ -280,7 +299,9 @@ def _read_catalog(path: Path) -> list[dict[str, str]]:
 
 def _print_rounds(rounds: list[RoundStats]) -> None:
     print("rounds, in the order jobs finished")
-    print(f"  {'round':>5} {'jobs':>6} {'cpu h':>7} {'better':>7} {'points':>7} {'pts/cpu h':>10}")
+    print(
+        f"  {'round':>5} {'jobs':>6} {'cpu h':>7} {'better':>7} {'points':>7} {'pts/cpu h':>10}"
+    )
 
     for stats in rounds:
         print(
@@ -295,8 +316,12 @@ def _print_configs(configs: list[ConfigStats]) -> None:
     total_hours = sum(stats.cpu_hours for stats in configs)
 
     print()
-    print(f"configs: {len(configs)}, of which {len(never)} never won, using {never_hours:.1f} of {total_hours:.1f} cpu hours")
-    print(f"  {'config':58} {'jobs':>5} {'cpu h':>6} {'wins':>5} {'sole':>5} {'at stake':>9}")
+    print(
+        f"configs: {len(configs)}, of which {len(never)} never won, using {never_hours:.1f} of {total_hours:.1f} cpu hours"
+    )
+    print(
+        f"  {'config':58} {'jobs':>5} {'cpu h':>6} {'wins':>5} {'sole':>5} {'at stake':>9}"
+    )
 
     for stats in configs:
         print(
@@ -331,7 +356,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--log", type=Path, default=DATA / "jobs.jsonl")
     parser.add_argument("--catalog", type=Path, default=DATA / "catalog.csv")
-    parser.add_argument("--json", type=Path, default=None, help="also write everything here")
+    parser.add_argument(
+        "--json", type=Path, default=None, help="also write everything here"
+    )
     args = parser.parse_args(argv)
 
     catalog = _read_catalog(args.catalog)
@@ -339,7 +366,9 @@ def main(argv: list[str] | None = None) -> int:
     cells = {row["instance"]: int(row["cells"]) for row in catalog}
 
     # only challenge instances count, the log may also hold example runs
-    records = [record for record in read_records(args.log) if record["instance"] in bounds]
+    records = [
+        record for record in read_records(args.log) if record["instance"] in bounds
+    ]
 
     rounds = round_stats(records, bounds)
     configs = config_stats(records, bounds)
@@ -355,7 +384,9 @@ def main(argv: list[str] | None = None) -> int:
         everything = {
             "rounds": [asdict(stats) for stats in rounds],
             "configs": [asdict(stats) for stats in configs],
-            "strata": {f"{name}|{band}": ranked for (name, band), ranked in strata.items()},
+            "strata": {
+                f"{name}|{band}": ranked for (name, band), ranked in strata.items()
+            },
             "time_caps": caps,
         }
         args.json.write_text(json.dumps(everything, indent=2))

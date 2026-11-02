@@ -9,7 +9,6 @@ import time
 import numpy as np
 
 from cgshop2027_pyutils.grid import CellSet
-
 from solver.model import Problem
 from solver.polish import _tiles, polish_seconds, polish_tours
 from solver.tours import densify
@@ -26,8 +25,16 @@ def block_problem() -> Problem:
 def wasteful_tour() -> np.ndarray:
     # a snake over the four rows, with a pointless out and back on the top row
     corners = [
-        (0, 0), (7, 0), (7, 1), (0, 1), (0, 2), (7, 2), (7, 3),
-        (2, 3), (6, 3), (0, 3),
+        (0, 0),
+        (7, 0),
+        (7, 1),
+        (0, 1),
+        (0, 2),
+        (7, 2),
+        (7, 3),
+        (2, 3),
+        (6, 3),
+        (0, 3),
     ]
 
     return densify(corners, closed=True)
@@ -55,4 +62,6 @@ def test_polish_shortens_and_keeps_coverage():
 
 
 def test_polishing_time_grows_with_the_instance():
-    assert polish_seconds(20_000) < polish_seconds(1_000_000) < polish_seconds(5_000_000)
+    assert (
+        polish_seconds(20_000) < polish_seconds(1_000_000) < polish_seconds(5_000_000)
+    )

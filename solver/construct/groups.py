@@ -171,7 +171,11 @@ def _best_move(groups):
         slot_to = np.roll(target_entries, -1, axis=0)
         slot_link = np.abs(slot_to - slot_from).sum(axis=1)
 
-        others = [length for index, length in enumerate(lengths) if index not in (longest, target)]
+        others = [
+            length
+            for index, length in enumerate(lengths)
+            if index not in (longest, target)
+        ]
         floor = max(others) if others else 0
 
         for start in range(0, len(entries), MOVE_CHUNK):
@@ -180,8 +184,12 @@ def _best_move(groups):
             b = exits[chunk][:, None, :]
 
             # driven as is, or flipped
-            straight = np.abs(a - slot_from).sum(axis=2) + np.abs(slot_to - b).sum(axis=2)
-            flipped = np.abs(b - slot_from).sum(axis=2) + np.abs(slot_to - a).sum(axis=2)
+            straight = np.abs(a - slot_from).sum(axis=2) + np.abs(slot_to - b).sum(
+                axis=2
+            )
+            flipped = np.abs(b - slot_from).sum(axis=2) + np.abs(slot_to - a).sum(
+                axis=2
+            )
             cheaper = np.minimum(straight, flipped) - slot_link
 
             slot = np.argmin(cheaper, axis=1)
@@ -195,7 +203,9 @@ def _best_move(groups):
             if peak[pick] < best_peak:
                 best_peak = int(peak[pick])
                 position = start + pick
-                is_flipped = bool(flipped[pick, slot[pick]] < straight[pick, slot[pick]])
+                is_flipped = bool(
+                    flipped[pick, slot[pick]] < straight[pick, slot[pick]]
+                )
                 best = (longest, position, target, int(slot[pick]), is_flipped)
 
     return best
@@ -211,7 +221,10 @@ def _apply_move(groups, move):
         entry, exit_ = exit_, entry
 
     result = list(groups)
-    result[source] = (np.delete(entries, position, axis=0), np.delete(exits, position, axis=0))
+    result[source] = (
+        np.delete(entries, position, axis=0),
+        np.delete(exits, position, axis=0),
+    )
 
     target_entries, target_exits = groups[target]
     result[target] = (
@@ -232,7 +245,9 @@ def groups_vertical(problem: Problem, **params) -> list[list[Point]]:
     return [close_route([(y, x) for x, y in tour]) for tour in tours]
 
 
-def group_order(entries: np.ndarray, exits: np.ndarray, k: int) -> list[tuple[int, int]]:
+def group_order(
+    entries: np.ndarray, exits: np.ndarray, k: int
+) -> list[tuple[int, int]]:
     """
     Cuts an order of segments into at most k consecutive groups, as first
     and last index, so the longest group, closed back to its first entry,

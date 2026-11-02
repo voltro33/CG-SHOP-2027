@@ -10,7 +10,6 @@ from solver.construct.segments import lane_segments, order_segments
 from solver.model import Problem
 from solver.partition import band_problems
 from solver.pipeline import SolveConfig, solve
-
 from tests.solver.test_pipeline import make_instance
 
 # a U shape, two arms 4 wide with a 12 wide empty middle

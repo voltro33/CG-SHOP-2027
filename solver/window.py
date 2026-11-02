@@ -113,7 +113,9 @@ def cut_pieces(positions: np.ndarray, window: Window) -> list[Piece] | None:
     run_stops = np.flatnonzero(edges == -1)
 
     pieces = []
-    for run_start, run_stop in zip(run_starts.tolist(), run_stops.tolist()):
+    for run_start, run_stop in zip(
+        run_starts.tolist(), run_stops.tolist(), strict=True
+    ):
         first = (run_start + start) % count
         last = (run_stop - 1 + start) % count
         pieces.append(Piece(first, last))
@@ -242,7 +244,9 @@ def _in_pieces(count: int, pieces: list[Piece]) -> np.ndarray:
     return inside
 
 
-def _region_window(problem: Problem, x0: int, y0: int, width: int, height: int) -> np.ndarray:
+def _region_window(
+    problem: Problem, x0: int, y0: int, width: int, height: int
+) -> np.ndarray:
     mask = problem.region.mask
     rx0, ry0 = problem.region.origin
 
@@ -308,7 +312,11 @@ class _WindowModel:
             entry = self._node(*positions[piece.first].tolist())
             exit_ = self._node(*positions[piece.last].tolist())
 
-            for tail, head in ((port_in, entry), (exit_, port_out), (port_out, next_in)):
+            for tail, head in (
+                (port_in, entry),
+                (exit_, port_out),
+                (port_out, next_in),
+            ):
                 self.arcs.append((tail, head))
                 self.uses.append(self.model.new_constant(1))
 
@@ -441,7 +449,9 @@ class _WindowModel:
     def limit_steps(self, old_steps: int) -> None:
         self.model.add(sum(self.uses[: self.grid_arcs]) <= old_steps)
 
-    def splice(self, solver: cp_model.CpSolver, positions: np.ndarray, pieces: list[Piece]) -> np.ndarray:
+    def splice(
+        self, solver: cp_model.CpSolver, positions: np.ndarray, pieces: list[Piece]
+    ) -> np.ndarray:
         """
         The new dense closed tour: an Euler walk over the chosen steps, with
         the old outside run put in after every exit port.
@@ -459,7 +469,9 @@ class _WindowModel:
         for index, piece in enumerate(pieces):
             next_first = pieces[(index + 1) % len(pieces)].first
             run = (next_first - piece.last) % count - 1
-            outside_after[self.ports[index][1]] = (piece.last + 1 + np.arange(run)) % count
+            outside_after[self.ports[index][1]] = (
+                piece.last + 1 + np.arange(run)
+            ) % count
 
         result = []
         for node in walk[:-1]:

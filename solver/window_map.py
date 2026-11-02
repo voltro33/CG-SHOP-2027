@@ -34,6 +34,7 @@ from cgshop2027_pyutils.instance_database import InstanceDatabase
 from cgshop2027_pyutils.io import read_solution
 from cgshop2027_pyutils.schemas import CGSHOP2027Solution
 
+from .bench import read_bench_list
 from .model import Problem
 from .report import family
 from .tours import densify
@@ -89,7 +90,7 @@ def window_map(problem: Problem, solution: CGSHOP2027Solution, side: int) -> Win
 
     tours = []
     for tour in solution.tours:
-        corners = list(zip(tour.x, tour.y))
+        corners = list(zip(tour.x, tour.y, strict=True))
         tours.append(densify(corners, closed=True))
 
     everything = np.concatenate(tours)
@@ -134,7 +135,9 @@ def window_map(problem: Problem, solution: CGSHOP2027Solution, side: int) -> Win
     )
 
 
-def _window_ids(positions: np.ndarray, low: np.ndarray, side: int, columns: int) -> np.ndarray:
+def _window_ids(
+    positions: np.ndarray, low: np.ndarray, side: int, columns: int
+) -> np.ndarray:
     window_x = (positions[:, 0] - low[0]) // side
     window_y = (positions[:, 1] - low[1]) // side
 
@@ -169,8 +172,12 @@ def _exclusive_cells(
     for dx, dy in (offsets - offset_low).tolist():
         rows = slice(dy, dy + height)
         columns = slice(dx, dx + width)
-        np.minimum(cell_lowest[rows, columns], lowest_id, out=cell_lowest[rows, columns])
-        np.maximum(cell_highest[rows, columns], highest_id, out=cell_highest[rows, columns])
+        np.minimum(
+            cell_lowest[rows, columns], lowest_id, out=cell_lowest[rows, columns]
+        )
+        np.maximum(
+            cell_highest[rows, columns], highest_id, out=cell_highest[rows, columns]
+        )
 
     # region cells, moved into the cell frame
     region = problem.region_cells - cell_low
@@ -228,16 +235,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--best", type=Path, default=DATA / "solutions" / "best")
     parser.add_argument("--sides", default=",".join(str(s) for s in DEFAULT_SIDES))
     parser.add_argument("--only", default="")
-    parser.add_argument("--json", type=Path, default=None, help="also write every summary here")
+    parser.add_argument(
+        "--json", type=Path, default=None, help="also write every summary here"
+    )
     args = parser.parse_args(argv)
-
-    from .bench import read_bench_list
 
     sides = [int(text) for text in args.sides.split(",")]
     uids = [uid for uid in read_bench_list() if args.only in uid]
     database = InstanceDatabase(str(args.instances))
 
-    print(f"{'instance':30} {'side':>4} {'windows':>7} {'room':>6} {'top10':>6} {'top25':>6} {'pieces':>6} {'room/w':>7}")
+    print(
+        f"{'instance':30} {'side':>4} {'windows':>7} {'room':>6} {'top10':>6} {'top25':>6} {'pieces':>6} {'room/w':>7}"
+    )
 
     results = []
     for uid in uids:
@@ -257,7 +266,9 @@ def main(argv: list[str] | None = None) -> int:
             )
 
     if args.json:
-        args.json.write_text(json.dumps([asdict(result) for result in results], indent=2))
+        args.json.write_text(
+            json.dumps([asdict(result) for result in results], indent=2)
+        )
 
     return 0
 

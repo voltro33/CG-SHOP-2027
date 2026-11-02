@@ -77,7 +77,9 @@ def find_targets(
     for name in names:
         path = Path(name)
         if name.endswith(SUFFIX) and path.exists():
-            targets.append(Target(path, out / (path.name.removesuffix(SUFFIX) + ".png")))
+            targets.append(
+                Target(path, out / (path.name.removesuffix(SUFFIX) + ".png"))
+            )
             continue
 
         if run is None:
@@ -130,7 +132,9 @@ def _list_runs(uids: list[str]) -> None:
             print(f"  {objective:>8}  {run_name(uid, path)}")
 
 
-def draw(target: Target, database: InstanceDatabase, *, bare: bool, dpi: int, gif: bool) -> None:
+def draw(
+    target: Target, database: InstanceDatabase, *, bare: bool, dpi: int, gif: bool
+) -> None:
     solution = read_solution(target.solution)
     instance = database[solution.instance_uid]
 
@@ -155,10 +159,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("names", nargs="*", help="instance names or solution files")
     parser.add_argument("--all", action="store_true", help="every stored best")
-    parser.add_argument("--bench", action="store_true", help="the bests of the benchmark set")
-    parser.add_argument("--max-cells", type=int, default=None, help="skip bigger instances")
-    parser.add_argument("--run", default=None, help="draw the stored runs whose name has this text")
-    parser.add_argument("--runs", action="store_true", help="list the stored runs, draw nothing")
+    parser.add_argument(
+        "--bench", action="store_true", help="the bests of the benchmark set"
+    )
+    parser.add_argument(
+        "--max-cells", type=int, default=None, help="skip bigger instances"
+    )
+    parser.add_argument(
+        "--run", default=None, help="draw the stored runs whose name has this text"
+    )
+    parser.add_argument(
+        "--runs", action="store_true", help="list the stored runs, draw nothing"
+    )
     parser.add_argument("--bare", action="store_true", help="no axes or titles")
     parser.add_argument("--gif", action="store_true", help="also write an animation")
     parser.add_argument("--dpi", type=int, default=200)

@@ -126,7 +126,9 @@ def polish_tours(
             if _longest(tours) != longest:
                 break
 
-    stats = PolishStats(windows=windows, improved=improved, saved_steps=saved, passes=passes)
+    stats = PolishStats(
+        windows=windows, improved=improved, saved_steps=saved, passes=passes
+    )
 
     return tours, stats
 
@@ -209,12 +211,22 @@ def run_polish(job: PolishJob) -> tuple[JobResult, PolishStats | None]:
         errors = list(SolutionValidator(instance).check_for_errors(solution))
     except Exception as error:
         seconds = round(time.monotonic() - started, 2)
-        failed = JobResult(job_id, job.instance, POLISH_ROUND, "polish", None, seconds, repr(error))
+        failed = JobResult(
+            job_id, job.instance, POLISH_ROUND, "polish", None, seconds, repr(error)
+        )
         return failed, None
 
     seconds = round(time.monotonic() - started, 2)
     if errors:
-        failed = JobResult(job_id, job.instance, POLISH_ROUND, "polish", None, seconds, str(errors[0])[:300])
+        failed = JobResult(
+            job_id,
+            job.instance,
+            POLISH_ROUND,
+            "polish",
+            None,
+            seconds,
+            str(errors[0])[:300],
+        )
         return failed, stats
 
     result = JobResult(
@@ -304,7 +316,10 @@ def _polish_all(args: argparse.Namespace) -> int:
         level=logging.INFO,
         format="%(asctime)s %(message)s",
         datefmt="%H:%M:%S",
-        handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler(DATA / "polish.log")],
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler(DATA / "polish.log"),
+        ],
     )
 
     catalog = _read_catalog(DATA / "catalog.csv")
@@ -331,16 +346,24 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("--seconds", type=float, default=300.0, help="polishing time per instance")
+    parser.add_argument(
+        "--seconds", type=float, default=300.0, help="polishing time per instance"
+    )
     parser.add_argument("--side", type=int, default=DEFAULT_SIDE)
     parser.add_argument("--window-seconds", type=float, default=DEFAULT_WINDOW_SECONDS)
-    parser.add_argument("--cores", type=int, default=None, help="instances at once, default all but one")
+    parser.add_argument(
+        "--cores", type=int, default=None, help="instances at once, default all but one"
+    )
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--only", default="", help="substring filter on instance names")
     parser.add_argument("--instances", type=Path, default=DEFAULT_INSTANCES)
-    parser.add_argument("--all", action="store_true", help="every stored best, through the miner")
+    parser.add_argument(
+        "--all", action="store_true", help="every stored best, through the miner"
+    )
     parser.add_argument("--hours", type=float, default=6.0, help="budget with --all")
-    parser.add_argument("--memory-gb", type=float, default=None, help="memory permits with --all")
+    parser.add_argument(
+        "--memory-gb", type=float, default=None, help="memory permits with --all"
+    )
     args = parser.parse_args(argv)
 
     if args.all:

@@ -192,7 +192,14 @@ class _State:
             segment = queue.pop()
             queued.discard(segment)
 
-            args = (self.ent, self.ext, self.seg_at, self.pos_of, self.neighbours, self.closed)
+            args = (
+                self.ent,
+                self.ext,
+                self.seg_at,
+                self.pos_of,
+                self.neighbours,
+                self.closed,
+            )
             touched = _try_two_opt(segment, *args)
             if touched is None:
                 touched = _try_or_opt(segment, *args)
@@ -321,7 +328,9 @@ class _State:
             self.pos_of[self.seg_at[position]] = position
 
         new_middle = first + (end - middle)
-        return self._segments_at([first - 1, first, new_middle - 1, new_middle, end - 1, end])
+        return self._segments_at(
+            [first - 1, first, new_middle - 1, new_middle, end - 1, end]
+        )
 
     def _segments_at(self, positions: list[int]) -> list[int]:
         n = len(self.ent)
@@ -407,9 +416,11 @@ def _try_or_opt(segment, ent, ext, seg_at, pos_of, neighbours, closed):
         q = pos_of[other]
 
         # try inserting right after q and right before q
-        for slot in (q, q - 1):
-            if slot in (p, p - 1) or slot < -1 or slot >= n:
+        for candidate in (q, q - 1):
+            if candidate in (p, p - 1) or candidate < -1 or candidate >= n:
                 continue
+
+            slot = candidate
             if slot == -1 and closed:
                 slot = n - 1
                 if slot in (p, p - 1):

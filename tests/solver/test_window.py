@@ -6,7 +6,6 @@ and never lose coverage.
 import numpy as np
 
 from cgshop2027_pyutils.grid import CellSet
-
 from solver.model import Problem
 from solver.tours import densify
 from solver.window import Window, cut_pieces, solve_window
@@ -36,7 +35,9 @@ WINDOW = Window(x0=0, y0=0, x1=5, y1=3)
 
 
 def is_closed_walk(positions: np.ndarray) -> bool:
-    steps = np.abs(np.diff(np.concatenate([positions, positions[:1]]), axis=0)).sum(axis=1)
+    steps = np.abs(np.diff(np.concatenate([positions, positions[:1]]), axis=0)).sum(
+        axis=1
+    )
     return bool(np.all(steps == 1))
 
 

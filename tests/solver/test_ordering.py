@@ -57,7 +57,9 @@ def test_improve_order_keeps_segments_and_never_gets_longer(closed, seed):
 
     after = order_length(*as_lists(new_entries, new_exits), closed)
 
-    assert unordered_segments(new_entries, new_exits) == unordered_segments(entries, exits)
+    assert unordered_segments(new_entries, new_exits) == unordered_segments(
+        entries, exits
+    )
     assert after <= before
 
     # a random order is terrible, any search should do much better
@@ -69,7 +71,9 @@ def test_improve_order_leaves_inputs_untouched():
     entries_copy = entries.copy()
     exits_copy = exits.copy()
 
-    improve_order(entries, exits, closed=True, deadline=time.monotonic() + 2, kick_seconds=0.2)
+    improve_order(
+        entries, exits, closed=True, deadline=time.monotonic() + 2, kick_seconds=0.2
+    )
 
     assert np.array_equal(entries, entries_copy)
     assert np.array_equal(exits, exits_copy)

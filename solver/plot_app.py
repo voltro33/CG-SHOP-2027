@@ -66,7 +66,9 @@ class PlotApp:
         self.root.columnconfigure(2, weight=1)
         self.root.rowconfigure(1, weight=1)
 
-        ttk.Label(self.root, text="Instances").grid(row=0, column=0, sticky="w", padx=8, pady=(8, 0))
+        ttk.Label(self.root, text="Instances").grid(
+            row=0, column=0, sticky="w", padx=8, pady=(8, 0)
+        )
         ttk.Label(self.root, text="Runs of the instance clicked last").grid(
             row=0, column=1, sticky="w", padx=8, pady=(8, 0)
         )
@@ -81,7 +83,9 @@ class PlotApp:
 
         self.filter_text = tk.StringVar()
         self.filter_text.trace_add("write", lambda *_: self._fill_instances())
-        ttk.Entry(left, textvariable=self.filter_text).grid(row=0, column=0, columnspan=2, sticky="ew")
+        ttk.Entry(left, textvariable=self.filter_text).grid(
+            row=0, column=0, columnspan=2, sticky="ew"
+        )
 
         self.instance_list = _listbox(left, width=44)
         self.instance_list.bind("<<ListboxSelect>>", self._on_instance)
@@ -106,20 +110,28 @@ class PlotApp:
         bottom = ttk.Frame(self.root)
         bottom.grid(row=2, column=0, columnspan=3, sticky="ew", padx=8, pady=8)
 
-        ttk.Button(bottom, text="Draw selected runs", command=self._draw_runs).pack(side="left")
-        ttk.Button(bottom, text="Draw bests of selected instances", command=self._draw_bests).pack(
+        ttk.Button(bottom, text="Draw selected runs", command=self._draw_runs).pack(
+            side="left"
+        )
+        ttk.Button(
+            bottom, text="Draw bests of selected instances", command=self._draw_bests
+        ).pack(side="left", padx=6)
+        ttk.Button(bottom, text="Stop", command=self.cancel.set).pack(side="left")
+        ttk.Button(bottom, text="Open plots folder", command=self._open_folder).pack(
             side="left", padx=6
         )
-        ttk.Button(bottom, text="Stop", command=self.cancel.set).pack(side="left")
-        ttk.Button(bottom, text="Open plots folder", command=self._open_folder).pack(side="left", padx=6)
 
         self.bare = tk.BooleanVar(value=False)
         self.gif = tk.BooleanVar(value=False)
         self.dpi = tk.IntVar(value=200)
-        ttk.Checkbutton(bottom, text="bare", variable=self.bare).pack(side="left", padx=(16, 0))
+        ttk.Checkbutton(bottom, text="bare", variable=self.bare).pack(
+            side="left", padx=(16, 0)
+        )
         ttk.Checkbutton(bottom, text="gif", variable=self.gif).pack(side="left", padx=6)
         ttk.Label(bottom, text="dpi").pack(side="left")
-        ttk.Spinbox(bottom, from_=100, to=600, increment=100, width=5, textvariable=self.dpi).pack(side="left")
+        ttk.Spinbox(
+            bottom, from_=100, to=600, increment=100, width=5, textvariable=self.dpi
+        ).pack(side="left")
 
         self.status = ttk.Label(bottom, text="ready")
         self.status.pack(side="left", padx=16)
@@ -154,7 +166,9 @@ class PlotApp:
         for path in runs_of(uid, CANDIDATES):
             objective = read_solution(path).objective
             name = run_name(uid, path)
-            rows.append((objective, name, Target(path, DEFAULT_OUT / uid / f"{name}.png")))
+            rows.append(
+                (objective, name, Target(path, DEFAULT_OUT / uid / f"{name}.png"))
+            )
 
         rows.sort(key=lambda row: row[0])
 
@@ -198,9 +212,15 @@ class PlotApp:
             return
 
         self.cancel.clear()
-        options = {"bare": self.bare.get(), "gif": self.gif.get(), "dpi": int(self.dpi.get())}
+        options = {
+            "bare": self.bare.get(),
+            "gif": self.gif.get(),
+            "dpi": int(self.dpi.get()),
+        }
 
-        self.worker = threading.Thread(target=self._work, args=(targets, options), daemon=True)
+        self.worker = threading.Thread(
+            target=self._work, args=(targets, options), daemon=True
+        )
         self.worker.start()
 
     def _work(self, targets: list[Target], options: dict) -> None:
@@ -213,7 +233,9 @@ class PlotApp:
                 self.messages.put(("status", f"stopped, {done} of {total} drawn"))
                 return
 
-            self.messages.put(("status", f"drawing {number} of {total}: {target.solution.name}"))
+            self.messages.put(
+                ("status", f"drawing {number} of {total}: {target.solution.name}")
+            )
 
             # one broken picture should not stop the rest
             try:
@@ -225,7 +247,9 @@ class PlotApp:
             done += 1
             self.messages.put(("picture", target.picture))
 
-        self.messages.put(("status", f"done, {done} of {total} drawn into {DEFAULT_OUT}"))
+        self.messages.put(
+            ("status", f"done, {done} of {total} drawn into {DEFAULT_OUT}")
+        )
 
     def _poll(self) -> None:
         while not self.messages.empty():
@@ -259,7 +283,11 @@ class PlotApp:
 def _listbox(parent: ttk.Frame, *, width: int) -> tk.Listbox:
     # extended selection: click, shift click for a range, ctrl click to add
     listbox = tk.Listbox(
-        parent, selectmode="extended", width=width, exportselection=False, font=("Consolas", 10)
+        parent,
+        selectmode="extended",
+        width=width,
+        exportselection=False,
+        font=("Consolas", 10),
     )
     listbox.grid(row=1, column=0, sticky="nsew")
 

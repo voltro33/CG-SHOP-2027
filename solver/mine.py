@@ -183,7 +183,9 @@ class BestStore:
         is_close = current is None or result.objective <= current * CANDIDATE_SLACK
         if is_close:
             name = _safe_name(result.job_id) + ".solution.json"
-            _atomic_write(self.candidates / result.instance / name, result.solution_json)
+            _atomic_write(
+                self.candidates / result.instance / name, result.solution_json
+            )
 
         if not is_better:
             return False
@@ -258,7 +260,9 @@ def mine(
 
     done = job_log.done_ids()
     pending = [job for job in jobs if job.job_id not in done]
-    log.info("%d jobs total, %d already done, %d to run", len(jobs), len(done), len(pending))
+    log.info(
+        "%d jobs total, %d already done, %d to run", len(jobs), len(done), len(pending)
+    )
     log.info("resources: %s", resources.describe())
 
     context = multiprocessing.get_context("spawn")
@@ -353,7 +357,8 @@ def _next_admissible(
     start, so a big job is never starved by a stream of small ones.
     """
     head_starving = (
-        waiting_since is not None and time.monotonic() - waiting_since > HEAD_WAIT_SECONDS
+        waiting_since is not None
+        and time.monotonic() - waiting_since > HEAD_WAIT_SECONDS
     )
     candidates = range(1) if head_starving else range(len(pending))
 
@@ -364,19 +369,27 @@ def _next_admissible(
     return None
 
 
-def _start(context, runner: Callable[[Job], JobResult], job: Job, resources: Resources) -> Running:
+def _start(
+    context, runner: Callable[[Job], JobResult], job: Job, resources: Resources
+) -> Running:
     receiver, sender = context.Pipe(duplex=False)
 
-    process = context.Process(target=_worker_main, args=(runner, job, sender), daemon=True)
+    process = context.Process(
+        target=_worker_main, args=(runner, job, sender), daemon=True
+    )
     process.start()
 
     # the child holds its own copy of the sending end
     sender.close()
 
-    return Running(job, process, receiver, _fitted_demand(job, resources), time.monotonic())
+    return Running(
+        job, process, receiver, _fitted_demand(job, resources), time.monotonic()
+    )
 
 
-def _worker_main(runner: Callable[[Job], JobResult], job: Job, sender: Connection) -> None:
+def _worker_main(
+    runner: Callable[[Job], JobResult], job: Job, sender: Connection
+) -> None:
     result = runner(job)
     sender.send(result)
     sender.close()
@@ -472,12 +485,12 @@ def _atomic_write(path: Path, text: str) -> None:
 
     for attempt in range(10):
         try:
-            os.replace(temp, path)
+            temp.replace(path)
             return
         except PermissionError:
             time.sleep(0.2 * (attempt + 1))
 
-    os.replace(temp, path)
+    temp.replace(path)
 
 
 def _safe_name(job_id: str) -> str:
@@ -492,15 +505,26 @@ def _safe_name(job_id: str) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("--instances", type=Path, default=DEFAULT_INSTANCES)
     parser.add_argument("--catalog", type=Path, default=DATA / "catalog.csv")
     parser.add_argument("--out", type=Path, default=DATA)
     parser.add_argument("--hours", type=float, default=8.0)
-    parser.add_argument("--cores", type=int, default=None, help="core permits, default all but one")
-    parser.add_argument("--memory-gb", type=float, default=None, help="memory permits, default most of what is free")
+    parser.add_argument(
+        "--cores", type=int, default=None, help="core permits, default all but one"
+    )
+    parser.add_argument(
+        "--memory-gb",
+        type=float,
+        default=None,
+        help="memory permits, default most of what is free",
+    )
     parser.add_argument("--max-round", type=int, default=99)
-    parser.add_argument("--rounds", default="", help="only these rounds, comma separated, for example 7")
+    parser.add_argument(
+        "--rounds", default="", help="only these rounds, comma separated, for example 7"
+    )
     parser.add_argument("--only", default="", help="substring filter on instance names")
     args = parser.parse_args(argv)
 
@@ -523,7 +547,9 @@ def main(argv: list[str] | None = None) -> int:
         wanted = {int(text) for text in args.rounds.split(",")}
         jobs = [job for job in jobs if job.round in wanted]
 
-    store = BestStore(args.out / "solutions" / "best", args.out / "solutions" / "candidates")
+    store = BestStore(
+        args.out / "solutions" / "best", args.out / "solutions" / "candidates"
+    )
     job_log = JobLog(args.out / "jobs.jsonl")
 
     memory_mb = None if args.memory_gb is None else int(args.memory_gb * 1024)

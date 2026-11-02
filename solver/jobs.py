@@ -188,7 +188,13 @@ def configs_for(k: int, round_number: int) -> list[dict]:
             configs.append({"method": "segments-mixed", "params": params})
 
         for partition in partitions:
-            configs.append({"method": "segments-mixed", "params": MIXED_PARAMS[0], "partition": partition})
+            configs.append(
+                {
+                    "method": "segments-mixed",
+                    "params": MIXED_PARAMS[0],
+                    "partition": partition,
+                }
+            )
 
     elif round_number == 8 and k > 1:
         for method in ("groups-h", "groups-v"):

@@ -117,9 +117,9 @@ class VisitCounts:
             counts_window = self._counts[
                 bottom - fy0 : top - fy0 + 1, left - fx0 : right - fx0 + 1
             ]
-            visited[
-                bottom - ay0 : top - ay0 + 1, left - ax0 : right - ax0 + 1
-            ] = counts_window > 0
+            visited[bottom - ay0 : top - ay0 + 1, left - ax0 : right - ax0 + 1] = (
+                counts_window > 0
+            )
 
         swept = dilate(CellSet(visited, (ax0, ay0)), cutter)
 

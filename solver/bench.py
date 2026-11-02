@@ -55,7 +55,9 @@ WORST_X_LARGE = 3
 BENCH_ROUND = -1
 
 
-def pick_bench(catalog: list[dict[str, str]], leaderboard: list[dict[str, str]]) -> list[str]:
+def pick_bench(
+    catalog: list[dict[str, str]], leaderboard: list[dict[str, str]]
+) -> list[str]:
     """
     Two instances per cutter family and k, spread over the size range, plus
     the worst X gaps above the size cap. Deterministic for fixed inputs.
@@ -83,8 +85,7 @@ def pick_bench(catalog: list[dict[str, str]], leaderboard: list[dict[str, str]])
             index = (count * share) // (PER_STRATUM + 1)
             picks.append(members[index][1])
 
-        for uid in dict.fromkeys(picks):
-            chosen.append(uid)
+        chosen.extend(dict.fromkeys(picks))
 
     # worst gaps of the X family among the big instances
     large_x = []
@@ -126,7 +127,12 @@ def parse_config(text: str) -> dict[str, Any]:
         if key == "seed":
             seed = int(value)
 
-    return {"method": method, "params": tuple(params), "partition": partition, "seed": seed}
+    return {
+        "method": method,
+        "params": tuple(params),
+        "partition": partition,
+        "seed": seed,
+    }
 
 
 def config_of_best(path: Path) -> dict[str, Any]:
@@ -226,7 +232,9 @@ def score_run(
         gap = 100.0 * (objective - bound) / bound
         gaps.setdefault(family(uid), []).append(gap)
 
-        rows.append({"instance": uid, "before": before, "ours": objective, "ratio": ratio})
+        rows.append(
+            {"instance": uid, "before": before, "ours": objective, "ratio": ratio}
+        )
 
     medians = {}
     for name in sorted(gaps):
@@ -245,8 +253,8 @@ def score_run(
 
 def read_bench_list(path: Path = BENCH_LIST) -> list[str]:
     uids = []
-    for line in path.read_text().splitlines():
-        line = line.strip()
+    for raw in path.read_text().splitlines():
+        line = raw.strip()
         if line and not line.startswith("#"):
             uids.append(line)
 
@@ -282,8 +290,15 @@ def main(argv: list[str] | None = None) -> int:
     run = sub.add_parser("run", help="run one config on every benchmark instance")
     run.add_argument("config")
     run.add_argument("--seconds", type=float, default=None)
-    run.add_argument("--cores", type=int, default=None, help="core permits, default all but one")
-    run.add_argument("--memory-gb", type=float, default=None, help="memory permits, default most of what is free")
+    run.add_argument(
+        "--cores", type=int, default=None, help="core permits, default all but one"
+    )
+    run.add_argument(
+        "--memory-gb",
+        type=float,
+        default=None,
+        help="memory permits, default most of what is free",
+    )
     run.add_argument("--instances", type=Path, default=DEFAULT_INSTANCES)
     run.add_argument("--only", default="", help="substring filter on instance names")
 
@@ -303,7 +318,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"wrote {len(uids)} instances to {BENCH_LIST}")
         return 0
 
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s", datefmt="%H:%M:%S")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s %(message)s", datefmt="%H:%M:%S"
+    )
 
     uids = read_bench_list()
     if args.only:

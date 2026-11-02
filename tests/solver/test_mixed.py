@@ -3,16 +3,23 @@ Mixed lanes must sweep each part of the region the way it runs, cover every
 cell, and never cost more than plain lanes by their own measure.
 """
 
+from itertools import pairwise
+
 import numpy as np
 
 from cgshop2027_pyutils.grid import CellSet
-
 from solver.construct.mixed import mixed_segment_ends, segments_mixed
 from solver.construct.segments import lane_segments
 from solver.model import Problem
 from solver.tours import densify
 
-KNOBS = {"tile_lanes": 4, "segment_cost": 3.0, "gap_factor": 0.0, "shift": 0.0, "flip_rounds": 4}
+KNOBS = {
+    "tile_lanes": 4,
+    "segment_cost": 3.0,
+    "gap_factor": 0.0,
+    "shift": 0.0,
+    "flip_rounds": 4,
+}
 
 
 def l_shape() -> Problem:
@@ -43,7 +50,7 @@ def test_each_bar_is_swept_along_its_length():
 
     plain_h = lane_segments(problem, gap_factor=0)
     plain_v = lane_segments(problem.transposed(), gap_factor=0)
-    left, right = mixed_segment_ends(problem, **KNOBS)
+    left, _ = mixed_segment_ends(problem, **KNOBS)
 
     # plain lanes cut the bar that runs across them into twenty stubs
     assert min(len(plain_h), len(plain_v)) >= 20
@@ -63,5 +70,5 @@ def test_segments_mixed_returns_a_connected_walk():
     walk = segments_mixed(l_shape(), kick_seconds=0.1, time_limit=1.0)
 
     # consecutive corners are axis parallel
-    for (x0, y0), (x1, y1) in zip(walk, walk[1:]):
+    for (x0, y0), (x1, y1) in pairwise(walk):
         assert x0 == x1 or y0 == y1

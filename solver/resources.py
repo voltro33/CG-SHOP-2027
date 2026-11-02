@@ -20,6 +20,7 @@ import ctypes
 import os
 import sys
 from dataclasses import dataclass
+from typing import ClassVar
 
 # psutil is optional, the fallbacks below ask the system directly
 try:
@@ -163,7 +164,7 @@ def available_memory_mb() -> int:
 
 def _windows_available_mb() -> int:
     class MemoryStatus(ctypes.Structure):
-        _fields_ = [
+        _fields_: ClassVar = [
             ("length", ctypes.c_ulong),
             ("memory_load", ctypes.c_ulong),
             ("total_physical", ctypes.c_ulonglong),

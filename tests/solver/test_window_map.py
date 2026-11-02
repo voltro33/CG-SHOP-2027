@@ -8,7 +8,6 @@ import pytest
 
 from cgshop2027_pyutils.grid import CellSet
 from cgshop2027_pyutils.schemas import CGSHOP2027Solution, CutterTour
-
 from solver.model import Problem
 from solver.window_map import summarize, window_map
 
@@ -55,7 +54,9 @@ def test_cells_swept_from_two_windows_belong_to_neither():
 
 def test_summary_shares_are_shares():
     problem = one_row_problem()
-    summary = summarize(problem, window_map(problem, there_and_back(), side=1), side_spans=1)
+    summary = summarize(
+        problem, window_map(problem, there_and_back(), side=1), side_spans=1
+    )
 
     assert summary.windows == 5
     assert summary.room_share == pytest.approx(7 / 8)

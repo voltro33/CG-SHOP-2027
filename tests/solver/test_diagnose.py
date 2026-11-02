@@ -8,7 +8,6 @@ import pytest
 
 from cgshop2027_pyutils.grid import CellSet
 from cgshop2027_pyutils.schemas import CGSHOP2027Solution, CutterTour
-
 from solver.diagnose import diagnose, lane_gain
 from solver.model import Problem
 
@@ -73,7 +72,9 @@ def test_lane_overheads_of_one_short_lane():
 
 def test_incomplete_coverage_is_refused():
     # stopping at 3 never reaches the last cell
-    short = CGSHOP2027Solution(instance_uid="row_1s2", tours=[CutterTour(x=[0, 3], y=[0, 0])])
+    short = CGSHOP2027Solution(
+        instance_uid="row_1s2", tours=[CutterTour(x=[0, 3], y=[0, 0])]
+    )
 
     with pytest.raises(AssertionError):
         diagnose(one_row_problem(), short)

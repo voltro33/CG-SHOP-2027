@@ -6,7 +6,7 @@ one. The windowed path only exists to save memory on huge cutters.
 import numpy as np
 import pytest
 
-import solver.improve as improve
+from solver import improve
 from solver.improve import VisitCounts
 from solver.model import Problem
 from tests.solver.test_pipeline import L_SHAPE, make_instance

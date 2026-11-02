@@ -8,7 +8,9 @@ import pytest
 from solver.mine_report import config_of, config_stats, round_stats, size_band
 
 
-def record(instance: str, label: str, round_number: int, objective: int | None, seed: int = 0) -> dict:
+def record(
+    instance: str, label: str, round_number: int, objective: int | None, seed: int = 0
+) -> dict:
     return {
         "job_id": f"{instance}|{label}|s{seed}|v2",
         "instance": instance,
@@ -33,7 +35,10 @@ LOG = [
 
 
 def test_config_is_label_and_seed():
-    assert config_of(record("a", "segments-h/gap_factor=0", 2, 1, seed=3)) == "segments-h/gap_factor=0|s3"
+    assert (
+        config_of(record("a", "segments-h/gap_factor=0", 2, 1, seed=3))
+        == "segments-h/gap_factor=0|s3"
+    )
     assert config_of({"job_id": "a|segments-v|s0"}) == "segments-v|s0"
 
 

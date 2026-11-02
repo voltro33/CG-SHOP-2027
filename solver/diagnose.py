@@ -50,6 +50,7 @@ from cgshop2027_pyutils.instance_database import InstanceDatabase
 from cgshop2027_pyutils.io import read_solution
 from cgshop2027_pyutils.schemas import CGSHOP2027Solution
 
+from .bench import read_bench_list
 from .bounds import lower_bound
 from .model import Problem
 from .report import family
@@ -164,7 +165,7 @@ def diagnose(problem: Problem, solution: CGSHOP2027Solution) -> Breakdown:
 
     tours = []
     for tour in solution.tours:
-        corners = list(zip(tour.x, tour.y))
+        corners = list(zip(tour.x, tour.y, strict=True))
         tours.append(densify(corners, closed=True))
 
     # one frame that holds every footprint of every tour and the whole region
@@ -183,7 +184,12 @@ def diagnose(problem: Problem, solution: CGSHOP2027Solution) -> Breakdown:
     first_swept = np.full((height, width), -1, dtype=np.int64)
 
     parts = dict.fromkeys(PARTS, 0.0)
-    per_lane = {"overshoot_at_lane_ends": 0.0, "dead_short": 0.0, "dead_travel": 0.0, "lanes": 0}
+    per_lane = {
+        "overshoot_at_lane_ends": 0.0,
+        "dead_short": 0.0,
+        "dead_travel": 0.0,
+        "lanes": 0,
+    }
     counts = {"dead": 0, "partial": 0, "full": 0}
     new_total = 0
     start_total = 0
@@ -192,7 +198,9 @@ def diagnose(problem: Problem, solution: CGSHOP2027Solution) -> Breakdown:
     for positions in tours:
         # the first footprint of a tour comes free, before any step
         start = positions[0] + offsets - low
-        start_new = in_region[start[:, 1], start[:, 0]] & (first_swept[start[:, 1], start[:, 0]] < 0)
+        start_new = in_region[start[:, 1], start[:, 0]] & (
+            first_swept[start[:, 1], start[:, 0]] < 0
+        )
         first_swept[start[start_new, 1], start[start_new, 0]] = clock
         start_total += int(start_new.sum())
 
@@ -336,15 +344,20 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--instances", type=Path, default=DEFAULT_INSTANCES)
     parser.add_argument("--best", type=Path, default=DATA / "solutions" / "best")
     parser.add_argument("--only", default="")
-    parser.add_argument("--json", type=Path, default=None, help="also write every breakdown here")
+    parser.add_argument(
+        "--json", type=Path, default=None, help="also write every breakdown here"
+    )
     args = parser.parse_args(argv)
-
-    from .bench import read_bench_list
 
     uids = [uid for uid in read_bench_list() if args.only in uid]
     database = InstanceDatabase(str(args.instances))
 
-    header = ["instance".ljust(30), "   gap", "lane/", *[part[:6].rjust(6) for part in PARTS]]
+    header = [
+        "instance".ljust(30),
+        "   gap",
+        "lane/",
+        *[part[:6].rjust(6) for part in PARTS],
+    ]
     print(" ".join(header))
 
     results = []
@@ -357,7 +370,9 @@ def main(argv: list[str] | None = None) -> int:
         print(_row(result), flush=True)
 
     if args.json:
-        args.json.write_text(json.dumps([asdict(result) for result in results], indent=2))
+        args.json.write_text(
+            json.dumps([asdict(result) for result in results], indent=2)
+        )
 
     return 0
 

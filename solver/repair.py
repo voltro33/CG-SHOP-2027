@@ -50,7 +50,9 @@ def repair_tours(problem: Problem, tours: list[np.ndarray]) -> list[np.ndarray]:
         return walks
 
     # which tour and which position every joined position comes from
-    owner = np.concatenate([np.full(len(walk), index) for index, walk in enumerate(walks)])
+    owner = np.concatenate(
+        [np.full(len(walk), index) for index, walk in enumerate(walks)]
+    )
     position = np.concatenate([np.arange(len(walk)) for walk in walks])
 
     offsets = problem.offsets

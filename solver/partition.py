@@ -13,6 +13,7 @@ pieces afterwards. Here we do it the other way round:
 """
 
 from collections.abc import Callable
+from itertools import pairwise
 
 import numpy as np
 
@@ -38,10 +39,7 @@ def band_problems(problem: Problem, shares: list[float], axis: str) -> list[Prob
     origin = problem.region.origin
 
     # cells per row for horizontal bands, cells per column for vertical bands
-    if axis == "y":
-        line_counts = mask.sum(axis=1)
-    else:
-        line_counts = mask.sum(axis=0)
+    line_counts = mask.sum(axis=1) if axis == "y" else mask.sum(axis=0)
 
     cumulative = np.cumsum(line_counts)
     total = int(cumulative[-1])
@@ -53,7 +51,7 @@ def band_problems(problem: Problem, shares: list[float], axis: str) -> list[Prob
     bounds = [0, *cut_lines.tolist(), len(line_counts)]
 
     bands = []
-    for start, stop in zip(bounds[:-1], bounds[1:], strict=True):
+    for start, stop in pairwise(bounds):
         # crop to the band so its bounds and frames stay small
         if axis == "y":
             band_mask = mask[start:stop, :].copy()
@@ -67,7 +65,9 @@ def band_problems(problem: Problem, shares: list[float], axis: str) -> list[Prob
             continue
 
         region = CellSet(band_mask, band_origin)
-        bands.append(Problem(uid=problem.uid, region=region, cutter=problem.cutter, k=1))
+        bands.append(
+            Problem(uid=problem.uid, region=region, cutter=problem.cutter, k=1)
+        )
 
     return bands
 

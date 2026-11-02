@@ -20,7 +20,6 @@ Leaderboard and summary numbers for the morning report.
 import csv
 import io
 import json
-import os
 import re
 import statistics
 import sys
@@ -130,7 +129,7 @@ def write_leaderboard(path: Path, catalog, store, records) -> None:
     temp.write_text(buffer.getvalue())
     for attempt in range(10):
         try:
-            os.replace(temp, path)
+            temp.replace(path)
             return
         except PermissionError:
             time.sleep(0.2 * (attempt + 1))
@@ -208,7 +207,12 @@ def main(argv: list[str] | None = None) -> int:
             parsed: dict[str, Any] = dict(row)
             for key in ("baseline", "best", "lower_bound"):
                 parsed[key] = int(row[key]) if row[key] else None
-            for key in ("gap_pct", "vs_baseline_pct", "score_gain", "pessimistic_score"):
+            for key in (
+                "gap_pct",
+                "vs_baseline_pct",
+                "score_gain",
+                "pessimistic_score",
+            ):
                 parsed[key] = float(row[key]) if row.get(key) else None
             rows.append(parsed)
 

@@ -119,7 +119,9 @@ def mixed_segment_ends(
     in the coordinates of the problem.
     """
     grid = tile_grid(problem, tile_lanes, shift)
-    vertical = tile_directions(problem, grid, segment_cost=segment_cost, flip_rounds=flip_rounds)
+    vertical = tile_directions(
+        problem, grid, segment_cost=segment_cost, flip_rounds=flip_rounds
+    )
 
     # every region cell gets the direction of its tile
     mask = problem.region.mask
@@ -130,7 +132,9 @@ def mixed_segment_ends(
 
     horizontal_part = _restricted(problem, mask & ~cell_vertical)
     if horizontal_part is not None:
-        left, right = _horizontal_ends(horizontal_part, grid_start_y(problem, grid), grid.band_y, gap_factor)
+        left, right = _horizontal_ends(
+            horizontal_part, grid_start_y(problem, grid), grid.band_y, gap_factor
+        )
         ends_left.append(left)
         ends_right.append(right)
 
@@ -138,7 +142,9 @@ def mixed_segment_ends(
     if vertical_part is not None:
         # vertical lanes are horizontal lanes of the mirrored problem
         mirrored = vertical_part.transposed()
-        left, right = _horizontal_ends(mirrored, grid_start_x(problem, grid), grid.band_x, gap_factor)
+        left, right = _horizontal_ends(
+            mirrored, grid_start_x(problem, grid), grid.band_x, gap_factor
+        )
         ends_left.append(left[:, ::-1])
         ends_right.append(right[:, ::-1])
 
@@ -186,15 +192,23 @@ def tile_directions(
     def row_cost(tile_row: int, vertical: np.ndarray) -> float:
         # the horizontal cells of one tile row, cut into lanes together
         rows = grid.row_slice(tile_row)
-        columns_vertical = _spread(vertical[tile_row], grid.first_column, grid.width, mask.shape[1])
+        columns_vertical = _spread(
+            vertical[tile_row], grid.first_column, grid.width, mask.shape[1]
+        )
         strip = mask[rows] & ~columns_vertical[None, :]
-        return _strip_cost(problem, strip, rows.start, 0, segment_cost, grid, along_x=True)
+        return _strip_cost(
+            problem, strip, rows.start, 0, segment_cost, grid, along_x=True
+        )
 
     def column_cost(tile_column: int, vertical: np.ndarray) -> float:
         columns = grid.column_slice(tile_column)
-        rows_vertical = _spread(vertical[:, tile_column], grid.first_row, grid.height, mask.shape[0])
+        rows_vertical = _spread(
+            vertical[:, tile_column], grid.first_row, grid.height, mask.shape[0]
+        )
         strip = mask[:, columns] & rows_vertical[:, None]
-        return _strip_cost(problem, strip, 0, columns.start, segment_cost, grid, along_x=False)
+        return _strip_cost(
+            problem, strip, 0, columns.start, segment_cost, grid, along_x=False
+        )
 
     all_h = np.zeros((grid.rows, grid.columns), dtype=bool)
     all_v = occupied.copy()
@@ -264,10 +278,14 @@ def _strip_cost(
 
     if along_x:
         band = grid.band_y
-        left_ends, right_ends = _horizontal_ends(part, grid_start_y(problem, grid), band, 0.0)
+        left_ends, right_ends = _horizontal_ends(
+            part, grid_start_y(problem, grid), band, 0.0
+        )
     else:
         band = grid.band_x
-        left_ends, right_ends = _horizontal_ends(part.transposed(), grid_start_x(problem, grid), band, 0.0)
+        left_ends, right_ends = _horizontal_ends(
+            part.transposed(), grid_start_x(problem, grid), band, 0.0
+        )
 
     length = float(np.abs(right_ends - left_ends).sum())
 
@@ -316,7 +334,9 @@ def _spread(values: np.ndarray, first: int, size: int, length: int) -> np.ndarra
     return values[index]
 
 
-def _cell_values(tiles: np.ndarray, grid: TileGrid, shape: tuple[int, int]) -> np.ndarray:
+def _cell_values(
+    tiles: np.ndarray, grid: TileGrid, shape: tuple[int, int]
+) -> np.ndarray:
     rows = _spread(np.arange(grid.rows), grid.first_row, grid.height, shape[0])
     columns = _spread(np.arange(grid.columns), grid.first_column, grid.width, shape[1])
 

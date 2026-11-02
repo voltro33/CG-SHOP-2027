@@ -209,9 +209,7 @@ def _tours_partitioned(
     return _pad_with_idle(tours, problem.k, tours[0][0])
 
 
-def _pad_with_idle(
-    tours: list[list[Point]], k: int, home: Point
-) -> list[list[Point]]:
+def _pad_with_idle(tours: list[list[Point]], k: int, home: Point) -> list[list[Point]]:
     """
     Adds one point tours for cutters that got no work, since the solution
     must always have exactly k tours.
