@@ -159,6 +159,13 @@ keep solutions in a separate location.
 
 ---
 
+## Solver
+
+The solver, its tests, the miner and the picture window live in `solver/`.
+Setup and every command are in [`solver/README.md`](solver/README.md).
+
+---
+
 ## Development
 
 Set up the tooling (linting & formatting run through pre-commit):

@@ -3,14 +3,62 @@
 Builds feasible solutions for every instance, verifies them with the official
 `SolutionValidator`, and keeps the best one per instance.
 
+All commands below are for Git Bash, run from the repo root.
+
+## Setup, once
+
+Python 3.10 or newer. The solver needs the package itself, its dev tools,
+and OR-Tools for the CP-SAT polish. Pillow (for the picture window) comes
+with matplotlib, and Tkinter ships with the python.org installer.
+
 ```bash
-python -m solver.mine --hours 8 --workers 15            # overnight mining on the challenge instances
+python -m venv .venv
+source .venv/Scripts/activate        # every new terminal; or call .venv/Scripts/python directly
+pip install -e ".[dev]" ortools
+pre-commit install                   # ruff on every commit
+```
+
+The challenge instances go in `data/instances/challenge_v0/instances/`
+(git-ignored). The example instances in `example_instances.zip` work without them.
+
+## Tests
+
+```bash
+python -m pytest tests/solver -q     # solver tests, about 4 minutes
+python -m pytest tests -q            # everything, the official pyutils tests too
+python -m pytest tests/solver/test_polish.py -q   # one file
+```
+
+Lint and formatting run through the pre-commit hook on every commit.
+
+## Running
+
+```bash
+# mining: every round, resumable, all cores but one
+python -m solver.mine --hours 8
+python -m solver.mine --rounds 9 --hours 5           # only some rounds
+python -m solver.mine --only pla7k --hours 0.2       # only matching instances
 python -m solver.mine --instances example_instances.zip --hours 0.2
-python -m solver.polish --all --hours 5                 # CP-SAT window polish of every stored best
-python -m solver.plot_app                               # a window for drawing pictures of runs and bests
-python -m solver.report                                 # headline numbers from data/leaderboard.csv
-python -m solver.catalog                                # data/catalog.csv, one row per instance
-python -m pytest tests/solver                           # solver tests
+
+# polish: CP-SAT window re-solves of the stored bests
+python -m solver.polish --all --hours 5              # every best, through the miner
+python -m solver.polish --only fjs3649 --seconds 300 # a few, for a quick look
+
+# reports
+python -m solver.report                              # headline numbers from data/leaderboard.csv
+python -m solver.mine_report                         # which rounds and configs paid off
+python -m solver.catalog                             # data/catalog.csv, one row per instance
+
+# benchmark and diagnosis, on the fixed 31 instance set
+python -m solver.bench pick                          # write data/bench.txt once
+python -m solver.bench run best                      # score the stored bests
+python -m solver.bench run "groups-h/gap_factor=0" --seconds 60
+python -m solver.diagnose                            # where the tour length goes
+python -m solver.window_map                          # where the waste sits, window by window
+
+# pictures, see below
+python -m solver.plot_app                            # the window
+python -m solver.plot --all                          # every stored best into plots/
 ```
 
 Mining output goes to `data/` (large parts git-ignored):
