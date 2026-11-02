@@ -33,7 +33,6 @@ __all__ = [
     "segments_horizontal",
     "segments_vertical",
     "walk_segments",
-    "widest_rows",
 ]
 
 
@@ -55,7 +54,6 @@ def segments_horizontal(
     offset: int = 0,
     gap_factor: float = 2.0,
     shift: float = 0.0,
-    pitch: float = 1.0,
     kick_seconds: float | None = None,
     seed: int = 0,
     anneal: float = 0.0,
@@ -69,12 +67,7 @@ def segments_horizontal(
     makes that search simulated annealing, see `ordering.improve_order`.
     """
     segments = lane_segments(
-        problem,
-        max_gap=max_gap,
-        offset=offset,
-        gap_factor=gap_factor,
-        shift=shift,
-        pitch=pitch,
+        problem, max_gap=max_gap, offset=offset, gap_factor=gap_factor, shift=shift
     )
     if not segments:
         return []
@@ -142,7 +135,6 @@ def segments_vertical(
     offset: int = 0,
     gap_factor: float = 2.0,
     shift: float = 0.0,
-    pitch: float = 1.0,
     kick_seconds: float | None = None,
     seed: int = 0,
     anneal: float = 0.0,
@@ -157,7 +149,6 @@ def segments_vertical(
         offset=offset,
         gap_factor=gap_factor,
         shift=shift,
-        pitch=pitch,
         kick_seconds=kick_seconds,
         seed=seed,
         anneal=anneal,
@@ -186,7 +177,6 @@ def lane_segments(
     offset: int = 0,
     gap_factor: float = 2.0,
     shift: float = 0.0,
-    pitch: float = 1.0,
 ) -> list[Segment]:
     """
     The segments of every horizontal lane, bottom to top, left to right.
@@ -195,25 +185,16 @@ def lane_segments(
     many rows, which changes where the band borders fall. `shift` does the
     same as a fraction of the lane height and adds to `offset`.
 
-    `pitch` below 1 puts the lanes closer, that fraction of the cutter height
-    apart. Each lane then answers only for the rows under the widest cutter
-    rows that fit the pitch, so the narrow tips of a diamond or a plus no
-    longer stretch every lane out to the region border.
-
     Without an explicit `max_gap`, gaps up to `gap_factor` lane heights get
     bridged. A factor of 0 only joins intervals that touch or overlap.
     """
     extents = problem.row_extents()
-    band = max(extents) - min(extents) + 1
-
-    if max_gap is None:
-        max_gap = int(gap_factor * band)
-
-    step = max(1, min(band, round(pitch * band)))
-    extents = widest_rows(extents, step)
     dy_low = min(extents)
     dy_high = max(extents)
     band = dy_high - dy_low + 1
+
+    if max_gap is None:
+        max_gap = int(gap_factor * band)
 
     offset = offset + int(shift * band)
 
@@ -235,42 +216,6 @@ def lane_segments(
             segments.append(Segment(y, a, b))
 
     return segments
-
-
-def widest_rows(
-    extents: dict[int, tuple[int, int]], count: int
-) -> dict[int, tuple[int, int]]:
-    """
-    The `count` consecutive cutter rows whose narrowest row is widest, ties
-    broken by total width. A lane only answers for these rows, the other
-    rows still sweep but nothing relies on them.
-    """
-    rows = sorted(extents)
-    if count >= len(rows):
-        return dict(extents)
-
-    best_start = rows[0]
-    best_key = None
-    for start in range(rows[0], rows[-1] - count + 2):
-        widths = []
-        for dy in range(start, start + count):
-            if dy in extents:
-                low, high = extents[dy]
-                widths.append(high - low)
-            else:
-                widths.append(-1)
-
-        key = (min(widths), sum(widths))
-        if best_key is None or key > best_key:
-            best_key = key
-            best_start = start
-
-    window = {}
-    for dy in range(best_start, best_start + count):
-        if dy in extents:
-            window[dy] = extents[dy]
-
-    return window
 
 
 def _row_runs(problem: Problem) -> dict[int, np.ndarray]:
