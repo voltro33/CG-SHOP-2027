@@ -7,19 +7,21 @@ All commands below are for Git Bash, run from the repo root.
 
 ## Setup, once
 
-Python 3.10 or newer. The solver needs the package itself, its dev tools,
-and OR-Tools for the CP-SAT polish. Pillow (for the picture window) comes
-with matplotlib, and Tkinter ships with the python.org installer.
+Python 3.10 or newer. The solver needs the package itself, its dev tools (ruff
+pinned to the hook's version), and OR-Tools for the CP-SAT polish. Pillow (for
+the picture window) comes with matplotlib, and Tkinter ships with the python.org
+installer.
 
 ```bash
 python -m venv .venv
 source .venv/Scripts/activate        # every new terminal; or call .venv/Scripts/python directly
-pip install -e ".[dev]" ortools
+pip install -e ".[dev,solver]"
 pre-commit install                   # ruff on every commit
 ```
 
 The challenge instances go in `data/instances/challenge_v0/instances/`
-(git-ignored). The example instances in `example_instances.zip` work without them.
+(git-ignored). The example instances in `example_instances.zip` work without
+them.
 
 ## Tests
 
@@ -63,10 +65,12 @@ python -m solver.plot --all                          # every stored best into pl
 
 Mining output goes to `data/` (large parts git-ignored):
 
-- `data/solutions/best/<uid>.solution.json`: best verified solution, replaced only by a strictly better one.
+- `data/solutions/best/<uid>.solution.json`: best verified solution, replaced
+  only by a strictly better one.
 - `data/solutions/candidates/<uid>/`: verified solutions within 5% of the best.
 - `data/jobs.jsonl`: one line per finished job; restarts skip these.
-- `data/leaderboard.csv`: bound, baseline, best, gap per instance. `data/mine.log`: the run log.
+- `data/leaderboard.csv`: bound, baseline, best, gap per instance.
+  `data/mine.log`: the run log.
 
 ## Pipeline
 
@@ -75,26 +79,26 @@ single walk:  segments -> ILS order -> repair -> prune walk -> split into k -> c
 partitioned:  k bands -> per band (segments, order, repair, close, prune) -> rebalance -> prune -> verify
 ```
 
-| Module | What it does |
-| --- | --- |
-| `model.py` | `Problem`: region cells, cutter offsets from its center, `k`, coverage helpers |
-| `tours.py` | corners <-> unit positions <-> `CutterTour`; bends, closing, normalizing |
-| `bounds.py` | lower bounds (area per unit step; extent for `k = 1`) |
-| `catalog.py` | instance features into `data/catalog.csv` |
+| Module                  | What it does                                                                                   |
+| ----------------------- | ---------------------------------------------------------------------------------------------- |
+| `model.py`              | `Problem`: region cells, cutter offsets from its center, `k`, coverage helpers                 |
+| `tours.py`              | corners <-> unit positions <-> `CutterTour`; bends, closing, normalizing                       |
+| `bounds.py`             | lower bounds (area per unit step; extent for `k = 1`)                                          |
+| `catalog.py`            | instance features into `data/catalog.csv`                                                      |
 | `construct/segments.py` | lanes cut into segments at gaps; knobs `gap_factor`, `shift`, `seed`, `kick_seconds`, `anneal` |
-| `construct/ordering.py` | segment order: 2-opt + Or-opt on neighbour lists, iterated local search, optional annealing |
-| `construct/lanes.py` | plain back-and-forth lanes, horizontal and vertical |
-| `repair.py` | adds out-and-back detours for any cell a walk misses |
-| `split.py` | splits one walk into `k` closed tours, minimizing the longest |
-| `partition.py` | `k` equal-cell bands with rebalancing rounds |
-| `improve.py` | corner-cut local search; windowed coverage check for huge cutters |
-| `pipeline.py` | `SolveConfig` + `solve`: one config through all stages, verified `Attempt` |
-| `jobs.py` | the mining job grid, in rounds |
-| `mine.py` | parallel resumable miner, best store, crash recovery |
-| `polish.py` | re-solves 20 x 20 windows of the longest tour with CP-SAT, splices in shorter walks |
-| `plot.py` | pictures of stored bests and runs with the official plot, into `plots/` |
-| `plot_app.py` | a Tkinter window over `plot.py`: pick runs or instances, draw, preview |
-| `report.py` | leaderboard and summary numbers |
+| `construct/ordering.py` | segment order: 2-opt + Or-opt on neighbour lists, iterated local search, optional annealing    |
+| `construct/lanes.py`    | plain back-and-forth lanes, horizontal and vertical                                            |
+| `repair.py`             | adds out-and-back detours for any cell a walk misses                                           |
+| `split.py`              | splits one walk into `k` closed tours, minimizing the longest                                  |
+| `partition.py`          | `k` equal-cell bands with rebalancing rounds                                                   |
+| `improve.py`            | corner-cut local search; windowed coverage check for huge cutters                              |
+| `pipeline.py`           | `SolveConfig` + `solve`: one config through all stages, verified `Attempt`                     |
+| `jobs.py`               | the mining job grid, in rounds                                                                 |
+| `mine.py`               | parallel resumable miner, best store, crash recovery                                           |
+| `polish.py`             | re-solves 20 x 20 windows of the longest tour with CP-SAT, splices in shorter walks            |
+| `plot.py`               | pictures of stored bests and runs with the official plot, into `plots/`                        |
+| `plot_app.py`           | a Tkinter window over `plot.py`: pick runs or instances, draw, preview                         |
+| `report.py`             | leaderboard and summary numbers                                                                |
 
 ## Pictures of solutions
 
@@ -107,12 +111,17 @@ The window:
 python -m solver.plot_app
 ```
 
-- Left: every instance with a stored best and its length. Type in the box to filter.
+- Left: every instance with a stored best and its length. Type in the box to
+  filter.
 - Middle: the stored runs of the instance clicked last, shortest first.
-- Click selects one, shift click a range, ctrl click adds one, ctrl a selects all.
-- **Draw selected runs** draws every selected run, **Draw bests of selected instances** the best of each.
-- `bare` drops axes and titles for slides, `gif` also writes an animation, `dpi` sets the resolution.
-- The last picture shows on the right; double click it to open it full size. **Stop** ends a long batch.
+- Click selects one, shift click a range, ctrl click adds one, ctrl a selects
+  all.
+- **Draw selected runs** draws every selected run, **Draw bests of selected
+  instances** the best of each.
+- `bare` drops axes and titles for slides, `gif` also writes an animation, `dpi`
+  sets the resolution.
+- The last picture shows on the right; double click it to open it full size.
+  **Stop** ends a long batch.
 
 The same from the command line:
 
@@ -129,12 +138,15 @@ Instances above a million cells take a while to draw.
 
 ## Adding an idea
 
-- **New constructor**: write `def my_walk(problem: Problem, **knobs) -> list[Point]`
-  returning an open walk, register it in `construct/__init__.py`. Repair,
-  splitting and verification come for free.
-- **New knob or config**: add it to `configs_for` in `jobs.py`. If code changes make old results
-  stale, bump `CODE_VERSION` so the miner reruns every config.
-- **New improvement move**: corner-level moves go in `improve.py` (use `VisitCounts`
-  to check coverage locally); order-level moves go in `ordering.py`.
+- **New constructor**: write
+  `def my_walk(problem: Problem, **knobs) -> list[Point]` returning an open
+  walk, register it in `construct/__init__.py`. Repair, splitting and
+  verification come for free.
+- **New knob or config**: add it to `configs_for` in `jobs.py`. If code changes
+  make old results stale, bump `CODE_VERSION` so the miner reruns every config.
+- **New improvement move**: corner-level moves go in `improve.py` (use
+  `VisitCounts` to check coverage locally); order-level moves go in
+  `ordering.py`.
 
-Concept docs for all of this live in `docs/concepts/`, terms in `docs/glossary.md`.
+Concept docs for all of this live in `docs/concepts/`, terms in
+`docs/glossary.md`.
