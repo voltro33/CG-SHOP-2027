@@ -164,6 +164,9 @@ keep solutions in a separate location.
 The solver, its tests, the miner and the picture window live in `solver/`. Setup
 and every command are in [`solver/README.md`](solver/README.md).
 
+New here? [`docs/how-it-works.md`](docs/how-it-works.md) walks through the whole
+approach step by step, with diagrams.
+
 ---
 
 ## Development

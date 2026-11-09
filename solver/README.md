@@ -148,5 +148,5 @@ Instances above a million cells take a while to draw.
   `VisitCounts` to check coverage locally); order-level moves go in
   `ordering.py`.
 
-Concept docs for all of this live in `docs/concepts/`, terms in
-`docs/glossary.md`.
+How it all fits together, step by step:
+[`docs/how-it-works.md`](../docs/how-it-works.md).
