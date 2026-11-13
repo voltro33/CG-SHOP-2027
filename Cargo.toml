@@ -7,6 +7,12 @@ members = [
     "crates/plugins/order",
     "crates/plugins/decompose",
     "crates/adapters/viz",
+    "crates/plugins/improve",
+    "crates/plugins/assign",
+    "crates/app/pipeline",
+    "crates/adapters/verify",
+    "crates/adapters/store",
+    "crates/app/cli",
 ]
 
 [workspace.package]
@@ -22,6 +28,12 @@ mow-coverage = { path = "crates/domain/coverage" }
 mow-order = { path = "crates/plugins/order" }
 mow-decompose = { path = "crates/plugins/decompose" }
 mow-viz = { path = "crates/adapters/viz" }
+mow-improve = { path = "crates/plugins/improve" }
+mow-assign = { path = "crates/plugins/assign" }
+mow-pipeline = { path = "crates/app/pipeline" }
+mow-verify = { path = "crates/adapters/verify" }
+mow-store = { path = "crates/adapters/store" }
+mow-cli = { path = "crates/app/cli" }
 
 thiserror = "1.0.69"
 serde = { version = "1.0.210", features = ["derive"] }

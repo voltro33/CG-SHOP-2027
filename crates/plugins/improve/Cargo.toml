@@ -1,0 +1,17 @@
+[package]
+name = "mow-improve"
+description = "Coverage repair and corner cutting on walks and routes"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+mow-core.workspace = true
+mow-coverage.workspace = true
+
+[dev-dependencies]
+mow-io.workspace = true
+
+[lints]
+workspace = true

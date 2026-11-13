@@ -1,0 +1,32 @@
+[package]
+name = "mow-cli"
+description = "The mow command: solve, mine, compare"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lib]
+name = "mow_cli"
+path = "src/lib.rs"
+
+[[bin]]
+name = "mow"
+path = "src/main.rs"
+
+[dependencies]
+mow-core.workspace = true
+mow-io.workspace = true
+mow-coverage.workspace = true
+mow-decompose.workspace = true
+mow-order.workspace = true
+mow-improve.workspace = true
+mow-assign.workspace = true
+mow-pipeline.workspace = true
+mow-verify.workspace = true
+mow-store.workspace = true
+mow-viz.workspace = true
+serde_json = { workspace = true, features = ["raw_value"] }
+
+[lints]
+workspace = true
