@@ -31,8 +31,6 @@ dependencies = [
 # ruff matches the pre-commit hook, nodeenv 1.12 reads the prerelease node
 # version the prettier hook asks for
 dev = ["pre-commit", "nodeenv>=1.12", "pytest", "ruff==0.14.0"]
-# CP-SAT for the window polish in solver/polish.py
-solver = ["ortools>=9.10"]
 
 [project.urls]
 Homepage = "https://github.com/CG-SHOP/pyutils27"
@@ -43,8 +41,6 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-# The solver scaffold lives next to `src/` as a plain package.
-pythonpath = ["."]
 filterwarnings = [
     # The animation tests inspect frames without ever rendering the animation.
     "ignore:Animation was deleted without rendering anything:UserWarning",
@@ -89,11 +85,6 @@ ignore = [
 # These exception names are part of the public API carried over from previous
 # years; renaming them to an `Error` suffix would break existing consumers.
 "src/cgshop2027_pyutils/zip/*" = ["N818"]
-# The solver spells loops out one step per line on purpose, retries file
-# swaps inside a loop, and keeps the job grid and the command line entry
-# points in one long function each.
-"solver/*" = ["PERF401", "PERF203", "PLR0912", "PLR0915"]
-"tests/solver/*" = ["PERF401"]
 
 [tool.pyright]
 reportUnusedCallResult = false

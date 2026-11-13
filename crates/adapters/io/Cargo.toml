@@ -1,0 +1,16 @@
+[package]
+name = "mow-io"
+description = "Instance and solution JSON files: the adapter to the official file format"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+mow-core.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+serde_json = { workspace = true, features = ["raw_value"] }
+
+[lints]
+workspace = true

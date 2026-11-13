@@ -1,0 +1,25 @@
+[package]
+name = "mow-viz"
+description = "SVG pictures of instances, steps and solutions; plugs in as an Observer"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+mow-core.workspace = true
+mow-io = { workspace = true, optional = true }
+
+[features]
+# the `mow-viz` command line, which reads instance and solution files through
+# mow-io; on by default, `default-features = false` gives the bare library
+cli = ["dep:mow-io"]
+default = ["cli"]
+
+[[bin]]
+name = "mow-viz"
+path = "src/main.rs"
+required-features = ["cli"]
+
+[lints]
+workspace = true

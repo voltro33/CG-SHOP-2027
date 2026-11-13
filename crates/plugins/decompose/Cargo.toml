@@ -1,0 +1,14 @@
+[package]
+name = "mow-decompose"
+description = "Lawn to segments: plain lanes, lane segments and mixed lanes"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+mow-core.workspace = true
+
+
+[lints]
+workspace = true

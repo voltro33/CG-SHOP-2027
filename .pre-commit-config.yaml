@@ -39,7 +39,8 @@ repos:
       - id: prettier
         types_or: [yaml, markdown, html, css, scss, javascript, json]
         args: [--prose-wrap=always]
-        exclude: "^tests"
+        # fixtures are exported by Python byte for byte
+        exclude: "^tests|^crates/.*/tests/fixtures/"
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
@@ -58,6 +59,8 @@ repos:
     hooks:
       - id: codespell
         exclude: ^(LICENSE$)
+        # `crate` is a Rust keyword
+        args: [--ignore-words-list=crate]
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.10.0.1

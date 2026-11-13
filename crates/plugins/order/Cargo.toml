@@ -1,0 +1,14 @@
+[package]
+name = "mow-order"
+description = "Segment ordering: 2-opt, Or-opt and iterated local search"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+mow-core.workspace = true
+rand.workspace = true
+
+[lints]
+workspace = true

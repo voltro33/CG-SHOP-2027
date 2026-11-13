@@ -161,11 +161,40 @@ keep solutions in a separate location.
 
 ## Solver
 
-The solver, its tests, the miner and the picture window live in `solver/`. Setup
-and every command are in [`solver/README.md`](solver/README.md).
+The solver is a Rust workspace at the repository root, laid out as a hexagon:
+the domain in the middle, every pipeline step a plugin, and everything that
+touches the outside world an adapter.
 
-New here? [`docs/how-it-works.md`](docs/how-it-works.md) walks through the whole
-approach step by step, with diagrams.
+```
+Cargo.toml                 workspace, shared dependency versions
+crates/
+├── domain/
+│   ├── core/              mow-core      types, plugin traits, ports
+│   └── coverage/          mow-coverage  swept and uncovered cells, visit counts
+├── plugins/
+│   ├── decompose/         mow-decompose lanes and lane segments
+│   └── order/             mow-order     segment order: 2-opt, Or-opt, kicks
+└── adapters/
+    ├── io/                mow-io        instance and solution JSON
+    └── viz/               mow-viz       SVG pictures, an Observer and a CLI
+tools/golden/              Python scripts that wrote the reference fixtures
+```
+
+Each crate keeps its reference data from the Python solver in `tests/fixtures/`.
+Tests that read `data/instances` or `data/solutions` print "skipped" when those
+folders are missing.
+
+```bash
+cargo test --workspace --release                 # every test
+cargo test --workspace --release -- --ignored    # the timing benchmarks
+cargo clippy --workspace --all-targets -- -D warnings
+cargo run --release -p mow-viz -- <instance.json> <solution.json> -o out.svg
+```
+
+[`docs/python-vs-rust.md`](docs/python-vs-rust.md) compares the two solvers
+piece by piece. [`docs/how-it-works.md`](docs/how-it-works.md) walks through the
+approach step by step; it describes the Python solver on `init-solver`, which
+the Rust crates follow.
 
 ---
 
@@ -188,7 +217,8 @@ pytest
 
 Linting, formatting and import sorting are all handled by
 [ruff](https://docs.astral.sh/ruff/); its configuration lives in
-`pyproject.toml`.
+`pyproject.toml`. The Rust side uses `cargo fmt` (`rustfmt.toml`) and
+`cargo clippy`.
 
 ---
 

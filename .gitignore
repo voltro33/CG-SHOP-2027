@@ -214,8 +214,13 @@ data/instances/
 data/solutions/
 data/jobs.jsonl
 data/mine.log
+data/rust*/
 
 data/mine.stdout.txt
 data/mine.stderr.txt
 data/mine.pid
 data/*.bak
+
+# working plans, kept local
+plans/
+data/bench/

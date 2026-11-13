@@ -1,0 +1,17 @@
+[package]
+name = "mow-coverage"
+description = "Which cells a set of routes mows, in full and incrementally"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+mow-core.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[lints]
+workspace = true
