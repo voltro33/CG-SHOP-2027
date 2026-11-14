@@ -12,6 +12,8 @@ use mow_improve::{CornerCut, Detours};
 use mow_order::{IteratedLocalSearch, Snake};
 use mow_pipeline::{auto_kick_seconds, Partition, Partitioning, Plugins, SolveConfig, Strategy};
 
+use crate::patterns::{self, PATTERN_PARAMS};
+
 /// The params every ordering constructor takes (`walk_segments`).
 const ORDER_PARAMS: [&str; 4] = ["kick_seconds", "seed", "anneal", "time_limit"];
 
@@ -111,9 +113,9 @@ fn bands(partition: Partition) -> Bands {
 fn allowed_params(method: &str) -> Vec<&'static str> {
     match method {
         "lanes-h" | "lanes-v" => Vec::new(),
-        "segments-h" | "segments-v" => [&SEGMENT_PARAMS[..], &ORDER_PARAMS[..]].concat(),
+        "segments-h" | "segments-v" => [&SEGMENT_PARAMS[..], &ORDER_PARAMS[..], &PATTERN_PARAMS[..]].concat(),
         "segments-mixed" => [&MIXED_PARAMS[..], &ORDER_PARAMS[..]].concat(),
-        _ => GROUP_PARAMS.to_vec(),
+        _ => [&GROUP_PARAMS[..], &PATTERN_PARAMS[..]].concat(),
     }
 }
 
@@ -135,6 +137,14 @@ fn check_params(config: &SolveConfig) -> Result<(), String> {
 fn decomposer(config: &SolveConfig) -> Result<Box<dyn Decomposer>, String> {
     let axis = axis_of(&config.method);
     let shift = config.param_or("shift", 0.0);
+
+    // a lane pattern param on a lane method replaces its lane segments
+    if !config.method.starts_with("lanes-") && config.method != "segments-mixed" {
+        let gap_factor = if config.is_grouped() { 0.0 } else { 2.0 };
+        if let Some(pattern) = patterns::decomposer(config, axis, gap_factor)? {
+            return Ok(pattern);
+        }
+    }
 
     let decomposer: Box<dyn Decomposer> = match config.method.as_str() {
         "lanes-h" | "lanes-v" => Box::new(Lanes::new(axis)),

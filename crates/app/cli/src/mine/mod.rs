@@ -24,7 +24,7 @@ use mow_core::CpSolver;
 use mow_store::{DirStore, JobLog};
 
 use crate::args::{list, parse};
-use crate::grid::{build_jobs, version_tag, Instance, Job, ROUND_ORDER};
+use crate::grid::{build_jobs, version_tag, Instance, Job, PAYING_ROUNDS};
 use crate::layout::{instance_files, read_uid_list, uid_of, DEFAULT_INSTANCES, DEFAULT_OUT, PYTHON_DATA};
 use crate::official::Official;
 
@@ -78,7 +78,7 @@ pub fn parse_args(raw: impl Iterator<Item = String>) -> Result<MineOptions, Stri
     };
     let rounds = match parsed.value("--rounds") {
         Some(text) => list("--rounds", text)?,
-        None => ROUND_ORDER.to_vec(),
+        None => PAYING_ROUNDS.to_vec(),
     };
     let threads = parsed
         .number("--threads")?

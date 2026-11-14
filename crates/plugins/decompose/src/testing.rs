@@ -49,3 +49,29 @@ pub(crate) fn vertical(segments: &[(i32, i32, i32)]) -> Vec<Segment> {
         .map(|&(x, a, b)| Segment::vertical(x, a, b).unwrap())
         .collect()
 }
+
+/// True if driving every segment sweeps every region cell.
+pub(crate) fn sweeps_every_cell(problem: &Problem, segments: &[Segment]) -> bool {
+    let mut swept = std::collections::HashSet::new();
+
+    for segment in segments {
+        let (start, end) = (segment.start(), segment.end());
+        for x in start.x..=end.x {
+            for y in start.y..=end.y {
+                for offset in problem.cutter().offsets() {
+                    swept.insert((x + offset.x, y + offset.y));
+                }
+            }
+        }
+    }
+
+    problem
+        .region()
+        .cells()
+        .all(|cell| swept.contains(&(cell.x, cell.y)))
+}
+
+/// The summed length of `segments`.
+pub(crate) fn total_length(segments: &[Segment]) -> u64 {
+    segments.iter().map(|s| s.length()).sum()
+}

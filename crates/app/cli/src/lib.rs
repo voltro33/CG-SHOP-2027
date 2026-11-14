@@ -18,6 +18,7 @@ pub mod layout;
 pub mod meta;
 pub mod mine;
 pub mod official;
+mod patterns;
 pub mod polish_cmd;
 pub mod registry;
 pub mod reports;

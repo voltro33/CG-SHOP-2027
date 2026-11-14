@@ -37,7 +37,7 @@ fn the_grid_equals_pythons_job_for_job() {
     let (instances, expected) = python_grid();
     assert_eq!(instances.len(), 31);
 
-    let jobs = build_jobs(&instances, &ROUND_ORDER);
+    let jobs = build_jobs(&instances, &PYTHON_ROUNDS);
     assert_eq!(jobs.len(), expected.len());
 
     for (job, (round, limit, id)) in jobs.iter().zip(&expected) {
@@ -50,7 +50,7 @@ fn the_grid_equals_pythons_job_for_job() {
 #[test]
 fn counts_per_round_and_k_equal_pythons() {
     let (instances, expected) = python_grid();
-    let jobs = build_jobs(&instances, &ROUND_ORDER);
+    let jobs = build_jobs(&instances, &PYTHON_ROUNDS);
 
     let mut ours: BTreeMap<i32, usize> = BTreeMap::new();
     jobs.iter()
@@ -119,4 +119,23 @@ fn version_tags_tell_kick_scales_apart() {
         &[5],
     )[0];
     assert_eq!(job.job_id("r1"), "u|segments-h/seed=1/kick_seconds=30|s1|vr1");
+}
+
+#[test]
+fn paying_rounds_are_mining_rounds() {
+    assert!(PAYING_ROUNDS.iter().all(|round| ROUND_ORDER.contains(round)));
+}
+
+#[test]
+fn the_hug_round_lays_flush_lanes_on_each_base_config() {
+    let labels = |k| -> Vec<String> { configs_for(k, HUG_ROUND).iter().map(|c| c.label()).collect() };
+
+    assert_eq!(
+        labels(1),
+        ["segments-h/gap_factor=0/hug=0", "segments-v/gap_factor=0/hug=0"]
+    );
+    assert_eq!(
+        labels(3),
+        ["groups-h/gap_factor=0/hug=0", "groups-v/gap_factor=0/hug=0"]
+    );
 }

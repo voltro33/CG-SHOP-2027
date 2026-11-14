@@ -8,7 +8,20 @@ use mow_pipeline::{format_g, Partition, SolveConfig};
 /// The Rust job version: job ids never collide with Python's `v2`.
 pub const CODE_VERSION: &str = "r1";
 
-pub const ROUND_ORDER: [u32; 10] = [0, 1, 2, 8, 9, 7, 5, 6, 3, 4];
+pub const ROUND_ORDER: [u32; 11] = [0, 1, 2, 8, HUG_ROUND, 9, 7, 5, 6, 3, 4];
+
+/// The rounds of Python's `jobs.py`; the others are Rust's own.
+pub const PYTHON_ROUNDS: [u32; 10] = [0, 1, 2, 8, 9, 7, 5, 6, 3, 4];
+
+/// Lanes laid flush with the region's edges (`hug=0`), on the base config
+/// of each k: 5 of 31 bench instances shorter at about 0.2 points per cpu
+/// hour (2026-11-13).
+pub const HUG_ROUND: u32 = 10;
+
+/// The rounds `mow mine` runs by default: the base constructions, the
+/// groups and hugged lanes. The others paid under 0.03 points per cpu hour
+/// on 2026-11-13 (`mow mine-report`); `--rounds` still runs any of them.
+pub const PAYING_ROUNDS: [u32; 5] = [0, 1, 2, 8, HUG_ROUND];
 
 const GAP_FACTORS: [f64; 4] = [0.0, 1.0, 4.0, 8.0];
 const SHIFTS: [f64; 3] = [0.25, 0.5, 0.75];
@@ -161,6 +174,15 @@ pub fn configs_for(k: usize, round: u32) -> Vec<SolveConfig> {
         }
         8 if k > 1 => groups(&mut add),
         9 if k > 1 => group_variants(&mut add),
+        HUG_ROUND => {
+            let methods = match k > 1 {
+                true => GROUP_METHODS,
+                false => ORIENTATIONS,
+            };
+            for method in methods {
+                add(method, &[("gap_factor", 0.0), ("hug", 0.0)], None);
+            }
+        }
         _ => {}
     }
 
