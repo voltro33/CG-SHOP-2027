@@ -849,3 +849,35 @@ What it says:
    still improving when it stopped.
 3. Next: more lns time where the last pass still improved, a kick loop in
    `mow turns`, lns from fresh constructions instead of only from the bests.
+
+## 2026-11-14 night: strategy tournament on 15 instances
+
+Instead of mining all 250, one instance per cutter family and k (median cells in
+50k to 400k) got as much search as one night allows. Four arms, 4 threads each,
+4 passes of 600 s (10 cpu h per arm); the leader then ran 30-minute passes on 15
+threads until 07:45. Driver and scripts in `data/rust-arms/` (git-ignored).
+
+| arm | strategy                                                    | points at 10 cpu h | better on |
+| --- | ----------------------------------------------------------- | ------------------ | --------- |
+| A   | `mow lns`, 600 s passes, from the best                      | +0.145             | 15 / 15   |
+| B   | same, temperature 0.003 (ten times the default)             | +0.130             | 10 / 15   |
+| C   | `mow lns` from the best candidate of the other construction | **+0.169**         | 11 / 15   |
+| D   | `mow lns` 600 s then `mow turns` 60 s, alternating          | +0.167             | 15 / 15   |
+
+C won and ran 8 more passes (60 cpu h): +0.107 more, 0.0018 points per cpu h,
+each pass paying less than the last. Merged the shortest of all arms: sample
+7.53 -> 7.84, score 132.29 -> **132.60** (+0.31 for about 100 cpu h). All 250
+pass the official verifier. Zip `data/rust/submission-2026-11-14-arms.zip`.
+
+What it says:
+
+1. C's seeds started 7 to 23% longer than the bests and still passed them on 11
+   of 15 within 10 cpu h: the bests sit in local optima that more lns time on
+   the same tour does not leave.
+2. Fresh restarts led on 9 of 10 k = 1 and 2 instances; continuing from the best
+   (A, D) led on 4 of 5 k = 3. Cutter family showed no pattern. One instance per
+   group, so this is a lead, not a result.
+3. A hotter walk (B) is worse: it stalled on 5 of 15.
+4. Depth is the wrong spend now: 0.017 points per cpu h at best here, against
+   0.16 for the 300 s pass over all 250. Next: lns from the other construction's
+   candidate on every k = 1 and 2 instance, 10 minutes each.
