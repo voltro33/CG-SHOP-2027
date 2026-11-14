@@ -25,6 +25,10 @@ same answers as Python, and only then timed.
   Python's stored best, 8% on the geometric mean, and the score went from 113.6
   to 132.3 of 250 for 112 CPU hours against Python's 307. Every best passed the
   official verifier. Full table: [rust-results.md](rust-results.md).
+- **Depth on a few instances pays little now.** An overnight tournament of four
+  search strategies on 15 instances (one per cutter family and k) added 0.31
+  points for 100 CPU hours, score 132.6. Restarting `mow lns` from a different
+  construction beat continuing from the best on k = 1 and 2.
 
 | Piece      | Matches Python                          | Python         | Rust              | Rust is      |
 | ---------- | --------------------------------------- | -------------- | ----------------- | ------------ |
@@ -216,6 +220,28 @@ splitting the region into k parts before touring (5 of 21 k > 1 instances).
 Kicks run at a quarter of Python's time (`--kick-scale 0.25`); every other
 setting and time limit is Python's.
 
+### Strategy tournament, 15 instances
+
+One instance per cutter family and k (50k to 400k cells), four strategies with
+the same 10 CPU hours each, then the leader alone for 60 more:
+
+| arm | strategy                                                    | points at 10 CPU h | better on |
+| --- | ----------------------------------------------------------- | ------------------ | --------- |
+| A   | `mow lns`, 600 s passes, from the best                      | +0.145             | 15 / 15   |
+| B   | same, temperature 0.003 instead of 0.0003                   | +0.130             | 10 / 15   |
+| C   | `mow lns` from the best candidate of the other construction | **+0.169**         | 11 / 15   |
+| D   | `mow lns` 600 s then `mow turns` 60 s, alternating          | +0.167             | 15 / 15   |
+
+C's 60 deeper CPU hours added 0.107 more (0.0018 points per CPU hour, falling
+each pass). The shortest of all arms went into `data/rust/best`: +0.31 points,
+score **132.60**, all 250 re-checked by the official verifier. Restarting every
+k = 1 and 2 instance that way then reached 133.57 (see PROGRESS.md).
+
+By group, the fresh restart (C) led on 9 of the 10 k = 1 and 2 instances, and
+continuing from the best (A, D) led on 4 of the 5 k = 3 instances. Cutter family
+made no visible difference. With one instance per group this is a lead to test,
+not a result.
+
 ---
 
 ## Where each Python module went
@@ -256,7 +282,10 @@ could replace the process later without touching the model code.
 3. **The X cutters' gap was the bound.** Their area bound counted both arms of
    the X; the hull bound (`mow-core`) shows X has no more room than any other
    shape.
-4. **Known parity gaps.** As in Python, a partitioned job can overrun its time
+4. **Restarts beat depth.** Past the first two `mow lns` passes, a restart from
+   another construction earns more than more time on the best, at least for k =
+   1 and 2.
+5. **Known parity gaps.** As in Python, a partitioned job can overrun its time
    limit, and a failed job isn't retried after a restart.
 
 ---

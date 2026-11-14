@@ -881,3 +881,45 @@ What it says:
 4. Depth is the wrong spend now: 0.017 points per cpu h at best here, against
    0.16 for the 300 s pass over all 250. Next: lns from the other construction's
    candidate on every k = 1 and 2 instance, 10 minutes each.
+
+## 2026-11-14 morning: restarts on every k = 1 and 2 instance
+
+The tournament's lead, tried on all of them: every k = 1 and 2 instance with a
+candidate from the other construction (149; 9 have none) got 600 s of `mow lns`
+from that candidate instead of from the best, 15 threads, one pass (25 cpu h).
+Seeds started a median 12.3% longer than the bests. Driver and scripts in
+`data/rust-restart/` (git-ignored).
+
+The restart beat the best on **92 of 149**, +0.967 points, score 132.60 ->
+**133.57**: 0.039 points per cpu h, twice the depth runs of the tournament but
+below the 0.16 of a first 300 s pass over all 250. The ones it lost run larger
+(median 102k cells against 32k for the ones it won), where 600 s is too short to
+close a 12% gap. All 250 pass the official verifier. Zip
+`data/rust/submission-2026-11-14-restart.zip`.
+
+## 2026-11-14 noon: an lns move aimed at the lawn's edge
+
+`mow diagnose` on the bench bests: 19.6% of tour length mows past the edge,
+12.6% at lane ends. A new lns destroy, `edge-3`, samples 64 stops and tears out
+a 3 x 3 window around the one whose cutter hangs furthest off the lawn (stops
+wholly off it are left to `dead-3`); the existing recreates rebuild it.
+`VisitCounts::outside_cells` counts a stop's cells off the region. A/B on the 31
+bench instances from the same bests and state, same seed, 300 s, 7 threads each
+(6 cpu h together). Scripts in `data/rust-edge/` (git-ignored).
+
+| arm               | points  | better than start | shorter head to head |
+| ----------------- | ------- | ----------------- | -------------------- |
+| base (7 destroys) | +0.0404 | 21 / 31           | 10                   |
+| edge (8 destroys) | +0.0454 | 19 / 31           | 9 (12 tied)          |
+
+A wash. The adaptive weights ranked edge-3 a median 7th of 8 and in the top two
+on 1 of 31: the search found it rarely pays. Edge did better on the large k = 3
+X and diamond instances (octa28351_946k, isoa22945_987k, isoa4725_400k), but 31
+instances over 300 s cannot tell that from noise. Not rolled out. The shorter of
+both arms merged: score **133.62**, zip
+`data/rust/submission-2026-11-14-edge.zip`, all 250 verified.
+
+Edge overshoot is mostly at lane ends, set by where lanes start and stop, and a
+local window rebuilt with the same lanes puts the ends back where they were.
+Shortening it likely needs lane ends chosen per lane in the construction, not
+another lns move.

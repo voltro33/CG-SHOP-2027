@@ -227,8 +227,7 @@ cargo run --release -p mow-viz -- <instance.json> <solution.json> -o out.svg
 
 [`docs/python-vs-rust.md`](docs/python-vs-rust.md) compares the two solvers
 piece by piece. [`docs/how-it-works.md`](docs/how-it-works.md) walks through the
-approach step by step; it describes the Python solver on `init-solver`, which
-the Rust crates follow.
+solver step by step, crate by crate.
 
 ---
 
