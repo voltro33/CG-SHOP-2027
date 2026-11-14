@@ -120,5 +120,26 @@ fn random_removals_match_a_full_recheck() {
         let mut applied = counts.clone();
         applied.remove_positions(removed.iter().copied()).unwrap();
         assert_eq!(applied.uncovered_count(), before + lost, "case {case}");
+
+        let bare = applied.unswept_around(removed.iter().copied());
+        if before == 0 {
+            assert_eq!(bare.len(), lost, "case {case}");
+        }
     }
+}
+
+#[test]
+fn unswept_around_lists_the_cells_a_removal_left_bare() {
+    let p = rectangle(6, 3, square(3), 1);
+    let lane = route(&[(1, 1), (4, 1)]);
+    let mut counts = VisitCounts::from_routes(&p, std::slice::from_ref(&lane)).unwrap();
+
+    assert!(counts.unswept_around([Point::new(4, 1)]).is_empty());
+
+    counts.remove_positions([Point::new(4, 1)]).unwrap();
+    let mut bare = counts.unswept_around([Point::new(4, 1), Point::new(4, 1)]);
+    bare.sort_by_key(|c| (c.y, c.x));
+
+    assert_eq!(bare, vec![Point::new(5, 0), Point::new(5, 1), Point::new(5, 2)]);
+    assert!(!counts.all_swept_around([Point::new(4, 1)]));
 }

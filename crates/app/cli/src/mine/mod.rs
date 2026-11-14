@@ -13,9 +13,11 @@
 //!   ids already there and starts from the bests in `<out>/best`.
 
 pub(crate) mod job;
+pub mod lns;
 pub mod polish;
 mod progress;
 mod queue;
+pub mod turns;
 
 use std::path::{Path, PathBuf};
 use std::time::Instant;

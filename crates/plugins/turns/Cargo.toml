@@ -1,0 +1,18 @@
+[package]
+name = "mow-turns"
+description = "Turn-shape local search on the corners of finished tours"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+mow-core.workspace = true
+mow-coverage.workspace = true
+mow-improve.workspace = true
+
+[dev-dependencies]
+mow-io.workspace = true
+
+[lints]
+workspace = true

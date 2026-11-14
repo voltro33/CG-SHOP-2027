@@ -57,11 +57,13 @@ dependencies = [
  "mow-decompose",
  "mow-improve",
  "mow-io",
+ "mow-lns",
  "mow-order",
  "mow-pipeline",
  "mow-polish",
  "mow-report",
  "mow-store",
+ "mow-turns",
  "mow-verify",
  "mow-viz",
  "serde_json",
@@ -119,6 +121,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "mow-lns"
+version = "0.1.0"
+dependencies = [
+ "mow-core",
+ "mow-coverage",
+ "mow-decompose",
+ "mow-improve",
+ "mow-io",
+ "mow-polish",
+ "rand",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "mow-order"
 version = "0.1.0"
 dependencies = [
@@ -167,6 +185,16 @@ dependencies = [
  "mow-io",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "mow-turns"
+version = "0.1.0"
+dependencies = [
+ "mow-core",
+ "mow-coverage",
+ "mow-improve",
+ "mow-io",
 ]
 
 [[package]]

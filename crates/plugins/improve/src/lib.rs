@@ -15,5 +15,5 @@ mod prune;
 mod repair;
 mod stretches;
 
-pub use prune::CornerCut;
+pub use prune::{prune_open, CornerCut};
 pub use repair::Detours;

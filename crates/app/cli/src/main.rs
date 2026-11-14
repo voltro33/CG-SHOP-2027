@@ -1,14 +1,16 @@
-//! `mow solve | mine | polish | compare` and the reports, see `mow help`.
+//! `mow solve | mine | polish | turns | lns | compare` and the reports, see `mow help`.
 
 use std::process::ExitCode;
 
 use mow_cli::compare::{self, Comparison};
 use mow_cli::layout::repo_root;
+use mow_cli::lns_cmd;
 use mow_cli::mine::{self, MineSummary};
 use mow_cli::official::{Official, VerifierPool};
 use mow_cli::polish_cmd;
 use mow_cli::reports;
 use mow_cli::solve_cmd;
+use mow_cli::turns_cmd;
 
 fn usage() -> String {
     [
@@ -17,6 +19,8 @@ fn usage() -> String {
         solve_cmd::USAGE,
         mine::USAGE,
         polish_cmd::USAGE,
+        turns_cmd::USAGE,
+        lns_cmd::USAGE,
         compare::USAGE,
         reports::USAGE,
     ]
@@ -31,6 +35,8 @@ fn main() -> ExitCode {
         "solve" => solve_cmd::parse_args(raw).and_then(|args| solve_cmd::run(&args)),
         "mine" => mine::parse_args(raw).and_then(|options| run_mine(&options)),
         "polish" => polish_cmd::run(raw),
+        "turns" => turns_cmd::run(raw),
+        "lns" => lns_cmd::run(raw),
         "compare" => compare::parse_args(raw).and_then(|options| run_compare(&options)),
         other if reports::COMMANDS.contains(&other) => reports::run(other, raw),
         "help" | "-h" | "--help" => {

@@ -8,6 +8,8 @@
 //! - [`mine`]: `mow mine`, the grid on threads (`mine.py`).
 //! - [`compare`]: `mow compare`, Rust bests against Python's.
 //! - [`polish_cmd`]: `mow polish`, CP-SAT window polish of the bests (`polish.py`).
+//! - [`turns_cmd`]: `mow turns`, the corner search of `mow-turns` on the bests.
+//! - [`lns_cmd`]: `mow lns`, the ruin and recreate search of `mow-lns` on the bests.
 //! - [`reports`]: `mow report | mine-report | diagnose | catalog | bench`,
 //!   over the `mow-report` crate.
 
@@ -15,6 +17,7 @@ pub mod args;
 pub mod compare;
 pub mod grid;
 pub mod layout;
+pub mod lns_cmd;
 pub mod meta;
 pub mod mine;
 pub mod official;
@@ -23,3 +26,4 @@ pub mod polish_cmd;
 pub mod registry;
 pub mod reports;
 pub mod solve_cmd;
+pub mod turns_cmd;

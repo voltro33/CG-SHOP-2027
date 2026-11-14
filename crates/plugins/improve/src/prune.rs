@@ -71,6 +71,22 @@ impl Improver for CornerCut {
     }
 }
 
+/// Corner cuts on the open walk `corners`, both ends fixed, against
+/// `counts` that already hold the walk's positions next to whatever else is
+/// mowed, so a piece of a longer tour can be cut on its own. Stops at
+/// `deadline`; the counts end up holding the cut walk.
+pub fn prune_open(
+    corners: Vec<Point>,
+    counts: &mut VisitCounts,
+    deadline: Instant,
+) -> Result<Vec<Point>, CoverageError> {
+    if corners.len() < 3 {
+        return Ok(corners);
+    }
+
+    prune(corners, counts, false, &mut Clock::new(deadline))
+}
+
 /// `_prune_route`: sweeps over the corners until a whole sweep cuts nothing.
 /// After a cut the same index is tried again, as in Python.
 fn prune(
@@ -210,6 +226,29 @@ mod tests {
         assert_eq!(pruned.end(), Point::new(1, 4));
         assert_eq!(pruned.length(), 9);
         assert!(uncovered_walks(&problem, &[pruned]).unwrap().is_empty());
+    }
+
+    #[test]
+    fn prune_open_cuts_against_shared_counts_and_keeps_the_ends() {
+        let problem = square(6);
+        let corners = pts(&[(1, 1), (4, 1), (4, 4), (5, 4), (4, 4), (1, 4)]);
+        let walk = Walk::new(corners.clone()).unwrap();
+        let mut counts = VisitCounts::new(&problem).unwrap();
+        counts.add_positions(walk.positions()).unwrap();
+
+        let deadline = Instant::now() + Duration::from_secs(60);
+        let cut = prune_open(corners, &mut counts, deadline).unwrap();
+        let cut = Walk::new(cut).unwrap();
+
+        assert_eq!((cut.start(), cut.end()), (Point::new(1, 1), Point::new(1, 4)));
+        assert_eq!(cut.length(), 9);
+
+        // the counts hold exactly the cut walk
+        let mut fresh = VisitCounts::new(&problem).unwrap();
+        fresh.add_positions(cut.positions()).unwrap();
+        assert!(counts.is_covered() && fresh.is_covered());
+        counts.remove_positions(cut.positions()).unwrap();
+        assert_eq!(counts.uncovered_count(), problem.num_cells());
     }
 
     #[test]

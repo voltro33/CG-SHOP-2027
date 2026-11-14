@@ -1,0 +1,25 @@
+[package]
+name = "mow-lns"
+description = "Ruin and recreate at segment scale: re-cover an area of a finished tour with other lanes"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+mow-core.workspace = true
+mow-coverage.workspace = true
+mow-decompose.workspace = true
+mow-improve.workspace = true
+mow-polish.workspace = true
+rand.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+mow-coverage.workspace = true
+mow-io.workspace = true

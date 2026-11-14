@@ -10,6 +10,8 @@ members = [
     "crates/plugins/improve",
     "crates/plugins/assign",
     "crates/plugins/polish",
+    "crates/plugins/turns",
+    "crates/plugins/lns",
     "crates/app/pipeline",
     "crates/adapters/verify",
     "crates/adapters/store",
@@ -35,6 +37,8 @@ mow-cpsat = { path = "crates/adapters/cpsat" }
 mow-improve = { path = "crates/plugins/improve" }
 mow-assign = { path = "crates/plugins/assign" }
 mow-polish = { path = "crates/plugins/polish" }
+mow-turns = { path = "crates/plugins/turns" }
+mow-lns = { path = "crates/plugins/lns" }
 mow-pipeline = { path = "crates/app/pipeline" }
 mow-verify = { path = "crates/adapters/verify" }
 mow-store = { path = "crates/adapters/store" }

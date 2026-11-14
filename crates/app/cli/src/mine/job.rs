@@ -92,6 +92,12 @@ fn run(task: &Task, context: &Context) -> (JobRecord, Outcome) {
     if job.config.method == super::polish::METHOD {
         return super::polish::run(job, context, &problem);
     }
+    if job.config.method == super::turns::METHOD {
+        return super::turns::run(job, context, &problem);
+    }
+    if job.config.method == super::lns::METHOD {
+        return super::lns::run(job, context, &problem);
+    }
 
     let kit = match Kit::new(&job.config, context.kick_scale) {
         Ok(kit) => kit,

@@ -36,6 +36,8 @@ pub struct VisitCounts {
 
     cover_width: usize,
     cover: Vec<u16>,
+    /// The cell at cover index 0.
+    cover_origin: Point,
 
     /// Cover index of each cutter cell, relative to the cover index of the
     /// cutter box's low corner.
@@ -82,6 +84,7 @@ impl VisitCounts {
             visits,
             cover_width,
             cover,
+            cover_origin: Point::new(cover_box.x_min, cover_box.y_min),
             footprint,
             uncovered: problem.num_cells(),
         })
@@ -187,6 +190,36 @@ impl VisitCounts {
             let base = self.cover_base(i);
             self.footprint.iter().all(|&d| self.cover[base + d] != 0)
         })
+    }
+
+    /// The region cells left unmowed in the footprints of the unvisited
+    /// `positions`, each once, row major. Empty exactly when
+    /// [`Self::all_swept_around`] is true.
+    pub fn unswept_around(&self, positions: impl IntoIterator<Item = Point>) -> Vec<Point> {
+        let mut bare: Vec<usize> = Vec::new();
+
+        for p in positions {
+            let Some(i) = self.anchor(p) else { continue };
+            if self.visits[i] > 0 {
+                continue;
+            }
+
+            let base = self.cover_base(i);
+            bare.extend(
+                self.footprint
+                    .iter()
+                    .map(|&d| base + d)
+                    .filter(|&c| self.cover[c] == 0),
+            );
+        }
+
+        bare.sort_unstable();
+        bare.dedup();
+
+        let width = self.cover_width as i32;
+        bare.into_iter()
+            .map(|c| self.cover_origin.shifted(c as i32 % width, c as i32 / width))
+            .collect()
     }
 
     fn tally(&self, scratch: &mut Scratch, positions: impl IntoIterator<Item = Point>, first: bool) -> usize {
