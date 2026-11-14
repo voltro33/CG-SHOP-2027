@@ -1,0 +1,15 @@
+[package]
+name = "mow-cpsat"
+description = "OR-Tools CP-SAT in Python behind the CpSolver port"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+mow-core.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true

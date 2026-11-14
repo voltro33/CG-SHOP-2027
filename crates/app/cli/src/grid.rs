@@ -49,7 +49,8 @@ pub struct Instance {
 pub struct Job {
     pub instance: String,
     pub cells: usize,
-    pub round: u32,
+    /// The mining round; the bench runs as -1 and polish as -2, as in Python.
+    pub round: i32,
     pub config: SolveConfig,
     /// The job's time for improving, seconds.
     pub time_limit: f64,
@@ -223,7 +224,7 @@ pub fn build_jobs(instances: &[Instance], rounds: &[u32]) -> Vec<Job> {
                 jobs.push(Job {
                     instance: instance.uid.clone(),
                     cells: instance.cells,
-                    round,
+                    round: round as i32,
                     config,
                     time_limit: limit,
                 });

@@ -42,7 +42,7 @@ fn the_grid_equals_pythons_job_for_job() {
 
     for (job, (round, limit, id)) in jobs.iter().zip(&expected) {
         assert_eq!(job.job_id("2"), *id);
-        assert_eq!(job.round, *round, "{id}");
+        assert_eq!(job.round, *round as i32, "{id}");
         assert_eq!(job.time_limit, *limit, "{id}");
     }
 }
@@ -52,13 +52,13 @@ fn counts_per_round_and_k_equal_pythons() {
     let (instances, expected) = python_grid();
     let jobs = build_jobs(&instances, &ROUND_ORDER);
 
-    let mut ours: BTreeMap<u32, usize> = BTreeMap::new();
+    let mut ours: BTreeMap<i32, usize> = BTreeMap::new();
     jobs.iter()
         .for_each(|job| *ours.entry(job.round).or_default() += 1);
-    let mut theirs: BTreeMap<u32, usize> = BTreeMap::new();
+    let mut theirs: BTreeMap<i32, usize> = BTreeMap::new();
     expected
         .iter()
-        .for_each(|(round, _, _)| *theirs.entry(*round).or_default() += 1);
+        .for_each(|(round, _, _)| *theirs.entry(*round as i32).or_default() += 1);
     assert_eq!(ours, theirs);
 
     // the per instance counts of jobs.configs_for
@@ -94,7 +94,7 @@ fn rounds_filter_keeps_the_round_order() {
     ];
 
     let jobs = build_jobs(&instances, &[1, 0, 9]);
-    let rounds: Vec<u32> = jobs.iter().map(|j| j.round).collect();
+    let rounds: Vec<i32> = jobs.iter().map(|j| j.round).collect();
 
     assert_eq!(rounds.first(), Some(&0));
     assert_eq!(rounds.last(), Some(&9));

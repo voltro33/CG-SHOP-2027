@@ -97,6 +97,7 @@ pub fn run(args: &SolveArgs) -> Result<(), String> {
         kick_scale: args.kick_scale,
         time_limit,
         seconds: attempt.seconds,
+        polished_from: None,
     };
     let file = solution_file(solution, &made);
 

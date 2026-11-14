@@ -13,16 +13,18 @@
 //!   ids already there and starts from the bests in `<out>/best`.
 
 pub(crate) mod job;
+pub mod polish;
 mod progress;
 mod queue;
 
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
+use mow_core::CpSolver;
 use mow_store::{DirStore, JobLog};
 
 use crate::args::{list, parse};
-use crate::grid::{build_jobs, version_tag, Instance, ROUND_ORDER};
+use crate::grid::{build_jobs, version_tag, Instance, Job, ROUND_ORDER};
 use crate::layout::{instance_files, read_uid_list, uid_of, DEFAULT_INSTANCES, DEFAULT_OUT, PYTHON_DATA};
 use crate::official::Official;
 
@@ -109,15 +111,30 @@ pub struct MineSummary {
 
 /// Runs the grid. Errors only for setup problems; a failing job is logged.
 pub fn mine(options: &MineOptions, official: &dyn Official) -> Result<MineSummary, String> {
-    let started = Instant::now();
-    let instances = read_instances(options)?;
-    let version = version_tag(options.kick_scale);
+    let instances = read_instances(&options.instances, options.only.as_deref())?;
     let jobs = build_jobs(&instances, &options.rounds);
 
+    run_jobs(options, jobs, &options.out.join("jobs.jsonl"), official, None)
+}
+
+/// Runs `jobs` in the order given, logging to `log_path` and storing bests
+/// in `options.out`. `options.only` and `options.rounds` are not looked at.
+/// Polish jobs need `cpsat`.
+pub fn run_jobs(
+    options: &MineOptions,
+    jobs: Vec<Job>,
+    log_path: &Path,
+    official: &dyn Official,
+    cpsat: Option<&dyn CpSolver>,
+) -> Result<MineSummary, String> {
+    let started = Instant::now();
+    let version = version_tag(options.kick_scale);
+    let instances: std::collections::HashSet<&str> = jobs.iter().map(|job| job.instance.as_str()).collect();
+    let instances = instances.len();
+
     let store = DirStore::open(&options.out).map_err(|e| e.to_string())?;
-    let log_path = options.out.join("jobs.jsonl");
-    let done = JobLog::read(&log_path).map_err(|e| e.to_string())?;
-    let log = JobLog::open(&log_path).map_err(|e| e.to_string())?;
+    let done = JobLog::read(log_path).map_err(|e| e.to_string())?;
+    let log = JobLog::open(log_path).map_err(|e| e.to_string())?;
 
     let done_ids: std::collections::HashSet<&str> = done.iter().map(|r| r.job_id.as_str()).collect();
     let total = jobs.len();
@@ -127,8 +144,7 @@ pub fn mine(options: &MineOptions, official: &dyn Official) -> Result<MineSummar
         .collect();
     let skipped = total - pending.len();
     eprintln!(
-        "{} instances, {total} jobs, {skipped} already done, {} to run on {} threads (kick scale {}, version {version})",
-        instances.len(),
+        "{instances} instances, {total} jobs, {skipped} already done, {} to run on {} threads (kick scale {}, version {version})",
         pending.len(),
         options.threads,
         options.kick_scale
@@ -148,6 +164,7 @@ pub fn mine(options: &MineOptions, official: &dyn Official) -> Result<MineSummar
         kick_scale: options.kick_scale,
         time: options.time,
         progress: &progress,
+        cpsat,
     };
 
     std::thread::scope(|scope| {
@@ -164,14 +181,15 @@ pub fn mine(options: &MineOptions, official: &dyn Official) -> Result<MineSummar
     Ok(progress.summary(total, skipped, unstarted, started.elapsed().as_secs_f64()))
 }
 
-/// The instances to mine, with their cell counts and cutters, in folder order.
-fn read_instances(options: &MineOptions) -> Result<Vec<Instance>, String> {
-    let files = instance_files(&options.instances)?;
+/// The instances in `dir` (only those named in `only`, if given), with
+/// their cell counts and cutters, in folder order.
+pub fn read_instances(dir: &Path, only: Option<&[String]>) -> Result<Vec<Instance>, String> {
+    let files = instance_files(dir)?;
     let mut instances = Vec::new();
 
     for file in files {
         let uid = uid_of(&file).unwrap_or_default();
-        let wanted = options.only.as_ref().map_or(true, |only| only.contains(&uid));
+        let wanted = only.map_or(true, |only| only.contains(&uid));
         if !wanted {
             continue;
         }
@@ -185,16 +203,13 @@ fn read_instances(options: &MineOptions) -> Result<Vec<Instance>, String> {
         });
     }
 
-    if let Some(only) = &options.only {
+    if let Some(only) = only {
         let missing: Vec<&String> = only
             .iter()
             .filter(|u| !instances.iter().any(|i| &i.uid == *u))
             .collect();
         if !missing.is_empty() {
-            return Err(format!(
-                "no instance file for {missing:?} in {}",
-                options.instances.display()
-            ));
+            return Err(format!("no instance file for {missing:?} in {}", dir.display()));
         }
     }
 

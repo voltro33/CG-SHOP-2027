@@ -1,6 +1,6 @@
 [package]
 name = "mow-cli"
-description = "The mow command: solve, mine, compare"
+description = "The mow command: solve, mine, compare, and the reports"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -25,6 +25,9 @@ mow-assign.workspace = true
 mow-pipeline.workspace = true
 mow-verify.workspace = true
 mow-store.workspace = true
+mow-report.workspace = true
+mow-polish.workspace = true
+mow-cpsat.workspace = true
 mow-viz.workspace = true
 serde_json = { workspace = true, features = ["raw_value"] }
 

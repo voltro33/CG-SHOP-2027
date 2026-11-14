@@ -1,0 +1,19 @@
+[package]
+name = "mow-polish"
+description = "Window polish: re-solve square windows of a finished tour with CP-SAT"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+mow-core.workspace = true
+rand.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+mow-coverage.workspace = true
+mow-io.workspace = true
+
+[lints]
+workspace = true

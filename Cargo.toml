@@ -9,9 +9,12 @@ members = [
     "crates/adapters/viz",
     "crates/plugins/improve",
     "crates/plugins/assign",
+    "crates/plugins/polish",
     "crates/app/pipeline",
     "crates/adapters/verify",
     "crates/adapters/store",
+    "crates/adapters/cpsat",
+    "crates/app/report",
     "crates/app/cli",
 ]
 
@@ -28,11 +31,14 @@ mow-coverage = { path = "crates/domain/coverage" }
 mow-order = { path = "crates/plugins/order" }
 mow-decompose = { path = "crates/plugins/decompose" }
 mow-viz = { path = "crates/adapters/viz" }
+mow-cpsat = { path = "crates/adapters/cpsat" }
 mow-improve = { path = "crates/plugins/improve" }
 mow-assign = { path = "crates/plugins/assign" }
+mow-polish = { path = "crates/plugins/polish" }
 mow-pipeline = { path = "crates/app/pipeline" }
 mow-verify = { path = "crates/adapters/verify" }
 mow-store = { path = "crates/adapters/store" }
+mow-report = { path = "crates/app/report" }
 mow-cli = { path = "crates/app/cli" }
 
 thiserror = "1.0.69"

@@ -6,7 +6,7 @@ use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::sync::Mutex;
 use std::time::Duration;
 
-use mow_core::{NoObserver, Offer, Solution};
+use mow_core::{CpSolver, NoObserver, Offer, Solution};
 use mow_pipeline::solve;
 use mow_store::{DirStore, JobLog, JobRecord};
 
@@ -27,6 +27,8 @@ pub struct Context<'a> {
     pub kick_scale: f64,
     pub time: Option<f64>,
     pub progress: &'a Progress,
+    /// Solves the window models of polish jobs; `None` fails them.
+    pub cpsat: Option<&'a dyn CpSolver>,
 }
 
 /// The best stored objective per instance, read from the store once.
@@ -87,6 +89,10 @@ fn run(task: &Task, context: &Context) -> (JobRecord, Outcome) {
         Ok(problem) => problem,
         Err(error) => return failed(0.0, error),
     };
+    if job.config.method == super::polish::METHOD {
+        return super::polish::run(job, context, &problem);
+    }
+
     let kit = match Kit::new(&job.config, context.kick_scale) {
         Ok(kit) => kit,
         Err(error) => return failed(0.0, error),
@@ -116,7 +122,7 @@ fn run(task: &Task, context: &Context) -> (JobRecord, Outcome) {
         return (record, Outcome::Done);
     }
 
-    match offer(job, context, solution, objective, time_limit, seconds) {
+    match offer(job, context, solution, objective, time_limit, seconds, None) {
         Ok(Offer::Best) => (record, Outcome::Best),
         Ok(_) => (record, Outcome::Done),
         Err(error) => failed(seconds, error),
@@ -124,13 +130,14 @@ fn run(task: &Task, context: &Context) -> (JobRecord, Outcome) {
 }
 
 /// Verifies a new best the official way, then stores it.
-fn offer(
+pub(super) fn offer(
     job: &Job,
     context: &Context,
     solution: &Solution,
     objective: u64,
     time_limit: f64,
     seconds: f64,
+    polished_from: Option<String>,
 ) -> Result<Offer, String> {
     let made = Made {
         job: job.job_id(&context.version),
@@ -139,6 +146,7 @@ fn offer(
         kick_scale: context.kick_scale,
         time_limit,
         seconds,
+        polished_from,
     };
     let file = solution_file(solution, &made);
 
@@ -155,7 +163,7 @@ fn offer(
     Ok(offer)
 }
 
-fn record(
+pub(super) fn record(
     job: &Job,
     context: &Context,
     objective: Option<u64>,
@@ -165,7 +173,7 @@ fn record(
     JobRecord {
         job_id: job.job_id(&context.version),
         instance: job.instance.clone(),
-        round: job.round as i32,
+        round: job.round,
         label: job.label(),
         objective,
         seconds: (seconds * 100.0).round() / 100.0,
@@ -173,7 +181,7 @@ fn record(
     }
 }
 
-fn failure(job: &Job, context: &Context, seconds: f64, error: String) -> JobRecord {
+pub(super) fn failure(job: &Job, context: &Context, seconds: f64, error: String) -> JobRecord {
     record(job, context, None, seconds, Some(error))
 }
 

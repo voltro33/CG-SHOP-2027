@@ -31,6 +31,8 @@ dependencies = [
 # ruff matches the pre-commit hook, nodeenv 1.12 reads the prerelease node
 # version the prettier hook asks for
 dev = ["pre-commit", "nodeenv>=1.12", "pytest", "ruff==0.14.0"]
+# CP-SAT behind the Rust CpSolver port (tools/cpsat/cpsat.py)
+cpsat = ["ortools>=9.10"]
 
 [project.urls]
 Homepage = "https://github.com/CG-SHOP/pyutils27"

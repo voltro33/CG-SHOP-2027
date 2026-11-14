@@ -1,0 +1,61 @@
+{
+  "feasible": 250,
+  "instances": 250,
+  "baseline_sum": 5291192,
+  "best_sum": 5175652,
+  "sum_change_pct": -2.2,
+  "median_gap_pct": 45.9,
+  "score_gain_total": 267.01,
+  "pessimistic_score": 113.1,
+  "median_gap_by_family": {
+    "X": 99.2,
+    "diamond": 43.7,
+    "plus": 41.6,
+    "clipped square": 35.9,
+    "square": 35.4
+  },
+  "biggest_wins": [
+    [
+      "spg-c-poly6002_995k_3s4",
+      -11.4
+    ],
+    [
+      "spg-c-poly6002_28k_1s4",
+      -11.1
+    ],
+    [
+      "spg-c-poly6002_111k_2s4",
+      -10.6
+    ],
+    [
+      "iso14835_28k_2x3",
+      -8.5
+    ],
+    [
+      "srpg41087_555k_3s5",
+      -8.5
+    ]
+  ],
+  "worst_gaps": [
+    [
+      "iso3131_107k_2x10",
+      281.5
+    ],
+    [
+      "octa6025_952k_3x9",
+      252.1
+    ],
+    [
+      "isoa22945_987k_3x10",
+      233.3
+    ],
+    [
+      "isoa22945_110k_2x10",
+      221.1
+    ],
+    [
+      "octa28351_946k_3x7",
+      196.8
+    ]
+  ]
+}

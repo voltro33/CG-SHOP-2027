@@ -14,6 +14,7 @@
 //! rewrite routes take them by value and hand back new ones.
 
 pub mod bounds;
+pub mod cp;
 pub mod cutter;
 pub mod error;
 pub mod geom;
@@ -31,6 +32,9 @@ pub mod walk;
 pub mod witness;
 
 pub use bounds::{area_bound, extent_bound, lower_bound};
+pub use cp::{
+    Constraint, ConstraintKind, CpModel, CpParams, CpResponse, CpSolver, CpStatus, Domain, Linear, Lit, Var,
+};
 pub use cutter::{Cutter, RowExtent};
 pub use error::{ModelError, PortError, SolveError};
 pub use geom::{Axis, Bounds, Point};

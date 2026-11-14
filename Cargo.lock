@@ -53,11 +53,14 @@ dependencies = [
  "mow-assign",
  "mow-core",
  "mow-coverage",
+ "mow-cpsat",
  "mow-decompose",
  "mow-improve",
  "mow-io",
  "mow-order",
  "mow-pipeline",
+ "mow-polish",
+ "mow-report",
  "mow-store",
  "mow-verify",
  "mow-viz",
@@ -78,6 +81,15 @@ dependencies = [
  "mow-core",
  "serde_json",
  "thiserror",
+]
+
+[[package]]
+name = "mow-cpsat"
+version = "0.1.0"
+dependencies = [
+ "mow-core",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -123,6 +135,27 @@ dependencies = [
  "mow-decompose",
  "mow-io",
  "mow-order",
+ "serde_json",
+]
+
+[[package]]
+name = "mow-polish"
+version = "0.1.0"
+dependencies = [
+ "mow-core",
+ "mow-coverage",
+ "mow-io",
+ "rand",
+ "thiserror",
+]
+
+[[package]]
+name = "mow-report"
+version = "0.1.0"
+dependencies = [
+ "mow-core",
+ "mow-io",
+ "mow-store",
  "serde_json",
 ]
 

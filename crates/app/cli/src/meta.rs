@@ -10,15 +10,17 @@ use serde_json::{json, Value};
 pub struct Made {
     pub job: String,
     pub config: String,
-    pub round: Option<u32>,
+    pub round: Option<i32>,
     pub kick_scale: f64,
     pub time_limit: f64,
     pub seconds: f64,
+    /// The job of the best a polished solution started from.
+    pub polished_from: Option<String>,
 }
 
 /// The solution file with `meta` `{"job", "solver": "rust", "config", ...}`.
 pub fn solution_file(solution: &Solution, made: &Made) -> SolutionFile {
-    let meta = json!({
+    let mut meta = json!({
         "job": made.job,
         "solver": "rust",
         "config": made.config,
@@ -27,6 +29,9 @@ pub fn solution_file(solution: &Solution, made: &Made) -> SolutionFile {
         "time_limit": made.time_limit,
         "seconds": made.seconds,
     });
+    if let Some(from) = &made.polished_from {
+        meta["polished_from"] = json!(from);
+    }
 
     let raw = RawValue::from_string(meta.to_string()).expect("serde_json writes valid JSON");
     SolutionFile {
@@ -59,6 +64,7 @@ mod tests {
             kick_scale: 1.0,
             time_limit: 120.0,
             seconds: 0.5,
+            polished_from: None,
         };
 
         let file = solution_file(&solution, &made);

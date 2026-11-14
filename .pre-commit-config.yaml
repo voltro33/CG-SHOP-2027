@@ -59,8 +59,8 @@ repos:
     hooks:
       - id: codespell
         exclude: ^(LICENSE$)
-        # `crate` is a Rust keyword
-        args: [--ignore-words-list=crate]
+        # `crate` is a Rust keyword, `lits` are CP-SAT literals
+        args: ["--ignore-words-list=crate,lits"]
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.10.0.1
