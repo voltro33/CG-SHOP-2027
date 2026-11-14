@@ -12,9 +12,15 @@ use crate::problem::Problem;
 ///
 /// Closed walks on the grid have even length, so this rounds up to even.
 pub fn area_bound(problem: &Problem) -> u64 {
+    let cutter = problem.cutter();
+
+    sweep_bound(problem, cutter.area() as u64, u64::from(cutter.step_gain()))
+}
+
+/// The area bound's formula for a cutter of `footprint` cells that newly
+/// sweeps at most `gain` cells per unit step.
+pub(crate) fn sweep_bound(problem: &Problem, footprint: u64, gain: u64) -> u64 {
     let k = problem.k() as u64;
-    let footprint = problem.cutter().area() as u64;
-    let gain = u64::from(problem.cutter().step_gain());
 
     let remaining = (problem.num_cells() as u64).saturating_sub(k * footprint);
     if remaining == 0 || gain == 0 {
