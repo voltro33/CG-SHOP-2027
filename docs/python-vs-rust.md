@@ -19,13 +19,12 @@ same answers as Python, and only then timed.
 - **Ordering alone won't move the score.** Rust orders 100 to 3,000 times
   faster, but real instances have at most about 2,400 segments, where Python's
   search has already settled.
-- **Same scores for a twelfth of the CPU.** One Rust mining run over all 250
-  instances took 103 minutes on 16 threads (25.5 CPU hours). Its bests, every
-  one checked by the official verifier, tie Python's stored bests (geomean
-  0.9999), and those include CP-SAT polish, which Rust doesn't have. Against
-  Python's own mining without polish (247 CPU hours), Rust is shorter on 170 of
-  250 instances (geomean 0.9973). Full table:
-  [rust-results.md](rust-results.md).
+- **Searches Python couldn't afford now pay.** The fast edit check made two new
+  searches on finished tours possible: a ruin and recreate search (`mow lns`)
+  and a corner search (`mow turns`). With them every Rust best is shorter than
+  Python's stored best, 8% on the geometric mean, and the score went from 113.6
+  to 132.3 of 250 for 112 CPU hours against Python's 307. Every best passed the
+  official verifier. Full table: [rust-results.md](rust-results.md).
 
 | Piece      | Matches Python                          | Python         | Rust              | Rust is      |
 | ---------- | --------------------------------------- | -------------- | ----------------- | ------------ |
@@ -177,54 +176,86 @@ in 103 minutes with no job failing.
 
 ## End to end
 
+The port first ran Python's own pipeline:
 `mow mine --threads 16 --kick-scale 0.25` ran Python's job grid on every
-instance, and `mow compare` re-checked every Rust best with the official
-verifier (0 failures) before comparing.
+instance (25.5 CPU hours), then `mow polish --all` polished every best with
+CP-SAT (59.9 CPU hours). That tied Python's polished bests before polish
+(geomean 0.9999) and beat them on 168 of 250 after (geomean 0.9977). Score, the
+sum of `(lower_bound / objective)²`: 113.57 of 250.
+
+Then the new searches, each gated on the 31 bench instances first:
+
+| step                                                               | CPU h   | points | points per CPU h |
+| ------------------------------------------------------------------ | ------- | ------ | ---------------- |
+| bench and all-instance runs of the new searches (bests taken over) | about 7 | +5.51  |                  |
+| mining round 10, lanes flush with the region's edges               | 0.65    | +0.03  | 0.05             |
+| `mow turns --all --seconds 30`                                     | 0.95    | +0.42  | 0.44             |
+| `mow lns --all --seconds 60`                                       | 4.17    | +9.53  | 2.28             |
+| `mow lns --all --pass 2 --seconds 300`                             | 20.84   | +3.24  | 0.16             |
+| for comparison: `mow polish --all`                                 | 59.9    | +0.39  | 0.007            |
+
+Final score 132.29 of 250. `mow compare` re-checked every best with the official
+verifier (0 failures):
 
 | group | instances | vs Python best: W / T / L | geomean | vs Python mined: W / T / L | geomean |
 | ----- | --------- | ------------------------- | ------- | -------------------------- | ------- |
-| all   | 250       | 122 / 17 / 111            | 0.9999  | 170 / 28 / 52              | 0.9973  |
-| k = 1 | 85        | 32 / 2 / 51               | 1.0014  | 66 / 6 / 13                | 0.9971  |
-| k = 2 | 83        | 51 / 5 / 27               | 0.9979  | 61 / 9 / 13                | 0.9961  |
-| k = 3 | 82        | 39 / 10 / 33              | 1.0003  | 43 / 13 / 26               | 0.9988  |
-| bench | 31        | 13 / 1 / 17               | 1.0019  | 21 / 3 / 7                 | 0.9971  |
+| all   | 250       | 250 / 0 / 0               | 0.9179  | 250 / 0 / 0                | 0.9155  |
+| k = 1 | 85        | 85 / 0 / 0                | 0.8938  | 85 / 0 / 0                 | 0.8899  |
+| k = 2 | 83        | 83 / 0 / 0                | 0.9139  | 83 / 0 / 0                 | 0.9122  |
+| k = 3 | 82        | 82 / 0 / 0                | 0.9475  | 82 / 0 / 0                 | 0.9462  |
+| bench | 31        | 31 / 0 / 0                | 0.8936  | 31 / 0 / 0                 | 0.8893  |
 
 Below 1 means Rust is shorter. _Python best_ is the stored best, CP-SAT polish
-included; _Python mined_ is Python's best before polish. Per instance, Rust
-ranges from 0.977 to 1.036 of Python's best: 11 instances are more than 1%
-shorter, 19 more than 1% longer. CPU time: Rust 25.5 h, Python 247.2 h mining
-plus 59.9 h polish.
+included; _Python mined_ is Python's best before polish. CPU time: Rust 111.9 h
+in all, Python 307.1 h (247.2 h mining, 59.9 h polish).
+
+Tried and dropped on the bench: diagonal lanes (a proved bound shows no walk
+sweeps faster than straight lanes), joining lanes across gaps, spirals, and
+splitting the region into k parts before touring (5 of 21 k > 1 instances).
 
 Kicks run at a quarter of Python's time (`--kick-scale 0.25`); every other
 setting and time limit is Python's.
 
 ---
 
-## Not ported
+## Where each Python module went
 
-| Python                                                                 | Status                                                        |
-| ---------------------------------------------------------------------- | ------------------------------------------------------------- |
-| `window.py`, `window_map.py`, `polish.py` (CP-SAT)                     | not ported; Python's polished bests stay in `data/solutions/` |
-| `report.py`, `mine_report.py`, `diagnose.py`, `bench.py`, `catalog.py` | `mow compare` covers the score report; the rest is not ported |
+| Python                                                     | Rust                                                                     |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `model.py`, `bounds.py`, `tours.py`                        | `mow-core`, `mow-io`                                                     |
+| `construct/lanes.py`, `segments.py`, `mixed.py`            | `mow-decompose`                                                          |
+| `construct/ordering.py`                                    | `mow-order`                                                              |
+| `repair.py`, `improve.py`                                  | `mow-improve`, with coverage in `mow-coverage`                           |
+| `split.py`, `construct/groups.py`, `partition.py`          | `mow-assign`                                                             |
+| `pipeline.py`                                              | `mow-pipeline`, `mow solve`                                              |
+| `jobs.py`, `mine.py`                                       | `mow mine` (`mow-cli`), `mow-store`, `mow-verify`                        |
+| `window.py`, `window_map.py`, `polish.py`                  | `mow-polish`, `mow polish`, `mow window-map`; CP-SAT through `mow-cpsat` |
+| `report.py`, `mine_report.py`, `diagnose.py`, `catalog.py` | `mow-report`, `mow report \| mine-report \| diagnose \| catalog`         |
+| `bench.py`                                                 | `mow bench pick \| score \| run`                                         |
+| `plot.py`                                                  | `mow-viz`                                                                |
+| `resources.py` (memory permits for job processes)          | not ported: Rust jobs are threads sharing one problem per instance       |
+| `plot_app.py` (a desktop window)                           | not ported: `mow-viz` writes SVG files instead                           |
 
-Everything else (`mixed`, `repair`, `improve`, `split`, `groups`, `partition`,
-`pipeline`, `jobs`, `mine`) is in the crates. The official verifier
-(`cgshop2027_pyutils.verify`) stays in Python and stays the judge. Rust's
-coverage check is a fast pre-check, not a replacement.
+Two pieces stay in Python on purpose. The official verifier
+(`cgshop2027_pyutils.verify`) stays the judge, and Rust's coverage check is only
+a fast pre-check. CP-SAT is OR-Tools: Rust builds each window model itself
+(checked equal to Python's, constraint by constraint) and hands it to a
+long-lived Python process as OR-Tools' own `CpModelProto`, so a native binding
+could replace the process later without touching the model code.
 
 ---
 
 ## Talking points
 
-1. **Polish is the gap on k = 1.** Rust loses 51 of 85 single-cutter instances
-   to the polished bests but wins 66 of 85 against Python's mining. Porting the
-   windowed CP-SAT polish (or running it on Rust's bests) is the clearest next
-   gain.
-2. **Spend the saved CPU.** Rust used a twelfth of Python's mining time. More
-   seeds, full kick times, or longer limits on the large instances are now cheap
-   to try.
-3. **Which bests to submit.** Taking the shorter of Python's and Rust's per
-   instance is free today, since both pass the official verifier.
+1. **Ruin and recreate is the lever.** `mow lns` earned 12.8 points, two thirds
+   of the gain, and its 60 s pass paid 2.3 points per CPU hour, 300 times CP-SAT
+   polish. Its 300 s pass still paid 0.16, so the large instances have not
+   settled.
+2. **Polish is ported but no longer worth its time.** It took 54% of Rust's CPU
+   for 0.39 points. `mow polish --all` now skips instances above 400k cells.
+3. **The X cutters' gap was the bound.** Their area bound counted both arms of
+   the X; the hull bound (`mow-core`) shows X has no more room than any other
+   shape.
 4. **Known parity gaps.** As in Python, a partitioned job can overrun its time
    limit, and a failed job isn't retried after a restart.
 

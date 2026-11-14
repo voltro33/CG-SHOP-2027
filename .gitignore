@@ -224,3 +224,6 @@ data/*.bak
 # working plans, kept local
 plans/
 data/bench/
+
+# agent worktrees and local Claude Code state
+.claude/

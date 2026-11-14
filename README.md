@@ -169,25 +169,59 @@ touches the outside world an adapter.
 Cargo.toml                 workspace, shared dependency versions
 crates/
 ├── domain/
-│   ├── core/              mow-core      types, plugin traits, ports
+│   ├── core/              mow-core      types, plugin traits, ports, bounds, CP-SAT model
 │   └── coverage/          mow-coverage  swept and uncovered cells, visit counts
 ├── plugins/
-│   ├── decompose/         mow-decompose lanes and lane segments
-│   └── order/             mow-order     segment order: 2-opt, Or-opt, kicks
-└── adapters/
-    ├── io/                mow-io        instance and solution JSON
-    └── viz/               mow-viz       SVG pictures, an Observer and a CLI
-tools/golden/              Python scripts that wrote the reference fixtures
+│   ├── decompose/         mow-decompose lanes, lane segments, mixed lanes, hugged lanes
+│   ├── order/             mow-order     segment order: 2-opt, Or-opt, kicks
+│   ├── improve/           mow-improve   repair detours, corner cuts
+│   ├── assign/            mow-assign    k tours: split walk, groups, bands
+│   ├── polish/            mow-polish    CP-SAT window polish, window map
+│   ├── turns/             mow-turns     corner search on finished tours
+│   └── lns/               mow-lns       ruin and recreate on finished tours
+├── adapters/
+│   ├── io/                mow-io        instance and solution JSON
+│   ├── viz/               mow-viz       SVG pictures, an Observer and a CLI
+│   ├── verify/            mow-verify    the official Python verifier
+│   ├── cpsat/             mow-cpsat     OR-Tools CP-SAT in Python processes
+│   └── store/             mow-store     best and candidate folders, job log
+└── app/
+    ├── pipeline/          mow-pipeline  one config on one instance
+    ├── report/            mow-report    leaderboard, mine report, diagnose
+    └── cli/               mow-cli       the `mow` command
+tools/
+├── golden/                Python scripts that wrote the reference fixtures
+├── verify/verify.py       the verifier process mow-verify talks to
+└── cpsat/cpsat.py         the CP-SAT process mow-cpsat talks to
 ```
 
 Each crate keeps its reference data from the Python solver in `tests/fixtures/`.
 Tests that read `data/instances` or `data/solutions` print "skipped" when those
-folders are missing.
+folders are missing, and tests that need Python skip without it. The verifier
+and CP-SAT run in the repository's `.venv` (`pip install -e ".[cpsat]"`), or in
+the Python named by `MOW_PYTHON`.
 
 ```bash
 cargo test --workspace --release                 # every test
 cargo test --workspace --release -- --ignored    # the timing benchmarks
 cargo clippy --workspace --all-targets -- -D warnings
+cargo build --release                            # target/release/mow
+```
+
+`mow` writes to `data/rust/` and never into Python's `data/solutions/` or
+`data/jobs.jsonl`:
+
+```bash
+mow solve <instance.json> <config-label> [--verify] [--svg DIR]   # one config
+mow mine --threads 16 --kick-scale 0.25                           # rounds 0, 1, 2, 8, 10 (--rounds for others)
+mow turns --all --seconds 30                                      # corner search on every best (after mine)
+mow lns --all --seconds 60 [--pass N]                             # ruin and recreate on every best (after turns)
+mow polish --all --hours 8                                        # CP-SAT polish of bests up to 400k cells
+mow polish --seconds 300 [--aim]                                  # polish the bench set, scored
+mow compare --report docs/rust-results.md                         # against Python's bests
+mow bench run <config | best> | pick | score                      # the fixed bench set
+mow report | mine-report | diagnose | catalog | window-map        # reports
+mow help                                                          # every flag
 cargo run --release -p mow-viz -- <instance.json> <solution.json> -o out.svg
 ```
 
