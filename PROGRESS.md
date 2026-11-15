@@ -923,3 +923,37 @@ Edge overshoot is mostly at lane ends, set by where lanes start and stop, and a
 local window rebuilt with the same lanes puts the ends back where they were.
 Shortening it likely needs lane ends chosen per lane in the construction, not
 another lns move.
+
+## 2026-11-14 afternoon: a faster lns
+
+Profiling `mow lns` showed that moves per second fall with the cutter's size,
+not the lawn's: about 28k/s on a 14k-cell instance, 13/s on a 987k one with a 60
+x 60 X cutter (1872 cells). Two causes:
+
+- **Repair anchors.** `anchors_for` stood each missed cell at the anchor nearest
+  the tour, which puts the cell on the cutter's far edge and the rest of the
+  footprint back over swept ground: about 14 new cells per anchor and 137
+  anchors per move, each an O(m) cycle insert. It now picks, among the nearest
+  anchor and an even spread of 32 of the cutter's offsets, the one sweeping the
+  most cells still missed, the nearest among ties.
+- **Bared cells.** After a removal the move rescanned every cell under the
+  removed footprints. `VisitCounts::remove_positions_baring` now returns the
+  cells whose cover reaches 0 while removing, and `unswept_around` marks a local
+  bitmap instead of sorting duplicates.
+
+A/B on the 31 bench instances from the same bests, same seed, 300 s, 7 threads
+each (about 3 cpu h per arm). Scripts in `data/rust-speed/` (git-ignored).
+
+| binary   | points  | better than start | shorter head to head |
+| -------- | ------- | ----------------- | -------------------- |
+| old lns  | +0.0214 | 16 / 31           | 4                    |
+| fast lns | +0.1047 | 20 / 31           | 19 (8 tied)          |
+
+Median 2.6x the moves, 10 to 11x on the 950k-cell X and diamond instances, where
+most of the gain came from (octa28351_946k 12988 -> 12800, octa6025_952k 11242
+-> 11018). Shorter of both merged: score 133.73.
+
+Then one 300 s pass of the fast binary over all 250 bests, 15 threads, 85.5 min
+(21 cpu h): **187 new bests**, score 133.73 -> **136.34**, +2.61 points, 0.12
+points per cpu h, the best rate since the first lns pass. All 250 pass the
+official verifier. Zip `data/rust/submission-2026-11-14-speed.zip`.

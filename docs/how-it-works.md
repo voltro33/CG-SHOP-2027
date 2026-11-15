@@ -335,7 +335,9 @@ flowchart LR
   of the longest tour handed to the nearest other tour.
 - **Recreate** ([`recreate.rs`](../crates/plugins/lns/src/recreate.rs)): lane
   segments of step 4 over just the bare cells, either direction, at a random
-  offset, or single stops for each missed cell.
+  offset, or single stops for each missed cell. A missed cell's stop is the one,
+  of the nearest and 32 spread over the cutter, that sweeps the most cells still
+  missed: with a large cutter the nearest alone mowed mostly swept ground.
 - **Accept** by the longest tour plus a tenth of the others, with a temperature
   that starts at 0.0003 of the objective and falls a hundredfold over the run.
 - **Operator weights** ([`weights.rs`](../crates/plugins/lns/src/weights.rs)):
@@ -351,7 +353,8 @@ Python process ([`tools/cpsat/cpsat.py`](../tools/cpsat/cpsat.py)) solves it. It
 was the main improvement step in Python. Next to `lns` it pays about 300 times
 less per CPU hour, so `--all` now skips instances above 400k cells.
 
-What each step paid on all 250 instances (13 November 2026):
+What each step paid on all 250 instances (13 and 14 November 2026; pass 3 ran
+the faster binary of 14 November, see [PROGRESS.md](../PROGRESS.md)):
 
 | step                                   | CPU h | points | points per CPU h |
 | -------------------------------------- | ----- | ------ | ---------------- |
@@ -359,6 +362,7 @@ What each step paid on all 250 instances (13 November 2026):
 | `mow lns --all --seconds 60`           | 4.17  | +9.53  | 2.28             |
 | `mow lns --all --pass 2 --seconds 300` | 20.84 | +3.24  | 0.16             |
 | `mow polish --all`                     | 59.9  | +0.39  | 0.007            |
+| `mow lns --all --pass 3 --seconds 300` | 21.4  | +2.61  | 0.12             |
 
 Each further pass on the same tour pays less. A restart from a different mined
 tour (the other lane direction's best candidate) beat more time on the best for
@@ -367,16 +371,16 @@ tour (the other lane direction's best candidate) beat more time on the best for
 
 ## 11. Where we stand
 
-Pessimistic score 133.62 of 250, every best shorter than Python's. That is the
+Pessimistic score 136.34 of 250, every best shorter than Python's. That is the
 score if some team reached every lower bound, so the real score is higher. The
-median gap is 34.3% (k = 1 31.8%, k = 2 31.7%, k = 3 37.9%).
+median gap is 32.3% (k = 1 31.6%, k = 2 31.1%, k = 3 34.2%).
 
 ```mermaid
 xychart-beta
     title "median gap to the lower bound, by cutter family (%)"
     x-axis ["square", "clipped sq.", "plus", "diamond", "X shape"]
     y-axis "gap %" 0 --> 80
-    bar [26.6, 27.0, 32.4, 31.9, 74.4]
+    bar [23.4, 25.9, 31.7, 31.4, 72.4]
 ```
 
 Most of the X cutters' gap is the bound, not the tours: against the hull bound
