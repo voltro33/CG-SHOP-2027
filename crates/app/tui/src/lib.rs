@@ -7,12 +7,19 @@
 //! that says it is busy.
 
 pub mod app;
+pub mod bests;
+pub mod binaries;
+pub mod clock;
 pub mod data;
+pub mod experiments;
 pub mod history;
 pub mod preview;
+pub mod recipes;
+pub mod runs;
 pub mod screens;
 pub mod summary;
 pub mod viewer;
+mod work;
 
 use std::time::Duration;
 
@@ -20,6 +27,7 @@ use crossterm::event::{self, Event, KeyEventKind};
 use ratatui::DefaultTerminal;
 
 pub use data::{paths_under, Paths};
+pub use runs::supervise::{supervise, COMMAND as SUPERVISE};
 
 /// How often the screen redraws without a key, so clocks stay current.
 const TICK: Duration = Duration::from_millis(500);
@@ -38,6 +46,7 @@ pub fn run(paths: Paths) -> Result<(), String> {
 
 fn event_loop(terminal: &mut DefaultTerminal, app: &mut app::App) -> Result<(), String> {
     while !app.quit {
+        app.tick();
         terminal.draw(|f| app.draw(f)).map_err(|e| e.to_string())?;
 
         if let Some(task) = app.take_pending() {

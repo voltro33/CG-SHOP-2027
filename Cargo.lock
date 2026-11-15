@@ -421,8 +421,11 @@ dependencies = [
  "mow-io",
  "mow-report",
  "mow-store",
+ "mow-verify",
  "mow-viz",
  "ratatui",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

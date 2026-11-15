@@ -11,8 +11,11 @@ mow-core.workspace = true
 mow-io.workspace = true
 mow-report.workspace = true
 mow-store.workspace = true
+mow-verify.workspace = true
 mow-viz.workspace = true
 ratatui.workspace = true
+serde.workspace = true
+serde_json.workspace = true
 crossterm.workspace = true
 
 [lints]

@@ -293,6 +293,7 @@ mod tests {
             root: ".".into(),
             data: ".".into(),
             instances: ".".into(),
+            mow: "mow".into(),
         };
 
         Ctx { paths, lawn, summary }

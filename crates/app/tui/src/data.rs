@@ -16,6 +16,8 @@ pub struct Paths {
     pub data: PathBuf,
     /// The challenge instance files.
     pub instances: PathBuf,
+    /// The `mow` binary runs start: the one running, unless a test says.
+    pub mow: PathBuf,
 }
 
 impl Paths {
@@ -152,6 +154,7 @@ pub fn paths_under(root: &Path, instances: &str) -> Paths {
         root: root.to_path_buf(),
         data: root.join("data").join("rust"),
         instances: root.join(instances),
+        mow: std::env::current_exe().unwrap_or_else(|_| PathBuf::from("mow")),
     }
 }
 

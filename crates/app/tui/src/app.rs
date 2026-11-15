@@ -20,7 +20,7 @@ use crate::viewer::{self, Panel};
 
 pub struct App {
     pub ctx: Ctx,
-    stack: Vec<Screen>,
+    pub(crate) stack: Vec<Screen>,
     pending: Option<Task>,
     status: String,
     pub quit: bool,
@@ -64,10 +64,23 @@ impl App {
             }
             Nav::Quit => self.quit = true,
             Nav::Say(text) => self.status = text,
-            Nav::Run(task) => {
-                self.status = task.busy();
-                self.pending = Some(task);
+            Nav::Run(task) => self.queue(task),
+            Nav::PopAndRun(task) => {
+                self.stack.pop();
+                self.queue(task);
             }
+        }
+    }
+
+    fn queue(&mut self, task: Task) {
+        self.status = task.busy();
+        self.pending = Some(task);
+    }
+
+    /// Lets the screen on top read the disk again if it follows it.
+    pub fn tick(&mut self) {
+        if let Some(top) = self.stack.last_mut() {
+            top.tick(&self.ctx);
         }
     }
 
@@ -84,6 +97,7 @@ impl App {
             Task::Candidates(uid) => self.open_candidates(&uid),
             Task::Jobs(uid) => self.open_jobs(&uid),
             Task::Reload => self.reload(),
+            other => self.work(other),
         };
 
         self.status = match result {
@@ -155,7 +169,7 @@ impl App {
         Ok(format!("{count} jobs logged"))
     }
 
-    fn reload(&mut self) -> Result<String, String> {
+    pub(crate) fn reload(&mut self) -> Result<String, String> {
         self.ctx.lawn = Lawn::load(&self.ctx.paths)?;
         self.ctx.summary = Summary::of(&self.ctx.lawn);
 

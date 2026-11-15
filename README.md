@@ -235,6 +235,23 @@ the browser" writes a page to `data/rust/view/` and opens it: the tours over the
 lawn, pan and zoom, one checkbox per cutter, and a candidate side by side with
 the best.
 
+The rest of the menus run the work, no commands to type:
+
+- **Runs**: start a pass of `lns`, `turns` or `polish` from a form (instances,
+  seconds, threads, pass number), watch its progress and log, stop it. A run
+  lives in `data/rust/runs/<id>/` and is kept going by a detached
+  `mow __supervise` process, so it outlives the menus; it runs a copy of the
+  binary, so rebuilding never disturbs it.
+- **Experiments**: keep binaries in `data/rust/bin/` (the running build, or any
+  commit built in a worktree under `data/rust/worktrees/`), A/B two of them on
+  copies of the same bests and state with the same seed, read the report
+  (points, instances shortened, head to head, moves), and merge the winners.
+- **Bests**: merge the shorter tours of any `best/` folder (experiment arms,
+  `data/rust-*`, Python's bests) into `data/rust/best`, each merge backed up in
+  `data/rust/backups/` and undoable.
+- **Submission**: pack the stored bests into a verified zip with
+  `tools/pack/pack.py`. Zips are only written; submitting one is up to you.
+
 [`docs/python-vs-rust.md`](docs/python-vs-rust.md) compares the two solvers
 piece by piece. [`docs/how-it-works.md`](docs/how-it-works.md) walks through the
 solver step by step, crate by crate.

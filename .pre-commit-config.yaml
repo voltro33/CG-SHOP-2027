@@ -59,8 +59,9 @@ repos:
     hooks:
       - id: codespell
         exclude: ^(LICENSE$)
-        # `crate` is a Rust keyword, `lits` are CP-SAT literals, `ratatui` the TUI library
-        args: ["--ignore-words-list=crate,lits,ratatui"]
+        # `crate` is a Rust keyword, `lits` are CP-SAT literals, `ratatui` the TUI library,
+        # `fo` the output-format flag of Windows tasklist
+        args: ["--ignore-words-list=crate,lits,ratatui,fo"]
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.10.0.1

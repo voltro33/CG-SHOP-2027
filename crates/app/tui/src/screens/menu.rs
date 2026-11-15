@@ -7,50 +7,45 @@ use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, List, ListItem, ListState, Paragraph};
 use ratatui::Frame;
 
-use super::{dashboard::Dashboard, instances::Instances, moved, step_of, Ctx, Nav, Screen};
+use super::experiments::Experiments;
+use super::runs::Runs;
+use super::submission::Submission;
+use super::{dashboard::Dashboard, instances::Instances, moved, step_of, Ctx, Nav, Screen, Task};
 
-/// One menu entry: its name, what it is for, and whether it is built yet.
+/// One menu entry: its name and what it is for.
 struct Entry {
     name: &'static str,
     about: &'static str,
-    ready: bool,
 }
 
 const ENTRIES: [Entry; 7] = [
     Entry {
         name: "Dashboard",
         about: "the score, by k and by cutter family, and the gaps to the bounds",
-        ready: true,
     },
     Entry {
         name: "Instances",
         about: "all 250: their bests, a look at each tour, candidates and history",
-        ready: true,
     },
     Entry {
         name: "Runs",
-        about: "start, watch and stop passes (coming next)",
-        ready: false,
+        about: "start a pass, watch it, stop it; runs keep going when the menus close",
     },
     Entry {
         name: "Experiments",
-        about: "A/B tests between two commits (coming)",
-        ready: false,
+        about: "A/B tests between two binaries, building a commit, merging the winner",
     },
     Entry {
         name: "Bests",
-        about: "merge shorter tours from a folder, with undo (coming)",
-        ready: false,
+        about: "merge shorter tours from another folder, with undo",
     },
     Entry {
         name: "Submission",
-        about: "pack and verify a zip; never uploads (coming)",
-        ready: false,
+        about: "pack and verify a zip; never uploads",
     },
     Entry {
         name: "Quit",
         about: "",
-        ready: true,
     },
 ];
 
@@ -76,14 +71,13 @@ impl Menu {
     }
 
     fn open(&self, ctx: &Ctx) -> Nav {
-        let entry = &ENTRIES[self.selected];
-        if !entry.ready {
-            return Nav::Say(format!("{} is not built yet", entry.name));
-        }
-
         match self.selected {
             0 => Nav::Push(Screen::Dashboard(Dashboard)),
             1 => Nav::Push(Screen::Instances(Instances::new(&ctx.lawn))),
+            2 => Nav::Push(Screen::Runs(Runs::default())),
+            3 => Nav::Push(Screen::Experiments(Experiments::default())),
+            4 => Nav::Run(Task::OpenBests),
+            5 => Nav::Push(Screen::Submission(Submission::new(ctx))),
             QUIT => Nav::Quit,
             _ => Nav::Stay,
         }
@@ -111,13 +105,11 @@ impl Menu {
 }
 
 fn item(entry: &Entry) -> ListItem<'static> {
-    let name_style = match entry.ready {
-        true => Style::new().add_modifier(Modifier::BOLD),
-        false => Style::new().fg(Color::DarkGray),
-    };
-
     ListItem::new(Line::from(vec![
-        Span::styled(format!("{:<13}", entry.name), name_style),
+        Span::styled(
+            format!("{:<13}", entry.name),
+            Style::new().add_modifier(Modifier::BOLD),
+        ),
         Span::styled(entry.about, Style::new().fg(Color::Gray)),
     ]))
 }

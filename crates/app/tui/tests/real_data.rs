@@ -88,6 +88,77 @@ fn every_screen_draws_from_the_stored_data() {
     }
 }
 
+#[test]
+fn the_work_screens_draw_without_starting_anything() {
+    let paths = paths_under(&root(), INSTANCES);
+    if !paths.data.join("catalog.csv").is_file() {
+        eprintln!("skipped: no data/rust/catalog.csv");
+        return;
+    }
+    let mut app = App::new(paths).unwrap();
+    let show = std::env::var("MOW_TUI_SHOW").is_ok();
+    let down = |app: &mut App, n: usize| (0..n).for_each(|_| press(app, KeyCode::Down));
+
+    // Runs, then its start form
+    down(&mut app, 2);
+    press(&mut app, KeyCode::Enter);
+    app.tick();
+    let runs = screen(&mut app);
+    assert!(runs.contains("Start a pass"), "{runs}");
+    press(&mut app, KeyCode::Enter);
+    let form = screen(&mut app);
+    assert!(
+        form.contains("seconds per instance") && form.contains("[ Start ]"),
+        "{form}"
+    );
+    if show {
+        println!(
+            "{runs}
+{form}"
+        );
+    }
+    press(&mut app, KeyCode::Esc);
+    press(&mut app, KeyCode::Esc);
+
+    // Experiments and its binaries
+    press(&mut app, KeyCode::Down);
+    press(&mut app, KeyCode::Enter);
+    app.tick();
+    assert!(screen(&mut app).contains("New experiment"));
+    press(&mut app, KeyCode::Down);
+    press(&mut app, KeyCode::Enter);
+    let binaries = screen(&mut app);
+    assert!(binaries.contains("Build a commit"), "{binaries}");
+    press(&mut app, KeyCode::Esc);
+    press(&mut app, KeyCode::Esc);
+
+    // Bests: the folders to merge from
+    press(&mut app, KeyCode::Down);
+    press(&mut app, KeyCode::Enter);
+    let bests = screen(&mut app);
+    assert!(
+        bests.contains("Merge from") && bests.contains("data/solutions/best"),
+        "{bests}"
+    );
+    press(&mut app, KeyCode::Esc);
+
+    // Submission: the zips so far
+    press(&mut app, KeyCode::Down);
+    press(&mut app, KeyCode::Enter);
+    let submission = screen(&mut app);
+    assert!(
+        submission.contains("Pack a new zip") && submission.contains(".zip"),
+        "{submission}"
+    );
+    if show {
+        println!(
+            "{binaries}
+{bests}
+{submission}"
+        );
+    }
+}
+
 /// The browser page of the largest instance: how big and how slow.
 #[test]
 #[ignore]
