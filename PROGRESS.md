@@ -957,3 +957,81 @@ Then one 300 s pass of the fast binary over all 250 bests, 15 threads, 85.5 min
 (21 cpu h): **187 new bests**, score 133.73 -> **136.34**, +2.61 points, 0.12
 points per cpu h, the best rate since the first lns pass. All 250 pass the
 official verifier. Zip `data/rust/submission-2026-11-14-speed.zip`.
+
+## 2026-11-15: stamping runs of anchors at once
+
+Profiling the faster `lns` again on 7 large instances: stamping cutter
+footprints into the visit counts, one position at a time, took most of a move.
+It happens on every removal, on each repair round's apply and unapply, and on
+every undo. Three changes, the tours chosen unchanged:
+
+- **Runs stamped whole** (`mow-coverage` `runs.rs`). Neighbouring positions on a
+  lane share almost all of their footprint. A straight run along a row is
+  stamped one cutter row at a time (a column run, one cutter column), each cell
+  getting the count of the run's copies over it: about `n + r` per strip instead
+  of `n` times the cutter's area.
+- **Repair checks only the bared cells.** Adding walks never uncovers a cell, so
+  after a removal only the cells it bared can still be unmowed; the repair loop
+  no longer walks the removed footprints again, up to four times a move.
+- **Repair anchors counted with prefix sums** (`mow-lns` `anchors.rs`). A
+  candidate's count of missed cells is one lookup per cutter row strip, not a
+  pass over up to 1872 cells, for each of 33 candidates.
+
+Moves in 60 s on one thread, before and after:
+
+| instance            | before | after | x   |
+| ------------------- | ------ | ----- | --- |
+| isoa22945_987k_3x10 | 16k    | 80k   | 5.0 |
+| octa6025_952k_3x9   | 26k    | 115k  | 4.4 |
+| smo64863_393k_3p6   | 72k    | 283k  | 3.9 |
+| iso5009_399k_3x5    | 93k    | 328k  | 3.5 |
+| srpg22373_399k_3d4  | 161k   | 460k  | 2.9 |
+| dkd1973_128k_2d8    | 340k   | 733k  | 2.2 |
+| iso8005_105k_2s3    | 1.19M  | 1.32M | 1.1 |
+
+The 3 x 3 cutters barely gain: there cutting the dense tour (38% of a move) and
+writing it back (13%) cost most, both linear in the tour's length.
+
+A/B on the 31 bench instances from the same bests, same seed, 300 s, 7 threads
+each. Scripts in `data/rust-runs/` (git-ignored).
+
+| binary          | points  | better than start | shorter head to head |
+| --------------- | ------- | ----------------- | -------------------- |
+| committed lns   | +0.0243 | 13 / 31           | 5                    |
+| run-stamped lns | +0.0550 | 16 / 31           | 15 (11 tied)         |
+
+Moves a median 1.58x the committed binary's, up to 4.5x (isoa22945_987k 80k ->
+357k). Shorter of both merged: score 136.40.
+
+Then `lns` pass 4 over all 250 bests with it, 300 s each, 12 threads, started
+15:17. At 120 of 250 the score is **137.43** (+1.02), 87 new bests; the full
+result follows when it ends.
+
+## 2026-11-15: menus
+
+`mow` with no arguments now opens menus (`mow-tui`, built on `ratatui`), moved
+through with the arrow keys and Enter, no commands typed:
+
+- **Dashboard**: the score, by k and by cutter family, median gaps, the latest
+  new best.
+- **Instances**: all 250, sorted and filtered; each one's facts, its best tour
+  drawn in the terminal in braille, its candidates and job history, and a
+  browser page of the tours (pan, zoom, one checkbox per cutter, a candidate
+  side by side with the best) written to `data/rust/view/`.
+- **Runs**: start a pass of `lns`, `turns` or `polish` from a form, watch its
+  progress and log, stop it. A run is a folder `data/rust/runs/<id>/` kept going
+  by a detached `mow __supervise`, so it outlives the menus, and it runs a copy
+  of the binary, so rebuilding never disturbs it.
+- **Experiments**: binaries kept in `data/rust/bin/` (the running build, or a
+  commit built in a worktree with half the cores), A/B runs between two of them,
+  a live report, and merging the winners.
+- **Bests**: merge the shorter tours of any `best/` folder, each merge backed up
+  in `data/rust/backups/` and undoable.
+- **Submission**: pack a verified zip with `tools/pack/pack.py`, the old
+  throwaway script made a committed tool. Never uploads.
+
+This replaces the per-experiment `setup.py`, `run.sh`, `compare.py`, `merge.py`
+and `pack.py` copied into each `data/rust-*` folder. Two end-to-end tests
+(ignored by default: they need the release binary and Python) run a real pass
+through the supervisor and stop another, and build HEAD in a worktree and run an
+experiment against it.
