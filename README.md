@@ -188,6 +188,7 @@ crates/
 └── app/
     ├── pipeline/          mow-pipeline  one config on one instance
     ├── report/            mow-report    leaderboard, mine report, diagnose
+    ├── tui/               mow-tui       the menus `mow` opens with no arguments
     └── cli/               mow-cli       the `mow` command
 tools/
 ├── golden/                Python scripts that wrote the reference fixtures
@@ -212,6 +213,7 @@ cargo build --release                            # target/release/mow
 `data/jobs.jsonl`:
 
 ```bash
+mow                                                               # the menus, see below
 mow solve <instance.json> <config-label> [--verify] [--svg DIR]   # one config
 mow mine --threads 16 --kick-scale 0.25                           # rounds 0, 1, 2, 8, 10 (--rounds for others)
 mow turns --all --seconds 30                                      # corner search on every best (after mine)
@@ -224,6 +226,14 @@ mow report | mine-report | diagnose | catalog | window-map        # reports
 mow help                                                          # every flag
 cargo run --release -p mow-viz -- <instance.json> <solution.json> -o out.svg
 ```
+
+`mow` on its own opens menus you move through with the arrow keys and Enter: the
+dashboard (the score by k and by cutter family, the median gaps, the latest new
+best) and every instance, sortable and filterable, with its facts, a look at its
+best tour drawn in the terminal, its candidates and its job history. "Open in
+the browser" writes a page to `data/rust/view/` and opens it: the tours over the
+lawn, pan and zoom, one checkbox per cutter, and a candidate side by side with
+the best.
 
 [`docs/python-vs-rust.md`](docs/python-vs-rust.md) compares the two solvers
 piece by piece. [`docs/how-it-works.md`](docs/how-it-works.md) walks through the

@@ -31,6 +31,7 @@ mow-turns.workspace = true
 mow-lns.workspace = true
 mow-cpsat.workspace = true
 mow-viz.workspace = true
+mow-tui.workspace = true
 serde_json = { workspace = true, features = ["raw_value"] }
 
 [lints]

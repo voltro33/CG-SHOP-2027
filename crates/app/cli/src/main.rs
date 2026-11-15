@@ -1,9 +1,10 @@
-//! `mow solve | mine | polish | turns | lns | compare` and the reports, see `mow help`.
+//! `mow solve | mine | polish | turns | lns | compare` and the reports, see
+//! `mow help`. With no arguments, `mow` opens the menus of `mow-tui`.
 
 use std::process::ExitCode;
 
 use mow_cli::compare::{self, Comparison};
-use mow_cli::layout::repo_root;
+use mow_cli::layout::{repo_root, DEFAULT_INSTANCES};
 use mow_cli::lns_cmd;
 use mow_cli::mine::{self, MineSummary};
 use mow_cli::official::{Official, VerifierPool};
@@ -16,6 +17,7 @@ fn usage() -> String {
     [
         "mow: the Rust lawn mowing solver",
         "",
+        "usage: mow                      the menus: score, instances, tours",
         solve_cmd::USAGE,
         mine::USAGE,
         polish_cmd::USAGE,
@@ -32,6 +34,7 @@ fn main() -> ExitCode {
     let command = raw.next().unwrap_or_default();
 
     let result = match command.as_str() {
+        "" => mow_tui::run(mow_tui::paths_under(&repo_root(), DEFAULT_INSTANCES)),
         "solve" => solve_cmd::parse_args(raw).and_then(|args| solve_cmd::run(&args)),
         "mine" => mine::parse_args(raw).and_then(|options| run_mine(&options)),
         "polish" => polish_cmd::run(raw),

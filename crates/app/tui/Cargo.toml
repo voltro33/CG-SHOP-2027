@@ -1,0 +1,19 @@
+[package]
+name = "mow-tui"
+description = "The menus `mow` opens with no arguments: the score, the instances, and their tours"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+mow-core.workspace = true
+mow-io.workspace = true
+mow-report.workspace = true
+mow-store.workspace = true
+mow-viz.workspace = true
+ratatui.workspace = true
+crossterm.workspace = true
+
+[lints]
+workspace = true
