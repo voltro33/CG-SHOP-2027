@@ -136,6 +136,38 @@ impl VisitCounts {
         &mut self,
         positions: impl IntoIterator<Item = Point>,
     ) -> Result<(), CoverageError> {
+        self.remove(positions, &mut None)
+    }
+
+    /// As [`Self::remove_positions`], returning the region cells it left
+    /// unmowed, each once, row major. With every cell mowed before, these
+    /// are what [`Self::unswept_around`] lists after, found without a second
+    /// pass over the footprints.
+    pub fn remove_positions_baring(
+        &mut self,
+        positions: impl IntoIterator<Item = Point>,
+    ) -> Result<Vec<Point>, CoverageError> {
+        let mut bared = Some(Vec::new());
+        self.remove(positions, &mut bared)?;
+
+        let mut bared = bared.unwrap_or_default();
+        bared.sort_unstable();
+
+        let width = self.cover_width as i32;
+        Ok(bared
+            .into_iter()
+            .map(|c| self.cover_origin.shifted(c as i32 % width, c as i32 / width))
+            .collect())
+    }
+
+    /// Removes one visit of each position, pushing the cover index of each
+    /// cell whose cover runs out to `bared` if given. A cover runs out
+    /// once per removal, so no index is pushed twice.
+    fn remove(
+        &mut self,
+        positions: impl IntoIterator<Item = Point>,
+        bared: &mut Option<Vec<usize>>,
+    ) -> Result<(), CoverageError> {
         for p in positions {
             let Some(i) = self.anchor(p) else { continue };
 
@@ -144,7 +176,7 @@ impl VisitCounts {
                 .ok_or(CoverageError::NotVisited(p))?;
             self.visits[i] = after;
             if after == 0 {
-                self.stamp_down(self.cover_base(i));
+                self.stamp_down(self.cover_base(i), bared);
             }
         }
 
@@ -196,29 +228,35 @@ impl VisitCounts {
     /// `positions`, each once, row major. Empty exactly when
     /// [`Self::all_swept_around`] is true.
     pub fn unswept_around(&self, positions: impl IntoIterator<Item = Point>) -> Vec<Point> {
-        let mut bare: Vec<usize> = Vec::new();
+        let mut bases: Vec<usize> = positions
+            .into_iter()
+            .filter_map(|p| self.anchor(p))
+            .filter(|&i| self.visits[i] == 0)
+            .map(|i| self.cover_base(i))
+            .collect();
+        bases.sort_unstable();
+        bases.dedup();
 
-        for p in positions {
-            let Some(i) = self.anchor(p) else { continue };
-            if self.visits[i] > 0 {
-                continue;
+        let Some(area) = Area::around(&bases, &self.footprint, self.cover_width) else {
+            return Vec::new();
+        };
+        let mut bare = vec![false; area.cells()];
+
+        for &base in &bases {
+            for &d in &self.footprint {
+                if self.cover[base + d] == 0 {
+                    bare[area.local(base + d)] = true;
+                }
             }
-
-            let base = self.cover_base(i);
-            bare.extend(
-                self.footprint
-                    .iter()
-                    .map(|&d| base + d)
-                    .filter(|&c| self.cover[c] == 0),
-            );
         }
 
-        bare.sort_unstable();
-        bare.dedup();
-
         let width = self.cover_width as i32;
-        bare.into_iter()
-            .map(|c| self.cover_origin.shifted(c as i32 % width, c as i32 / width))
+        (0..bare.len())
+            .filter(|&l| bare[l])
+            .map(|l| {
+                let c = area.cover(l) as i32;
+                self.cover_origin.shifted(c % width, c / width)
+            })
             .collect()
     }
 
@@ -271,12 +309,19 @@ impl VisitCounts {
         }
     }
 
-    fn stamp_down(&mut self, base: usize) {
+    fn stamp_down(&mut self, base: usize, bared: &mut Option<Vec<usize>>) {
         for &d in &self.footprint {
             let cover = &mut self.cover[base + d];
-            if *cover != OUTSIDE {
-                *cover -= 1;
-                self.uncovered += usize::from(*cover == 0);
+            if *cover == OUTSIDE {
+                continue;
+            }
+
+            *cover -= 1;
+            if *cover == 0 {
+                self.uncovered += 1;
+                if let Some(bared) = bared {
+                    bared.push(base + d);
+                }
             }
         }
     }
@@ -292,6 +337,50 @@ impl VisitCounts {
     /// anchor's own column and row in the cover's row width.
     fn cover_base(&self, i: usize) -> usize {
         (i / self.frame_width) * self.cover_width + i % self.frame_width
+    }
+}
+
+/// The rectangle of the cover box under some footprints, for marking cells
+/// in it densely: each cell once and in row major order, without sorting.
+struct Area {
+    cover_width: usize,
+    row: usize,
+    col: usize,
+    width: usize,
+    height: usize,
+}
+
+impl Area {
+    /// Around the footprints at the cover indices `bases`, sorted. `None`
+    /// for no bases.
+    fn around(bases: &[usize], footprint: &[usize], cover_width: usize) -> Option<Self> {
+        let (first, last) = (*bases.first()?, *bases.last()?);
+        let col = bases.iter().map(|b| b % cover_width).min()?;
+        let col_max = bases.iter().map(|b| b % cover_width).max()?;
+        let rows = footprint.iter().map(|d| d / cover_width).max()? + 1;
+        let cols = footprint.iter().map(|d| d % cover_width).max()? + 1;
+
+        Some(Self {
+            cover_width,
+            row: first / cover_width,
+            col,
+            width: col_max - col + cols,
+            height: last / cover_width - first / cover_width + rows,
+        })
+    }
+
+    fn cells(&self) -> usize {
+        self.width * self.height
+    }
+
+    fn local(&self, cover: usize) -> usize {
+        let (row, col) = (cover / self.cover_width, cover % self.cover_width);
+        (row - self.row) * self.width + (col - self.col)
+    }
+
+    fn cover(&self, local: usize) -> usize {
+        let (row, col) = (local / self.width, local % self.width);
+        (row + self.row) * self.cover_width + col + self.col
     }
 }
 

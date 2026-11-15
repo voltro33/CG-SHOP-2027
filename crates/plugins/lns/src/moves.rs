@@ -61,8 +61,7 @@ impl Tours<'_> {
             return Ok(Tried::Skipped);
         };
 
-        self.counts.remove_positions(removed.iter().copied())?;
-        let bare = self.counts.unswept_around(removed.iter().copied());
+        let bare = self.counts.remove_positions_baring(removed.iter().copied())?;
         let offset = rng.gen_range(0..self.span.max(1));
         let stops = recreate.stops(self.problem, &bare, offset)?;
 

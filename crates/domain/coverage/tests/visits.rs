@@ -94,6 +94,7 @@ fn the_query_leaves_no_trace_in_the_scratch() {
 fn random_removals_match_a_full_recheck() {
     let mut rng = Rng::new(42);
     let cutters = [square(3), x_shape(), square(2)];
+    let mut baring_checked = 0;
 
     for case in 0..150 {
         let p = rectangle(12, 7, cutters[case % cutters.len()].clone(), 1);
@@ -124,8 +125,16 @@ fn random_removals_match_a_full_recheck() {
         let bare = applied.unswept_around(removed.iter().copied());
         if before == 0 {
             assert_eq!(bare.len(), lost, "case {case}");
+
+            let mut baring = counts.clone();
+            let bared = baring.remove_positions_baring(removed.iter().copied()).unwrap();
+            assert_eq!(bared, bare, "case {case}");
+            assert_eq!(baring.uncovered_count(), applied.uncovered_count(), "case {case}");
+            baring_checked += 1;
         }
     }
+
+    assert!(baring_checked > 50, "only {baring_checked} cases started covered");
 }
 
 #[test]
