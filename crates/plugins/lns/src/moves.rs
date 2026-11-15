@@ -11,12 +11,13 @@ use std::time::Instant;
 use mow_core::Point;
 use rand::Rng;
 
+use crate::anchors::anchors_for;
 use crate::chains::{cut, Chain, Cut};
 use crate::cycle::Stop;
 use crate::destroy::Destroy;
 use crate::edit::Edit;
 use crate::error::LnsError;
-use crate::recreate::{anchors_for, Recreate};
+use crate::recreate::Recreate;
 use crate::tours::{cost, dense_length, is_unit_cycle, Tours};
 
 /// Rounds of anchors for cells the new stops still miss.
@@ -75,7 +76,7 @@ impl Tours<'_> {
             return Ok(Tried::Rejected);
         }
 
-        if !self.realize(&mut edits, &removed, deadline)? {
+        if !self.realize(&mut edits, &bare, deadline)? {
             self.counts.add_positions(removed)?;
             return Ok(Tried::Rejected);
         }
@@ -137,19 +138,15 @@ impl Tours<'_> {
     }
 
     /// Builds the walks, adds them to the counts and repairs: true once
-    /// every cell around `removed` is swept, with corners cut. On false the
+    /// every cell of `bare` (all the move left unmowed) is swept, with
+    /// corners cut. On false the
     /// counts are back to holding no walk.
-    fn realize(
-        &mut self,
-        edits: &mut [Edit],
-        removed: &[Point],
-        deadline: Instant,
-    ) -> Result<bool, LnsError> {
+    fn realize(&mut self, edits: &mut [Edit], bare: &[Point], deadline: Instant) -> Result<bool, LnsError> {
         build_all(edits)?;
         apply_all(edits, &mut self.counts)?;
 
         for round in 0..=REPAIR_ROUNDS {
-            if self.counts.all_swept_around(removed.iter().copied()) {
+            if self.counts.all_swept_of(bare) {
                 break;
             }
 
@@ -158,7 +155,7 @@ impl Tours<'_> {
                 return Ok(false);
             }
 
-            let missing = self.counts.unswept_around(removed.iter().copied());
+            let missing = self.counts.unswept_of(bare);
             let target = edits.len() - 1;
             let near: Vec<Point> = edits[target].stop_ends().collect();
             for anchor in anchors_for(self.problem, &missing, &near) {

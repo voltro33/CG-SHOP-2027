@@ -23,6 +23,7 @@
 //! Operators are drawn by adaptive weights, kept per instance in a state
 //! file with the walk's current solution ([`resume`]).
 
+mod anchors;
 mod chains;
 mod cycle;
 mod destroy;

@@ -152,3 +152,93 @@ fn unswept_around_lists_the_cells_a_removal_left_bare() {
     assert_eq!(bare, vec![Point::new(5, 0), Point::new(5, 1), Point::new(5, 2)]);
     assert!(!counts.all_swept_around([Point::new(4, 1)]));
 }
+
+/// A 20 x 14 rectangle with a hole and a notch, so footprints cross cells
+/// off the region.
+fn holey(cutter: mow_core::Cutter) -> Problem {
+    let mut cells: Vec<Point> = (0..14)
+        .flat_map(|y| (0..20).map(move |x| Point::new(x, y)))
+        .collect();
+    let hole = |c: &Point| (6..9).contains(&c.x) && (4..7).contains(&c.y);
+    let notch = |c: &Point| c.x > 15 && c.y < 3;
+    cells.retain(|c| !hole(c) && !notch(c));
+    let region = mow_core::BitGrid::from_cells(&cells).unwrap().unwrap();
+
+    Problem::new("holey", region, cutter, 1).unwrap()
+}
+
+/// Unit steps from a random start along up to four random legs, some of
+/// them doubling back over anchors already walked.
+fn random_walk(rng: &mut Rng) -> Vec<Point> {
+    let mut at = Point::new(rng.below(24) as i32 - 2, rng.below(18) as i32 - 2);
+    let mut walk = vec![at];
+
+    for _ in 0..1 + rng.below(4) {
+        let (dx, dy) = [(1, 0), (-1, 0), (0, 1), (0, -1)][rng.below(4)];
+        for _ in 0..rng.below(9) {
+            at = at.shifted(dx, dy);
+            walk.push(at);
+        }
+    }
+
+    walk
+}
+
+fn row_major(mut cells: Vec<Point>) -> Vec<Point> {
+    cells.sort_unstable_by_key(|c| (c.y, c.x));
+    cells
+}
+
+#[test]
+fn stamping_whole_walks_matches_one_position_at_a_time() {
+    let mut rng = Rng::new(11);
+    let wide_x = common::cutter(&[
+        (-2, -2),
+        (2, -2),
+        (-1, -1),
+        (1, -1),
+        (0, 0),
+        (-1, 1),
+        (1, 1),
+        (-2, 2),
+        (2, 2),
+    ]);
+    let mut scratch = Scratch::default();
+
+    for cutter in [square(3), x_shape(), wide_x, common::plus()] {
+        let p = holey(cutter);
+        let mut runs = VisitCounts::new(&p).unwrap();
+        let mut single = runs.clone();
+        let mut live: Vec<Vec<Point>> = Vec::new();
+
+        for step in 0..300 {
+            if live.is_empty() || rng.below(3) > 0 {
+                let walk = random_walk(&mut rng);
+                runs.add_positions(walk.iter().copied()).unwrap();
+                walk.iter().for_each(|&q| single.add_positions([q]).unwrap());
+                live.push(walk);
+            } else {
+                let walk = live.swap_remove(rng.below(live.len()));
+                let together = runs.remove_positions_baring(walk.iter().copied()).unwrap();
+                let one_by_one: Vec<Point> = walk
+                    .iter()
+                    .flat_map(|&q| single.remove_positions_baring([q]).unwrap())
+                    .collect();
+                assert_eq!(row_major(together), row_major(one_by_one), "step {step}");
+            }
+
+            assert_eq!(runs.uncovered_count(), single.uncovered_count(), "step {step}");
+            for y in -3..17 {
+                for x in -3..23 {
+                    let q = [Point::new(x, y)];
+                    assert_eq!(runs.visits(q[0]), single.visits(q[0]));
+                    assert_eq!(
+                        runs.cells_lost_if_removed(&mut scratch, q),
+                        single.cells_lost_if_removed(&mut scratch, q),
+                        "step {step} at {x},{y}"
+                    );
+                }
+            }
+        }
+    }
+}

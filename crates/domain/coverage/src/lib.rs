@@ -12,6 +12,7 @@
 pub mod error;
 pub mod full;
 mod rows;
+mod runs;
 pub mod visits;
 
 pub use error::CoverageError;

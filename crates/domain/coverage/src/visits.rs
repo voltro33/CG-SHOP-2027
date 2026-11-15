@@ -21,6 +21,7 @@
 use mow_core::{Bounds, ModelError, Point, Problem, Route};
 
 use crate::error::CoverageError;
+use crate::runs::{runs, Strips};
 
 /// Cover value of a cell outside the region.
 const OUTSIDE: u16 = u16::MAX;
@@ -42,6 +43,8 @@ pub struct VisitCounts {
     /// Cover index of each cutter cell, relative to the cover index of the
     /// cutter box's low corner.
     footprint: Vec<usize>,
+    /// The footprint as row and column strips, for stamping runs.
+    strips: Strips,
     uncovered: usize,
 }
 
@@ -71,7 +74,7 @@ impl VisitCounts {
             cover[start..start + run.len() as usize].fill(0);
         }
 
-        let footprint = problem
+        let footprint: Vec<usize> = problem
             .cutter()
             .offsets()
             .iter()
@@ -85,6 +88,7 @@ impl VisitCounts {
             cover_width,
             cover,
             cover_origin: Point::new(cover_box.x_min, cover_box.y_min),
+            strips: Strips::new(&footprint, cover_width),
             footprint,
             uncovered: problem.num_cells(),
         })
@@ -117,17 +121,25 @@ impl VisitCounts {
     /// sweep no region cell and are skipped. On error the positions before
     /// the bad one stay added.
     pub fn add_positions(&mut self, positions: impl IntoIterator<Item = Point>) -> Result<(), CoverageError> {
+        let mut first_visits = Vec::new();
+        let mut result = Ok(());
+
         for p in positions {
             let Some(i) = self.anchor(p) else { continue };
 
             let before = self.visits[i];
-            self.visits[i] = before.checked_add(1).ok_or(CoverageError::VisitOverflow(p))?;
+            let Some(after) = before.checked_add(1) else {
+                result = Err(CoverageError::VisitOverflow(p));
+                break;
+            };
+            self.visits[i] = after;
             if before == 0 {
-                self.stamp_up(self.cover_base(i));
+                first_visits.push(i);
             }
         }
 
-        Ok(())
+        self.stamp_up(&first_visits);
+        result
     }
 
     /// Visits each position once less. On error the positions before the
@@ -168,19 +180,24 @@ impl VisitCounts {
         positions: impl IntoIterator<Item = Point>,
         bared: &mut Option<Vec<usize>>,
     ) -> Result<(), CoverageError> {
+        let mut last_visits = Vec::new();
+        let mut result = Ok(());
+
         for p in positions {
             let Some(i) = self.anchor(p) else { continue };
 
-            let after = self.visits[i]
-                .checked_sub(1)
-                .ok_or(CoverageError::NotVisited(p))?;
+            let Some(after) = self.visits[i].checked_sub(1) else {
+                result = Err(CoverageError::NotVisited(p));
+                break;
+            };
             self.visits[i] = after;
             if after == 0 {
-                self.stamp_down(self.cover_base(i), bared);
+                last_visits.push(i);
             }
         }
 
-        Ok(())
+        self.stamp_down(&last_visits, bared);
+        result
     }
 
     /// How many mowed region cells would be left unmowed with one visit of
@@ -222,6 +239,32 @@ impl VisitCounts {
             let base = self.cover_base(i);
             self.footprint.iter().all(|&d| self.cover[base + d] != 0)
         })
+    }
+
+    /// The region cells of `cells` left unmowed now, in the order given.
+    ///
+    /// After [`Self::remove_positions_baring`] only the cells it returned
+    /// can be unmowed, however many positions are added back, so asking
+    /// about them alone matches [`Self::unswept_around`] the removed
+    /// positions, without walking their footprints again.
+    pub fn unswept_of(&self, cells: &[Point]) -> Vec<Point> {
+        cells.iter().copied().filter(|&c| self.is_bare(c)).collect()
+    }
+
+    /// True if every region cell of `cells` is mowed now.
+    pub fn all_swept_of(&self, cells: &[Point]) -> bool {
+        !cells.iter().any(|&c| self.is_bare(c))
+    }
+
+    /// A region cell no visited position mows. Cells off the region never are.
+    fn is_bare(&self, c: Point) -> bool {
+        let (x, y) = (c.x - self.cover_origin.x, c.y - self.cover_origin.y);
+        if x < 0 || y < 0 || x as usize >= self.cover_width {
+            return false;
+        }
+
+        let i = y as usize * self.cover_width + x as usize;
+        self.cover.get(i) == Some(&0)
     }
 
     /// The region cells left unmowed in the footprints of the unvisited
@@ -299,30 +342,54 @@ impl VisitCounts {
         lost
     }
 
-    fn stamp_up(&mut self, base: usize) {
-        for &d in &self.footprint {
-            let cover = &mut self.cover[base + d];
-            if *cover != OUTSIDE {
-                self.uncovered -= usize::from(*cover == 0);
-                *cover += 1;
-            }
+    /// Stamps the footprints of the anchors `first_visits`, distinct, a
+    /// straight run of them at a time.
+    fn stamp_up(&mut self, first_visits: &[usize]) {
+        let Self {
+            cover,
+            strips,
+            uncovered,
+            ..
+        } = self;
+
+        for run in runs(first_visits, self.frame_width) {
+            let base = cover_base(run.first, self.frame_width, self.cover_width);
+            strips.for_each_cell(run, base, |c, n| {
+                let cover = &mut cover[c];
+                if *cover != OUTSIDE {
+                    *uncovered -= usize::from(*cover == 0);
+                    *cover += n;
+                }
+            });
         }
     }
 
-    fn stamp_down(&mut self, base: usize, bared: &mut Option<Vec<usize>>) {
-        for &d in &self.footprint {
-            let cover = &mut self.cover[base + d];
-            if *cover == OUTSIDE {
-                continue;
-            }
+    /// Lifts the footprints of the anchors `last_visits`, distinct, pushing
+    /// each cell whose cover runs out to `bared` if given.
+    fn stamp_down(&mut self, last_visits: &[usize], bared: &mut Option<Vec<usize>>) {
+        let Self {
+            cover,
+            strips,
+            uncovered,
+            ..
+        } = self;
 
-            *cover -= 1;
-            if *cover == 0 {
-                self.uncovered += 1;
-                if let Some(bared) = bared {
-                    bared.push(base + d);
+        for run in runs(last_visits, self.frame_width) {
+            let base = cover_base(run.first, self.frame_width, self.cover_width);
+            strips.for_each_cell(run, base, |c, n| {
+                let cover = &mut cover[c];
+                if *cover == OUTSIDE {
+                    return;
                 }
-            }
+
+                *cover -= n;
+                if *cover == 0 {
+                    *uncovered += 1;
+                    if let Some(bared) = bared {
+                        bared.push(c);
+                    }
+                }
+            });
         }
     }
 
@@ -336,8 +403,14 @@ impl VisitCounts {
     /// cover box starts that corner's offset below the frame, so it is the
     /// anchor's own column and row in the cover's row width.
     fn cover_base(&self, i: usize) -> usize {
-        (i / self.frame_width) * self.cover_width + i % self.frame_width
+        cover_base(i, self.frame_width, self.cover_width)
     }
+}
+
+/// [`VisitCounts::cover_base`] without the counts, for use while they are
+/// borrowed in parts.
+const fn cover_base(i: usize, frame_width: usize, cover_width: usize) -> usize {
+    (i / frame_width) * cover_width + i % frame_width
 }
 
 /// The rectangle of the cover box under some footprints, for marking cells
