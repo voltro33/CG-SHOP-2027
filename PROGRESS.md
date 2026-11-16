@@ -1004,8 +1004,54 @@ Moves a median 1.58x the committed binary's, up to 4.5x (isoa22945_987k 80k ->
 357k). Shorter of both merged: score 136.40.
 
 Then `lns` pass 4 over all 250 bests with it, 300 s each, 12 threads, started
-15:17. At 120 of 250 the score is **137.43** (+1.02), 87 new bests; the full
-result follows when it ends.
+15:17, 105.6 min (21 cpu h, the machine shared with the tracks below): **156 new
+bests**, score 136.40 -> **137.66**, +1.26 points, 0.06 points per cpu h, half
+pass 3's rate as the bests get harder to shorten. All 250 pass the official
+verifier. Zip `data/rust/submission-2026-11-15-runs.zip`.
+
+## 2026-11-15 evening: three tracks in parallel
+
+Three workers, each in its own git worktree, on the ideas from the waste
+breakdown of all 250 bests (productive 75.4%, overshoot past the edge 11.1% of
+which 7.0% at lane ends, re-mowing 6.8%, dead steps 6.7%).
+
+**B: what splitting the lawn between cutters costs.** `mow diagnose` learned to
+split re-mowing into a tour's own cells and another tour's, and to classify each
+lane end by the step not taken: at the lawn edge, inside the lawn, or at the
+border with another cutter's area. Cross-tour overlap plus border lane ends are
+0.2% of length at k = 2 and 0.9% at k = 3: 1.2 points over all 165 k > 1
+instances if removed entirely, no instance above 0.03. Not worth a construction
+change. Lane ends inside the lawn (turns, shifts between lanes) cost 9.4% at k =
+1, 9.5% at k = 2, 13.3% at k = 3, 24-27% for X cutters. Output in
+`data/rust-measure/`.
+
+**C: lane ends chosen jointly.** A dynamic program over neighbouring lanes picks
+shared turn columns, crediting the turn's sideways leg with what it sweeps
+(`ends=1`). On the 31 bench constructions, twice each: tours 0.3-0.4% longer (10
+better, 21 worse), lane-end overshoot 10.1% -> 9.8%. A probe explains it:
+`turns`' slide move, which pulls every U turn inward exactly, cut the raw
+constructions by 3.05% but lane-end overshoot only to 9.9%. Lanes one cutter
+apart sweep separate strips, and a turn's cost is set by the far end of a lane's
+outer row, which no sideways move reaches. Edge overshoot needs lanes along the
+edge (laps, mixed directions), not other ends. Not merged. Output in
+`data/rust-ends/`.
+
+**A: search time where the points are.** `mow lns --allocate weighted` gives
+each instance seconds in proportion to points x its recent relative gain per
+second (from the job log, the last two passes, a floor for stalled instances),
+clamped to [S/5, 5S], same total, longest jobs first. History does predict: the
+gain of passes 1 to 3 ranks the next pass's gain at Spearman 0.53. A/B on the 31
+bench instances after pass 4, same total CPU, 300 s mean, 7 threads each:
+
+| arm      | points  | better than start | points per cpu h | wall     |
+| -------- | ------- | ----------------- | ---------------- | -------- |
+| even     | +0.0154 | 13 / 31           | 0.0060           | 25.0 min |
+| weighted | +0.0159 | 10 / 31           | 0.0061           | 22.7 min |
+
+A tie within noise: the instances given the most time gained more (0.013 against
+0.003 points for the top nine), the ones cut lost about as much. Both arms show
+how little a fifth pass on the same tours now pays: 0.006 points per cpu h, a
+tenth of pass 4. Output in `data/rust-alloc/`.
 
 ## 2026-11-15: menus
 
