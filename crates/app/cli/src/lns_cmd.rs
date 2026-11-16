@@ -6,6 +6,10 @@
 //! - With `--all`: every stored best up to `--max-cells`, through the
 //!   resumable `<out>/jobs.jsonl` within `--hours`; `--pass N` runs again.
 //!
+//! - `--allocate weighted [--history FILE]`: the same total seconds, shared
+//!   by the points each instance is expected to gain per second (see
+//!   [`crate::lns_plan`]); the longest jobs start first.
+//!
 //! Each job runs on one miner thread and continues from its instance's state
 //! in `<out>/state`; every shorter result passes the official verifier first.
 
@@ -17,6 +21,7 @@ use mow_report::bests::read_bests;
 
 use crate::args::parse;
 use crate::layout::repo_root;
+use crate::lns_plan;
 use crate::mine::lns::{config, lns_jobs, OPERATOR_LOG, STATE_DIR};
 use crate::mine::{read_instances, run_jobs};
 use crate::official::VerifierPool;
@@ -27,7 +32,7 @@ use crate::reports::paths::{read_log, save};
 pub const USAGE: &str =
     "usage: mow lns [--all [--hours H] [--max-cells N] [--pass N]] [--seconds S] [--temperature F] [--seed N] \
                       [--only TEXT] [--bench FILE] [--threads N] [--verifiers N] [--instances DIR] \
-                      [--catalog FILE] [--out data/rust]";
+                      [--catalog FILE] [--allocate even|weighted] [--history FILE] [--out data/rust]";
 
 /// Seconds per instance, bench or `--all`.
 const DEFAULT_SECONDS: f64 = 60.0;
@@ -49,6 +54,8 @@ pub fn run(raw: impl Iterator<Item = String>) -> Result<(), String> {
         "--verifiers",
         "--instances",
         "--catalog",
+        "--allocate",
+        "--history",
         "--out",
     ];
     let parsed = parse(raw, &valued, &["--all"])?;
@@ -65,14 +72,13 @@ pub fn run(raw: impl Iterator<Item = String>) -> Result<(), String> {
     let temperature = parsed
         .number("--temperature")?
         .unwrap_or(LnsOptions::default().temperature);
-    let config = config(
-        temperature,
-        parsed.number("--pass")?.unwrap_or(0),
-        parsed.number("--seed")?.unwrap_or(0),
-    );
+    let pass = parsed.number("--pass")?.unwrap_or(0);
+    let config = config(temperature, pass, parsed.number("--seed")?.unwrap_or(0));
 
-    let before = read_bests(&options.out.join("best"))?;
-    let uids = wanted(&parsed, every, &before.keys().cloned().collect::<Vec<_>>())?;
+    let bests = read_bests(&options.out.join("best"))?;
+    let stored: Vec<String> = bests.keys().cloned().collect();
+    let before: HashMap<String, u64> = bests.into_iter().map(|(uid, b)| (uid, b.objective)).collect();
+    let uids = wanted(&parsed, every, &stored)?;
     if uids.is_empty() {
         return Err(format!(
             "no stored best to search from in {}",
@@ -85,8 +91,9 @@ pub fn run(raw: impl Iterator<Item = String>) -> Result<(), String> {
         .into_iter()
         .filter(|instance| instance.cells <= max_cells)
         .collect();
-    let seconds = parsed.number("--seconds")?.unwrap_or(DEFAULT_SECONDS);
-    let jobs = lns_jobs(&instances, &config, seconds);
+    let mean = parsed.number("--seconds")?.unwrap_or(DEFAULT_SECONDS);
+    let seconds = lns_plan::seconds(&parsed, &options.out, pass, &instances, &before, mean)?;
+    let jobs = lns_jobs(&instances, &config, &seconds);
 
     let log = match every {
         true => options.out.join("jobs.jsonl"),
@@ -113,7 +120,6 @@ pub fn run(raw: impl Iterator<Item = String>) -> Result<(), String> {
         return Ok(());
     }
 
-    let before: HashMap<String, u64> = before.into_iter().map(|(uid, b)| (uid, b.objective)).collect();
     let text = score(&parsed, &uids, &before, &read_log(&log)?, &config.label())? + &operators;
     print!("{text}");
     save(&log.with_extension("summary.txt"), &text)

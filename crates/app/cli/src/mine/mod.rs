@@ -12,6 +12,7 @@
 //! - Every job is appended to `<out>/jobs.jsonl`; a restart skips the job
 //!   ids already there and starts from the bests in `<out>/best`.
 
+pub mod allocate;
 pub(crate) mod job;
 pub mod lns;
 pub mod polish;

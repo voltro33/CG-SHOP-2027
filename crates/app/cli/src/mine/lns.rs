@@ -47,11 +47,14 @@ pub fn config(temperature: f64, pass: u32, seed: u64) -> SolveConfig {
     config
 }
 
-/// One LNS job per instance, biggest first, `seconds` each.
-pub fn lns_jobs(instances: &[Instance], config: &SolveConfig, seconds: f64) -> Vec<Job> {
+/// One LNS job per instance, `seconds[i]` for `instances[i]`. The longest
+/// start first, so the threads finish close together; among equals the
+/// biggest instance first.
+pub fn lns_jobs(instances: &[Instance], config: &SolveConfig, seconds: &[f64]) -> Vec<Job> {
     let mut jobs: Vec<Job> = instances
         .iter()
-        .map(|instance| Job {
+        .zip(seconds)
+        .map(|(instance, &seconds)| Job {
             instance: instance.uid.clone(),
             cells: instance.cells,
             round: LNS_ROUND,
@@ -60,7 +63,12 @@ pub fn lns_jobs(instances: &[Instance], config: &SolveConfig, seconds: f64) -> V
         })
         .collect();
 
-    jobs.sort_by(|a, b| b.cells.cmp(&a.cells).then_with(|| a.instance.cmp(&b.instance)));
+    jobs.sort_by(|a, b| {
+        b.time_limit
+            .total_cmp(&a.time_limit)
+            .then_with(|| b.cells.cmp(&a.cells))
+            .then_with(|| a.instance.cmp(&b.instance))
+    });
     jobs
 }
 
