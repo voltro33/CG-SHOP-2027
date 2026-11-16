@@ -1,12 +1,13 @@
 //! `mow diagnose`: where the tour length of each stored best goes
 //! (`python -m solver.diagnose`). The bench instances by default, every
-//! stored best with `--all`.
+//! stored best with `--all`. A second table follows for the instances with
+//! more than one cutter: what splitting the lawn between them costs.
 
 use std::path::{Path, PathBuf};
 
 use mow_io::{load_problem, load_solution};
 use mow_report::bests::read_bests;
-use mow_report::diagnose::{diagnose, header, row, Breakdown};
+use mow_report::diagnose::{diagnose, header, row, split_header, split_row, Breakdown};
 use mow_report::pyfmt::Json;
 
 use super::paths::{best_dir, save};
@@ -38,9 +39,10 @@ pub fn run(raw: impl Iterator<Item = String>) -> Result<(), String> {
     let uids: Vec<String> = uids.into_iter().filter(|uid| uid.contains(only)).collect();
 
     let (results, failures) = walk(&uids, &instances, &best);
+    print_split(&results);
 
     if let Some(path) = parsed.value("--json") {
-        let list = Json::List(results.iter().map(Breakdown::to_json).collect());
+        let list = Json::List(results.iter().map(Breakdown::to_full_json).collect());
         save(Path::new(path), &list.dump())?;
     }
 
@@ -70,6 +72,21 @@ fn walk(uids: &[String], instances: &Path, best: &Path) -> (Vec<Breakdown>, usiz
     }
 
     (results, failures)
+}
+
+/// The second table, what splitting the lawn costs, for the instances with
+/// more than one cutter.
+fn print_split(results: &[Breakdown]) {
+    let split: Vec<&Breakdown> = results.iter().filter(|result| result.k > 1).collect();
+    if split.is_empty() {
+        return;
+    }
+
+    println!();
+    println!("{}", split_header());
+    for result in split {
+        println!("{}", split_row(result));
+    }
 }
 
 fn one(uid: &str, instances: &Path, best: &Path) -> Result<Breakdown, String> {

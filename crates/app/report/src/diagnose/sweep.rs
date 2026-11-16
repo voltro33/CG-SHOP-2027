@@ -2,11 +2,15 @@
 
 use mow_core::{lower_bound, Point, Problem, Solution};
 
+use super::ends::{lane_ends, EndKind, LaneEnds};
 use super::lanes::{overheads, LaneParts};
-use super::{lane_gain, lane_reference, Breakdown};
+use super::{lane_gain, lane_reference, Breakdown, Split};
 use crate::family::family;
 
 const DIRECTIONS: [(i32, i32); 4] = [(1, 0), (-1, 0), (0, 1), (0, -1)];
+
+/// One bit per tour in [`Walker::swept_by`].
+const MAX_TOURS: usize = u8::BITS as usize;
 
 /// A box that holds every footprint of every tour and the whole region,
 /// with a margin of one cell.
@@ -97,6 +101,14 @@ struct Walker<'a> {
     counts: [u64; 3],
     new_total: u64,
     start_total: u64,
+    /// Per cell, one bit for each tour that swept it.
+    swept_by: Vec<u8>,
+    /// The bit of the tour being walked.
+    tour_bit: u8,
+    /// Cross-tour overlap in the near resweep, far resweep and dead parts.
+    cross: [f64; 3],
+    /// Per tour and step: the new cells, and the waste (see [`super::ends`]).
+    tour_steps: Vec<(Vec<usize>, Vec<f64>)>,
 }
 
 /// What one step's fresh cells were.
@@ -106,6 +118,15 @@ struct Step {
     near: usize,
     far: usize,
     fresh: usize,
+    /// The near and far cells another tour swept, and this one not yet.
+    near_cross: usize,
+    far_cross: usize,
+}
+
+/// What [`Walker::book`] found a step to be, in length.
+struct Booked {
+    outside: f64,
+    waste: f64,
 }
 
 impl Walker<'_> {
@@ -113,7 +134,12 @@ impl Walker<'_> {
     fn start(&mut self, at: Point) {
         for &o in self.offsets {
             let index = self.frame.index(Point::new(at.x + o.x, at.y + o.y));
-            if self.in_region[index] && self.first_swept[index] < 0 {
+            if !self.in_region[index] {
+                continue;
+            }
+
+            self.swept_by[index] |= self.tour_bit;
+            if self.first_swept[index] < 0 {
                 self.first_swept[index] = self.clock;
                 self.start_total += 1;
             }
@@ -128,11 +154,17 @@ impl Walker<'_> {
             near: 0,
             far: 0,
             fresh: self.fresh[direction].len(),
+            near_cross: 0,
+            far_cross: 0,
         };
 
         for &o in &self.fresh[direction] {
             let index = self.frame.index(Point::new(there.x + o.x, there.y + o.y));
             let seen_at = self.first_swept[index];
+            let cross = self.swept_by[index] & self.tour_bit == 0;
+            if self.in_region[index] {
+                self.swept_by[index] |= self.tour_bit;
+            }
 
             match (self.in_region[index], seen_at) {
                 (false, _) => step.outside += 1,
@@ -140,22 +172,35 @@ impl Walker<'_> {
                     self.first_swept[index] = self.clock;
                     step.new += 1;
                 }
-                (true, seen) if self.clock - seen <= self.span => step.near += 1,
-                (true, _) => step.far += 1,
+                (true, seen) if self.clock - seen <= self.span => {
+                    step.near += 1;
+                    step.near_cross += usize::from(cross);
+                }
+                (true, _) => {
+                    step.far += 1;
+                    step.far_cross += usize::from(cross);
+                }
             }
         }
 
         step
     }
 
-    /// Books one step into the parts; returns its overshoot.
-    fn book(&mut self, step: &Step) -> f64 {
+    /// Books one step into the parts and the cross-tour overlap.
+    fn book(&mut self, step: &Step) -> Booked {
         self.new_total += step.new as u64;
 
+        let cross_cells = step.near_cross + step.far_cross;
         if step.new == 0 {
+            let cross = cross_cells as f64 / step.fresh.max(1) as f64;
             self.parts[5] += 1.0;
+            self.cross[2] += cross;
             self.counts[0] += 1;
-            return 0.0;
+
+            return Booked {
+                outside: 0.0,
+                waste: 1.0 - cross,
+            };
         }
 
         let outside = step.outside as f64 / self.gain;
@@ -165,18 +210,26 @@ impl Walker<'_> {
         self.parts[3] += step.far as f64 / self.gain;
         self.parts[4] += (self.gain_cells - step.fresh) as f64 / self.gain;
 
+        self.cross[0] += step.near_cross as f64 / self.gain;
+        self.cross[1] += step.far_cross as f64 / self.gain;
+
         let full = step.new == self.gain_cells;
         self.counts[if full { 2 } else { 1 }] += 1;
 
-        outside
+        Booked {
+            outside,
+            waste: 1.0 - (step.new + cross_cells) as f64 / self.gain,
+        }
     }
 
     fn tour(&mut self, positions: &[Point]) -> Result<(), String> {
+        self.tour_bit = 1 << self.tour_steps.len();
         self.start(positions[0]);
 
         let count = positions.len();
         let mut new_per_step = vec![0usize; count];
         let mut outside_per_step = vec![0.0f64; count];
+        let mut waste_per_step = vec![0.0f64; count];
 
         for index in 0..count {
             let here = positions[index];
@@ -187,14 +240,67 @@ impl Walker<'_> {
                 .ok_or_else(|| format!("{here:?} to {there:?} is not a unit step"))?;
 
             let step = self.step(there, direction);
+            let booked = self.book(&step);
             new_per_step[index] = step.new;
-            outside_per_step[index] = self.book(&step);
+            outside_per_step[index] = booked.outside;
+            waste_per_step[index] = booked.waste;
         }
 
         let lane = overheads(positions, &new_per_step, &outside_per_step, self.span);
         self.lane = self.lane.plus(&lane);
+        self.tour_steps.push((new_per_step, waste_per_step));
 
         Ok(())
+    }
+
+    /// What one more step from `at` by `direction` would sweep, for the tour
+    /// with bit `tour_bit`, once every tour is walked.
+    fn continuation(&self, at: Point, (dx, dy): (i32, i32), tour_bit: u8) -> EndKind {
+        let Some(direction) = DIRECTIONS.iter().position(|&e| e == (dx, dy)) else {
+            return EndKind::Edge;
+        };
+        let there = at.shifted(dx, dy);
+
+        let mut region = false;
+        for &o in &self.fresh[direction] {
+            let index = self.frame.index(Point::new(there.x + o.x, there.y + o.y));
+            if !self.in_region[index] {
+                continue;
+            }
+            if self.swept_by[index] & tour_bit == 0 {
+                return EndKind::Border;
+            }
+            region = true;
+        }
+
+        match region {
+            true => EndKind::Inner,
+            false => EndKind::Edge,
+        }
+    }
+
+    /// The lane ends of every tour, once every tour is walked.
+    fn lane_ends(&self, tours: &[Vec<Point>]) -> LaneEnds {
+        let per_tour = tours.iter().zip(&self.tour_steps).enumerate();
+
+        per_tour.fold(LaneEnds::default(), |sum, (t, (positions, (new, waste)))| {
+            let classify = |at, direction| self.continuation(at, direction, 1 << t);
+            sum.plus(&lane_ends(positions, new, waste, self.span, classify))
+        })
+    }
+
+    /// The cutter-split measures, once every tour is walked.
+    fn split(&self, tours: &[Vec<Point>]) -> Split {
+        let shared = self.swept_by.iter().filter(|bits| bits.count_ones() >= 2);
+
+        Split {
+            tour_lengths: tours.iter().map(|t| t.len() as u64).collect(),
+            near_resweep_cross: self.cross[0],
+            far_resweep_cross: self.cross[1],
+            dead_cross: self.cross[2],
+            shared_cells: shared.count() as u64,
+            lane_ends: self.lane_ends(tours),
+        }
     }
 }
 
@@ -210,6 +316,12 @@ pub fn diagnose(problem: &Problem, solution: &Solution) -> Result<Breakdown, Str
     if tours.is_empty() || tours.iter().any(Vec::is_empty) {
         return Err("a solution needs tours with at least one position".to_owned());
     }
+    if tours.len() > MAX_TOURS {
+        return Err(format!(
+            "{} tours, at most {MAX_TOURS} are diagnosed",
+            tours.len()
+        ));
+    }
 
     let offsets = problem.cutter().offsets();
     let frame = Frame::around(&tours, problem, offsets);
@@ -218,8 +330,9 @@ pub fn diagnose(problem: &Problem, solution: &Solution) -> Result<Breakdown, Str
         in_region[frame.index(cell)] = true;
     }
 
+    let frame_cells = in_region.len();
     let mut walker = Walker {
-        first_swept: vec![-1; in_region.len()],
+        first_swept: vec![-1; frame_cells],
         in_region,
         frame,
         offsets,
@@ -233,6 +346,10 @@ pub fn diagnose(problem: &Problem, solution: &Solution) -> Result<Breakdown, Str
         counts: [0; 3],
         new_total: 0,
         start_total: 0,
+        swept_by: vec![0; frame_cells],
+        tour_bit: 1,
+        cross: [0.0; 3],
+        tour_steps: Vec::with_capacity(tours.len()),
     };
     for positions in &tours {
         walker.tour(positions)?;
@@ -284,5 +401,6 @@ fn breakdown(problem: &Problem, walker: &Walker, tours: &[Vec<Point>], total_len
         dead_steps: walker.counts[0],
         partial_steps: walker.counts[1],
         full_steps: walker.counts[2],
+        split: walker.split(tours),
     }
 }

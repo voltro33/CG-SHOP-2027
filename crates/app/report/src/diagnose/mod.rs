@@ -20,8 +20,14 @@
 //! (turns), and dead stretches of four spans or more (travel). The lane
 //! reference `(cells - k |C|) / (k lane_gain)` is not a proven bound, but
 //! next to the area bound it shows how loose that bound is.
+//!
+//! What splitting the lawn between cutters costs is measured next to the
+//! parts, in [`Split`]: [`Breakdown::to_full_json`] writes it as `split`,
+//! [`Breakdown::to_json`] leaves it out and stays `diagnose.py`'s.
 
+mod ends;
 mod lanes;
+mod split;
 mod sweep;
 
 use std::collections::HashSet;
@@ -30,6 +36,8 @@ use mow_core::Problem;
 
 use crate::pyfmt::{percent, Json};
 
+pub use ends::{LaneEnds, END_KINDS};
+pub use split::{split_header, split_row, Split};
 pub use sweep::diagnose;
 
 /// The parts of a step, in the order they are reported.
@@ -65,6 +73,7 @@ pub struct Breakdown {
     pub dead_steps: u64,
     pub partial_steps: u64,
     pub full_steps: u64,
+    pub split: Split,
 }
 
 impl Breakdown {
@@ -115,6 +124,17 @@ impl Breakdown {
         ]);
 
         Json::object(pairs)
+    }
+
+    /// [`Breakdown::to_json`] with the [`Split`] measures as `split`.
+    pub fn to_full_json(&self) -> Json {
+        match self.to_json() {
+            Json::Object(mut pairs) => {
+                pairs.push(("split".to_owned(), self.split.to_json()));
+                Json::Object(pairs)
+            }
+            other => other,
+        }
     }
 }
 

@@ -26,23 +26,8 @@ impl LaneParts {
 /// next one, the last step closing the tour. Straight runs are cut where
 /// the step changes; a run is a lane when one of its steps sweeps a new cell.
 pub fn overheads(positions: &[Point], new: &[usize], outside: &[f64], span: i64) -> LaneParts {
-    let count = positions.len();
-    let step = |i: usize| {
-        let (a, b) = (positions[i], positions[(i + 1) % count]);
-        (b.x - a.x, b.y - a.y)
-    };
-
-    // straight runs, as (first step, length), in tour order
-    let mut runs: Vec<(usize, usize)> = Vec::new();
-    for i in 0..count {
-        match runs.last_mut() {
-            Some((_, length)) if step(i) == step(i - 1) => *length += 1,
-            _ => runs.push((i, 1)),
-        }
-    }
-
     let mut parts = LaneParts::default();
-    for &(first, length) in &runs {
+    for (first, length) in straight_runs(positions) {
         let steps = first..first + length;
         if steps.clone().all(|i| new[i] == 0) {
             continue;
@@ -70,6 +55,29 @@ pub fn overheads(positions: &[Point], new: &[usize], outside: &[f64], span: i64)
     }
 
     parts
+}
+
+/// The direction of the step from position `i` to the next one, the last
+/// step closing the tour.
+pub fn step_at(positions: &[Point], i: usize) -> (i32, i32) {
+    let (a, b) = (positions[i], positions[(i + 1) % positions.len()]);
+
+    (b.x - a.x, b.y - a.y)
+}
+
+/// The straight runs of a tour, as (first step, length), in tour order. A
+/// run is cut where the step changes; runs do not wrap around the start.
+pub fn straight_runs(positions: &[Point]) -> Vec<(usize, usize)> {
+    let mut runs: Vec<(usize, usize)> = Vec::new();
+
+    for i in 0..positions.len() {
+        match runs.last_mut() {
+            Some((_, length)) if step_at(positions, i) == step_at(positions, i - 1) => *length += 1,
+            _ => runs.push((i, 1)),
+        }
+    }
+
+    runs
 }
 
 /// The lengths of the runs of consecutive dead steps, not wrapping around.
