@@ -1081,3 +1081,36 @@ and `pack.py` copied into each `data/rust-*` folder. Two end-to-end tests
 (ignored by default: they need the release binary and Python) run a real pass
 through the supervisor and stop another, and build HEAD in a worktree and run an
 experiment against it.
+
+## 2026-11-15 night: a second restart round
+
+`lns` 600 s on the 147 k = 1 and 2 instances, each from the construction its
+best did not grow from (round 1's winners from `same_orientation`, the rest from
+`fresh_start`), 15 threads. Shorter on 49 of 147: +0.254 points, 137.66 ->
+137.914, 0.010 points per cpu h. The wins are 0.3-0.7% on mid sized instances;
+on the largest (`sun0100000_1000k`, `usnight0060000_3644k`) 600 s from scratch
+ends 1-1.5% behind the best. Output in `data/rust-restart2/`, zip
+`data/rust/submission-2026-11-15-restart2.zip`.
+
+## 2026-11-16 overnight: lns pass 5, time weighted
+
+`mow lns --all --pass 5 --allocate weighted --seconds 1900 --hours 9.5` on all
+250, 15 threads: 132 cpu h shared from 380 s to 7778 s by the history of passes
+1 to 4, the large k = 3 instances first. 177 new bests, 137.914 -> 139.523
+(+1.61), 0.012 points per cpu h: twice the 0.006 the bench A/B gave a fifth
+pass, since the bench holds none of the large instances that got the long slots.
+The biggest gains: `smr12511_915k_3p9` 9048 -> 8560 (5.4%), `iso14835_5525k_3d5`
+99034 -> 93864 (5.2%), `smr16111_876k_1d10` 110666 -> 106542 (3.7%),
+`octa14582_7203k_3s4` 128062 -> 124160 (3.0%). Output in `data/rust-night/`, zip
+`data/rust/submission-2026-11-16-night.zip`.
+
+**The walk drifts on large instances.** `lns` continues from the walk the last
+run ended on while the stored best is unchanged. On 40 instances that walk
+started above the best: 17 of the 25 within 0.36% got under their best, 0 of the
+14 at 0.46% or more did, and on the largest the gap was 2-48%
+(`iso2071_2273k_2l3` walk 301560 against best 203648). The temperature is 0.0003
+of the whole objective per move, so on a long tour many small worsening moves
+pass, run after run. `resume` now starts from the best once the saved walk ends
+more than 0.5% above it (`DRIFT`). The temperature itself is left for an A/B:
+scaled to the size of a move rather than the tour, it would stop the drift
+within a run as well.
