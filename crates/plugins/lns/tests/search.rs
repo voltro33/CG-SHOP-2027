@@ -141,3 +141,28 @@ fn resume_saves_state_and_continues() {
 
     std::fs::remove_dir_all(dir).unwrap();
 }
+
+#[test]
+fn resume_starts_from_the_best_once_the_walk_drifted_above_it() {
+    let dir = std::env::temp_dir().join(format!("mow-lns-drift-{}", std::process::id()));
+    let problem = holed("holed_1k_1s3", 30, 21, 1);
+    let snake = vec![snake(30, 21)];
+
+    let deadline = Instant::now() + Duration::from_millis(600);
+    let first = resume(&problem, &snake, snake[0].length(), &dir, deadline, &options(2)).unwrap();
+    let best = first.stats.best_objective;
+    assert!(snake[0].length() as f64 > best as f64 * 1.01);
+
+    // the saved walk set back to the snake, far above the best it saw
+    let mut saved = mow_lns::Saved::load(&dir, "holed_1k_1s3").unwrap().unwrap();
+    saved.stored_best = best;
+    saved.current_objective = snake[0].length();
+    saved.current = mow_lns::Saved::corners_of(&snake);
+    saved.save(&dir).unwrap();
+
+    let deadline = Instant::now() + Duration::from_millis(100);
+    let second = resume(&problem, &first.best, best, &dir, deadline, &options(3)).unwrap();
+    assert_eq!(second.stats.start_objective, best);
+
+    std::fs::remove_dir_all(dir).unwrap();
+}

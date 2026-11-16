@@ -11,12 +11,21 @@ use crate::saved::{same_shape, Saved};
 use crate::search::{default_wheels, search, LnsOptions, LnsOutcome};
 use crate::weights::Wheel;
 
+/// How far above the stored best a saved walk may end and still be
+/// continued, as a share of the best. The temperature scales with the
+/// whole objective, so on large instances the walk drifts well above the
+/// best from one run to the next. In the pass of 2026-11-16, 17 of 25
+/// walks within 0.36% of their best got under it, and 0 of 14 walks 0.46%
+/// or more above it did.
+pub const DRIFT: f64 = 0.005;
+
 /// Searches `problem` until `deadline` and saves the state in `dir`.
 ///
 /// It continues from the saved walk if the stored best is still the one
-/// the last run saw (`stored_best`, the objective of `best`), else from
-/// `best`. Weights come from the saved state, else from the instances of
-/// the same cutter shape, else all equal.
+/// the last run saw (`stored_best`, the objective of `best`) and the walk
+/// stands within [`DRIFT`] of it, else from `best`. Weights come from the
+/// saved state, else from the instances of the same cutter shape, else all
+/// equal.
 pub fn resume(
     problem: &Problem,
     best: &[Route],
@@ -28,7 +37,7 @@ pub fn resume(
     let saved = Saved::load(dir, problem.uid())?;
     let wheels = wheels_for(problem.uid(), saved.as_ref(), dir);
 
-    let fresh = saved.as_ref().filter(|s| s.stored_best == stored_best);
+    let fresh = saved.as_ref().filter(|s| continues(s, stored_best));
     let start = match fresh.map(Saved::routes) {
         Some(Ok(routes)) => routes,
         _ => best.to_vec(),
@@ -54,6 +63,14 @@ pub fn resume(
     state.save(dir)?;
 
     Ok(outcome)
+}
+
+/// Whether the saved walk is worth continuing: it saw the same stored best
+/// and has not drifted more than [`DRIFT`] above it.
+fn continues(saved: &Saved, stored_best: u64) -> bool {
+    let near = saved.current_objective as f64 <= stored_best as f64 * (1.0 + DRIFT);
+
+    saved.stored_best == stored_best && near
 }
 
 fn wheels_for(uid: &str, saved: Option<&Saved>, dir: &Path) -> (Wheel, Wheel) {

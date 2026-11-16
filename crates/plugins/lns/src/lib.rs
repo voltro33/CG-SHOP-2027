@@ -43,7 +43,7 @@ mod testing;
 pub use destroy::Destroy;
 pub use error::LnsError;
 pub use recreate::Recreate;
-pub use resume::resume;
+pub use resume::{resume, DRIFT};
 pub use saved::{shape_of, Saved};
 pub use search::{default_wheels, search, LnsOptions, LnsOutcome, SearchStats};
 pub use weights::{Operator, Tally, Wheel};
