@@ -24,7 +24,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let best = mow_io::load_solution(&Path::new(bests).join(format!("{uid}.solution.json")))?;
 
         let deadline = Instant::now() + Duration::from_secs_f64(seconds);
-        let options = LnsOptions { seed: 1, temperature };
+        let options = LnsOptions {
+            seed: 1,
+            temperature,
+            ..LnsOptions::default()
+        };
         let outcome = search(&problem, best.routes(), deadline, &options, default_wheels())?;
         let covered = mow_coverage::is_covered(&problem, &outcome.best)?;
 

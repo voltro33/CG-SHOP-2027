@@ -3,7 +3,8 @@
 //! verdict, keep the best solution seen.
 //!
 //! The temperature falls geometrically with the time used, from
-//! `temperature` times the starting objective to a hundredth of that.
+//! `temperature` times the starting objective (held to `temperature_cap`
+//! cutter spans) to a hundredth of that.
 
 use std::time::Instant;
 
@@ -27,6 +28,10 @@ pub struct LnsOptions {
     /// Start temperature as a share of the objective: a move this much
     /// worse than the current solution is kept with probability `1 / e`.
     pub temperature: f64,
+    /// The most the start temperature may be, in cutter spans; none for no
+    /// cap. A move changes a few spans of tour whatever the tour's length,
+    /// so on long tours a share of the whole objective lets the walk drift.
+    pub temperature_cap: Option<f64>,
 }
 
 impl Default for LnsOptions {
@@ -34,7 +39,19 @@ impl Default for LnsOptions {
         Self {
             seed: 0,
             temperature: 0.0003,
+            temperature_cap: None,
         }
+    }
+}
+
+/// The start temperature: `temperature` times the objective, held to
+/// `temperature_cap` spans.
+fn start_temperature(options: &LnsOptions, objective: u64, span: i32) -> f64 {
+    let share = options.temperature.max(0.0) * objective as f64;
+
+    match options.temperature_cap {
+        Some(cap) => share.min(cap.max(0.0) * f64::from(span)),
+        None => share,
     }
 }
 
@@ -89,7 +106,7 @@ pub fn search(
     let mut best: Vec<Vec<Point>> = tours.tours.clone();
     let mut best_key = (start, cost(&tours.lengths()));
 
-    let t0 = options.temperature.max(0.0) * start as f64;
+    let t0 = start_temperature(options, start, tours.span);
     let total = deadline
         .saturating_duration_since(started)
         .as_secs_f64()
@@ -153,4 +170,31 @@ fn closed_routes(tours: &[Vec<Point>]) -> Result<Vec<Route>, LnsError> {
         .iter()
         .map(|t| Ok(Walk::from_positions(t)?.closed()?))
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn with_cap(cap: Option<f64>) -> LnsOptions {
+        LnsOptions {
+            temperature_cap: cap,
+            ..LnsOptions::default()
+        }
+    }
+
+    #[test]
+    fn the_start_temperature_is_a_share_of_the_objective() {
+        let t0 = start_temperature(&with_cap(None), 200_000, 5);
+        assert!((t0 - 60.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn the_cap_holds_long_tours_to_a_share_of_a_span() {
+        assert!((start_temperature(&with_cap(Some(0.5)), 200_000, 5) - 2.5).abs() < 1e-9);
+
+        // a short tour stays under the cap, as before
+        let short = start_temperature(&with_cap(Some(0.5)), 4_000, 5);
+        assert!((short - 1.2).abs() < 1e-9);
+    }
 }

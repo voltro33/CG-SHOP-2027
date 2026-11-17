@@ -34,8 +34,12 @@ pub const OPERATOR_LOG: &str = "operators.jsonl";
 
 /// `lns/temperature=T[/pass=N][/seed=N]`. Each pass is a new job id, so a
 /// later run of the same search is never skipped as done.
-pub fn config(temperature: f64, pass: u32, seed: u64) -> SolveConfig {
+pub fn config(temperature: f64, cap: Option<f64>, pass: u32, seed: u64) -> SolveConfig {
     let mut config = SolveConfig::new(METHOD).with_param("temperature", temperature);
+
+    if let Some(cap) = cap {
+        config = config.with_param("cap", cap);
+    }
 
     if pass != 0 {
         config = config.with_param("pass", f64::from(pass));
@@ -98,6 +102,7 @@ pub(super) fn run(job: &Job, context: &Context, problem: &Problem) -> (JobRecord
         temperature: job
             .config
             .param_or("temperature", LnsOptions::default().temperature),
+        temperature_cap: job.config.param("cap"),
     };
     let deadline = started + duration(time_limit);
     let searched = resume(

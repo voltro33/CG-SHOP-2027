@@ -10,6 +10,9 @@
 //!   by the points each instance is expected to gain per second (see
 //!   [`crate::lns_plan`]); the longest jobs start first.
 //!
+//! - `--temperature-cap SPANS`: the start temperature held to this many
+//!   cutter spans (see [`mow_lns::LnsOptions`]).
+//!
 //! Each job runs on one miner thread and continues from its instance's state
 //! in `<out>/state`; every shorter result passes the official verifier first.
 
@@ -30,7 +33,7 @@ use crate::reports::bench_run::stamp;
 use crate::reports::paths::{read_log, save};
 
 pub const USAGE: &str =
-    "usage: mow lns [--all [--hours H] [--max-cells N] [--pass N]] [--seconds S] [--temperature F] [--seed N] \
+    "usage: mow lns [--all [--hours H] [--max-cells N] [--pass N]] [--seconds S] [--temperature F] [--temperature-cap SPANS] [--seed N] \
                       [--only TEXT] [--bench FILE] [--threads N] [--verifiers N] [--instances DIR] \
                       [--catalog FILE] [--allocate even|weighted] [--history FILE] [--out data/rust]";
 
@@ -45,6 +48,7 @@ pub fn run(raw: impl Iterator<Item = String>) -> Result<(), String> {
         "--hours",
         "--seconds",
         "--temperature",
+        "--temperature-cap",
         "--pass",
         "--seed",
         "--max-cells",
@@ -73,7 +77,8 @@ pub fn run(raw: impl Iterator<Item = String>) -> Result<(), String> {
         .number("--temperature")?
         .unwrap_or(LnsOptions::default().temperature);
     let pass = parsed.number("--pass")?.unwrap_or(0);
-    let config = config(temperature, pass, parsed.number("--seed")?.unwrap_or(0));
+    let cap = parsed.number("--temperature-cap")?;
+    let config = config(temperature, cap, pass, parsed.number("--seed")?.unwrap_or(0));
 
     let bests = read_bests(&options.out.join("best"))?;
     let stored: Vec<String> = bests.keys().cloned().collect();
