@@ -1114,3 +1114,30 @@ pass, run after run. `resume` now starts from the best once the saved walk ends
 more than 0.5% above it (`DRIFT`). The temperature itself is left for an A/B:
 scaled to the size of a move rather than the tour, it would stop the drift
 within a run as well.
+
+## 2026-11-16: lns pass 6, and the temperature capped in cutter spans
+
+**Pass 6**, the same as pass 5 with the drift fix: 129 new bests, 139.523 ->
+140.049 (+0.53), 0.004 points per cpu h, a third of pass 5. The 14 instances
+whose walk had drifted now started from their best and gained nothing: the walk
+climbs away again within a run. Zip `data/rust/submission-2026-11-16-pass6.zip`,
+output in `data/rust-pass6/`.
+
+**The start temperature in spans.** 0.0003 of the objective is 0.04 cutter spans
+on the shortest tours, 0.18 at the median, 0.35 at p75 and up to 11 on the
+longest, while a move changes a few spans of tour whatever the tour's length.
+`mow lns --temperature-cap SPANS` holds the start temperature to that many spans
+(`LnsOptions::temperature_cap`); below the cap nothing changes. A/B on the 39
+instances starting above 0.6 spans, 900 s each, seed 7, 7 threads per arm at
+once, both from copies of the bests with no saved state:
+
+| arm     | points  | better than start | points per cpu h |
+| ------- | ------- | ----------------- | ---------------- |
+| no cap  | +0.0111 | 7 / 39            | 0.001            |
+| cap 0.3 | +0.5776 | 25 / 39           | 0.055            |
+
+The capped arm is shorter than the other on 23 instances and longer on 4 (all
+under 0.15%). The stuck large instances move again: `smo64863_1931k_2s3` 6.8%,
+`isoa22945_6183k_3l3` 4.6%, `iso252735_2982k_2l4` 4.0%, `octa20637_1732k_2l5`
+3.5%, `iso5009_524k_1d4` 3.4%, `iso2071_2273k_2l3` 1.2%, which no pass had
+moved. Eight large instances moved in neither arm. Output in `data/rust-cap/`.
