@@ -132,12 +132,13 @@ fn the_work_screens_draw_without_starting_anything() {
     press(&mut app, KeyCode::Esc);
     press(&mut app, KeyCode::Esc);
 
-    // Bests: the folders to merge from
+    // Bests: the folders to merge from (which rows fit depends on how many
+    // data folders there are)
     press(&mut app, KeyCode::Down);
     press(&mut app, KeyCode::Enter);
     let bests = screen(&mut app);
     assert!(
-        bests.contains("Merge from") && bests.contains("data/solutions/best"),
+        bests.contains("Merge from") && bests.contains("folders to merge from") && bests.contains("/best"),
         "{bests}"
     );
     press(&mut app, KeyCode::Esc);
