@@ -31,8 +31,43 @@ impl Panel {
     }
 }
 
+/// A table shown above the pictures: a caption, a header row, and rows of
+/// plain text, escaped on the page.
+#[derive(Debug, Clone, Default)]
+pub struct Table {
+    pub caption: String,
+    pub header: Vec<String>,
+    pub rows: Vec<Vec<String>>,
+}
+
+impl Table {
+    fn html(&self) -> String {
+        let cells = |row: &[String], tag: &str| -> String {
+            row.iter()
+                .map(|c| format!("<{tag}>{}</{tag}>", escape(c)))
+                .collect()
+        };
+        let body: String = self
+            .rows
+            .iter()
+            .map(|row| format!("<tr>{}</tr>", cells(row, "td")))
+            .collect();
+
+        format!(
+            "<table><caption>{}</caption><thead><tr>{}</tr></thead><tbody>{body}</tbody></table>",
+            escape(&self.caption),
+            cells(&self.header, "th")
+        )
+    }
+}
+
 /// The whole page. `cutters` is how many checkboxes to offer.
 pub fn page(title: &str, cutters: usize, panels: &[Panel]) -> String {
+    page_with(title, cutters, &[], panels)
+}
+
+/// The page with `tables` between the header and the pictures.
+pub fn page_with(title: &str, cutters: usize, tables: &[Table], panels: &[Panel]) -> String {
     let toggles: String = (0..cutters)
         .map(|i| {
             format!(
@@ -59,10 +94,20 @@ pub fn page(title: &str, cutters: usize, panels: &[Panel]) -> String {
          <header><h1>{title}</h1><div class=\"controls\">{toggles}\
          <button id=\"reset\">reset view</button>\
          <span class=\"hint\">drag to pan, wheel to zoom</span></div></header>\
-         <main class=\"panels n{n}\">{figures}</main><script>{SCRIPT}</script></body></html>\n",
+         {summary}<main class=\"panels n{n}\">{figures}</main><script>{SCRIPT}</script></body></html>\n",
         title = escape(title),
+        summary = summary(tables),
         n = panels.len().min(2),
     )
+}
+
+fn summary(tables: &[Table]) -> String {
+    if tables.is_empty() {
+        return String::new();
+    }
+
+    let inner: String = tables.iter().map(Table::html).collect();
+    format!("<section class=\"summary\">{inner}</section>")
 }
 
 /// Writes the page as `<view dir>/<name>.html` and returns its path.
@@ -125,7 +170,13 @@ background:#fff;position:sticky;top:0;z-index:1}h1{font-size:16px;margin:0 0 6px
 figure{margin:0;background:#fff;border:1px solid var(--line);border-radius:6px;overflow:hidden}\
 figcaption{padding:6px 10px;border-bottom:1px solid var(--line);color:var(--muted)}\
 svg{display:block;width:100%;height:auto;max-height:82vh;cursor:grab;touch-action:none}\
-svg.dragging{cursor:grabbing}";
+svg.dragging{cursor:grabbing}\
+.summary{display:flex;flex-wrap:wrap;gap:12px;padding:12px 16px 0}\
+table{border-collapse:collapse;background:#fff;border:1px solid var(--line)}\
+caption{text-align:left;font-weight:600;padding:0 0 4px}\
+th,td{padding:4px 10px;border-bottom:1px solid var(--line);text-align:right;\
+font-variant-numeric:tabular-nums}th:first-child,td:first-child{text-align:left}\
+th{color:var(--muted);font-weight:500}";
 
 /// Pan and zoom by moving each picture's viewBox by the same fractions, so
 /// pictures of different extents stay in step; checkboxes hide a cutter.
@@ -185,5 +236,25 @@ mod tests {
         assert!(html.contains("<title>x &amp; y</title>"));
         assert!(html.contains("data-toggle=\"1\""));
         assert!(html.contains("panels n2"));
+        assert!(!html.contains("class=\"summary\""));
+    }
+
+    #[test]
+    fn a_table_sits_above_the_pictures_escaped() {
+        let table = Table {
+            caption: "a <b>".to_owned(),
+            header: vec![String::new(), "a".to_owned()],
+            rows: vec![vec!["longest".to_owned(), "1 & 2".to_owned()]],
+        };
+        let panel = Panel {
+            heading: "a".to_owned(),
+            svg: "<svg></svg>".to_owned(),
+        };
+
+        let html = page_with("t", 1, &[table], &[panel]);
+
+        assert!(html.find("<table>").unwrap() < html.find("<figure>").unwrap());
+        assert!(html.contains("<caption>a &lt;b&gt;</caption>"));
+        assert!(html.contains("<td>1 &amp; 2</td>"));
     }
 }

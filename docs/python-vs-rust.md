@@ -301,7 +301,8 @@ cargo run --release -p mow-coverage --example bench euronight0070000_8749k_3s12
 cargo run --release -p mow-io --example load_time -- <instance.json>
 cargo run --release -p mow-viz -- <instance.json> <solution.json> -o out.svg
 target/release/mow mine --threads 16 --kick-scale 0.25 --out data/rust
-target/release/mow compare --out data/rust --report docs/rust-results.md
+# docs/rust-results.md came from the old `mow compare` report against Python,
+# removed on 2026-11-18; the report itself is kept as it was
 ```
 
 Python's numbers come from the scripts in `tools/golden/`, which need the Python

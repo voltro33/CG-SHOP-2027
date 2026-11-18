@@ -143,6 +143,26 @@ fn the_work_screens_draw_without_starting_anything() {
     );
     press(&mut app, KeyCode::Esc);
 
+    // Compare: A on the stored bests, then the file browser for B
+    press(&mut app, KeyCode::Down);
+    press(&mut app, KeyCode::Enter);
+    let compare = screen(&mut app);
+    assert!(
+        compare.contains("[ Compare ]") && compare.contains("data/rust/best/"),
+        "{compare}"
+    );
+    press(&mut app, KeyCode::Char('b'));
+    let browser = screen(&mut app);
+    assert!(
+        browser.contains("Choose B") && browser.contains("use this folder"),
+        "{browser}"
+    );
+    if show {
+        println!("{compare}\n{browser}");
+    }
+    press(&mut app, KeyCode::Esc);
+    press(&mut app, KeyCode::Esc);
+
     // Submission: the zips so far
     press(&mut app, KeyCode::Down);
     press(&mut app, KeyCode::Enter);
@@ -183,4 +203,54 @@ fn the_largest_page_stays_small() {
         html.len() / 1024
     );
     assert!(html.len() < 16 << 20);
+}
+
+/// Compare as the menus start it: a background run of the release binary
+/// on three stored bests against copies of them. Needs
+/// `cargo build --release -p mow-cli` first.
+#[test]
+#[ignore]
+fn a_comparison_runs_in_the_background() {
+    use mow_tui::data::Lawn;
+    use mow_tui::recipes::{compare_spec, exe, runs_dir};
+    use mow_tui::runs::{supervise, Step};
+
+    let mut paths = paths_under(&root(), INSTANCES);
+    let lawn = Lawn::load(&paths).unwrap();
+    paths.mow = root().join("target/release").join(exe("mow"));
+
+    let scratch = std::env::temp_dir().join(format!("mow-tui-compare-run-{}", std::process::id()));
+    let (a, b) = (scratch.join("one/best"), scratch.join("two/best"));
+    for side in [&a, &b] {
+        std::fs::create_dir_all(side).unwrap();
+        for entry in std::fs::read_dir(paths.best_dir()).unwrap().take(3) {
+            let file = entry.unwrap().path();
+            std::fs::copy(&file, side.join(file.file_name().unwrap())).unwrap();
+        }
+    }
+    paths.data = scratch.clone();
+
+    let mut spec = compare_spec(&paths, &lawn, &a, &b);
+    if let Some(Step::Exec { args, .. }) = spec.phases[1].first_mut() {
+        args.push("--no-open".to_owned());
+    }
+    let dir = supervise::start(&runs_dir(&paths), &spec, &paths.mow).unwrap();
+
+    let done = dir.join("done.json");
+    let started = std::time::Instant::now();
+    while !done.is_file() && started.elapsed().as_secs() < 180 {
+        std::thread::sleep(std::time::Duration::from_millis(500));
+    }
+
+    let report = std::fs::read_to_string(&done).unwrap();
+    let log = std::fs::read_to_string(dir.join("compare.log")).unwrap_or_default();
+    println!("{report}\n{log}");
+    assert!(
+        report.contains("\"ok\":true") || report.contains("\"ok\": true"),
+        "{report}\n{log}"
+    );
+    assert!(log.contains("3 instances: two shorter on 0"), "{log}");
+    assert!(scratch.join("view/compare-one-vs-two.html").is_file());
+
+    std::fs::remove_dir_all(scratch).ok();
 }

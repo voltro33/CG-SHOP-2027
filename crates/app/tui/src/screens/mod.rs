@@ -3,6 +3,7 @@
 //! or a [`Task`] the app runs (anything that reads files or is slow).
 
 pub mod candidates;
+pub mod compare;
 pub mod confirm;
 pub mod dashboard;
 pub mod detail;
@@ -12,6 +13,7 @@ pub mod instances;
 pub mod jobs;
 pub mod menu;
 pub mod merge;
+pub mod picker;
 pub mod runs;
 pub mod submission;
 
@@ -85,6 +87,16 @@ pub enum Task {
     StartExperiment(Box<crate::experiments::Choice>),
     OpenReport(PathBuf),
     MergeExperiment(PathBuf),
+    /// A side of the comparison chosen in the file browser.
+    Pick {
+        slot: picker::Slot,
+        path: PathBuf,
+    },
+    /// Start `mow compare A B` in the background.
+    StartCompare {
+        a: PathBuf,
+        b: PathBuf,
+    },
 }
 
 impl Task {
@@ -111,6 +123,8 @@ impl Task {
             Self::StartExperiment(_) => "copying the bests into the arms…".to_owned(),
             Self::OpenReport(_) => "reading the experiment…".to_owned(),
             Self::MergeExperiment(_) => "merging both arms…".to_owned(),
+            Self::Pick { .. } => "…".to_owned(),
+            Self::StartCompare { .. } => "starting the comparison…".to_owned(),
         }
     }
 }
@@ -135,6 +149,8 @@ pub enum Screen {
     Commits(experiments::Commits),
     NewExperiment(experiments::NewExperiment),
     Report(Box<experiments::ReportScreen>),
+    Compare(compare::Compare),
+    Picker(picker::Picker),
 }
 
 impl Screen {
@@ -158,6 +174,8 @@ impl Screen {
             Self::Commits(_) => "Build a commit".to_owned(),
             Self::NewExperiment(_) => "New experiment".to_owned(),
             Self::Report(r) => r.setup.id.clone(),
+            Self::Compare(_) => "Compare".to_owned(),
+            Self::Picker(p) => format!("Choose {}", p.slot.letter()),
         }
     }
 
@@ -183,6 +201,10 @@ impl Screen {
             Self::Binaries(_) => "↑↓ choose · Enter do · Esc back",
             Self::Commits(_) => "↑↓ choose · Enter build · Esc back",
             Self::Report(_) => "↑↓ scroll · m merge the shorter tours · o its run · Esc back",
+            Self::Compare(_) => "↑↓ choose · Enter do · a / b browse for A / B · s swap · Esc back",
+            Self::Picker(_) => {
+                "↑↓ move · Enter open a folder or choose · → open · ← or Backspace up · h data/ · Esc cancel"
+            }
         }
     }
 
@@ -217,6 +239,8 @@ impl Screen {
             Self::Commits(s) => s.key(key),
             Self::NewExperiment(s) => s.key(key),
             Self::Report(s) => s.key(key),
+            Self::Compare(s) => s.key(key, ctx),
+            Self::Picker(s) => s.key(key),
         }
     }
 
@@ -240,6 +264,8 @@ impl Screen {
             Self::Commits(s) => s.draw(frame, area),
             Self::NewExperiment(s) => s.draw(frame, area, ctx),
             Self::Report(s) => s.draw(frame, area),
+            Self::Compare(s) => s.draw(frame, area, ctx),
+            Self::Picker(s) => s.draw(frame, area),
         }
     }
 }

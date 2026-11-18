@@ -1,144 +1,77 @@
-//! `mow compare`: every Rust best against Python's, per instance, with a
-//! summary; every Rust best checked again by the official verifier.
+//! `mow compare A B`: two solutions, or two folders of them, side by side.
+//!
+//! - Two files ([`pair`]): solutions of the same instance. Both must be
+//!   valid, else nothing is compared.
+//! - Two folders ([`folders`]): the `*.solution.json` files matched by name.
+//!   Each pair is checked and compared as two files are. An invalid solution
+//!   is reported and its instance is left out.
+//!
+//! A solution is valid when our coverage count finds every lawn cell mowed
+//! and the official verifier agrees, with the same longest tour. The result
+//! is a table in the terminal and a page opened in the browser.
 
-mod rows;
-mod summary;
-mod write;
+pub mod folders;
+mod page;
+pub mod pair;
 
-use std::collections::HashSet;
-use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicUsize, Ordering};
-
-use mow_store::{write_atomic, DirStore};
+use std::path::PathBuf;
 
 use crate::args::parse;
-use crate::layout::{read_uid_list, DEFAULT_INSTANCES, DEFAULT_OUT, PYTHON_DATA};
-use crate::official::{confirm, Official};
+use crate::layout::{DEFAULT_INSTANCES, DEFAULT_OUT};
 
-pub use rows::{Check, Row};
-pub use summary::{groups, Group, Tally};
-pub use write::Cpu;
+pub use folders::{FolderComparison, Group, Skipped};
+pub use page::summary_page;
+pub use pair::{check_pair, Pair, Side};
 
-pub const USAGE: &str = "usage: mow compare [--out data/rust] [--report docs/rust-results.md] \
-                         [--instances DIR] [--python data] [--verifiers N] [--no-verify]";
+pub const USAGE: &str = "usage: mow compare A B [--instances DIR] [--out data/rust] \
+                         [--verifiers N] [--no-open]\n       \
+                         A and B: two solution files of one instance, or two folders of \
+                         solutions matched by file name";
 
 #[derive(Debug, Clone)]
 pub struct CompareOptions {
-    pub out: PathBuf,
-    pub report: PathBuf,
+    pub a: PathBuf,
+    pub b: PathBuf,
     pub instances: PathBuf,
-    pub python: PathBuf,
+    /// The pages go to `<out>/view/`.
+    pub out: PathBuf,
+    /// Official verifier processes, for folders.
     pub verifiers: usize,
-    pub verify: bool,
+    pub open: bool,
 }
 
 pub fn parse_args(raw: impl Iterator<Item = String>) -> Result<CompareOptions, String> {
-    let valued = ["--out", "--report", "--instances", "--python", "--verifiers"];
-    let parsed = parse(raw, &valued, &["--no-verify"])?;
-    if !parsed.positional.is_empty() {
-        return Err(format!("unexpected {:?}\n{USAGE}", parsed.positional));
-    }
+    let valued = ["--instances", "--out", "--verifiers"];
+    let parsed = parse(raw, &valued, &["--no-open"])?;
+
+    let [a, b] = parsed.positional.as_slice() else {
+        return Err(format!(
+            "give two files or two folders, got {:?}\n{USAGE}",
+            parsed.positional
+        ));
+    };
 
     Ok(CompareOptions {
-        out: PathBuf::from(parsed.value("--out").unwrap_or(DEFAULT_OUT)),
-        report: PathBuf::from(parsed.value("--report").unwrap_or("docs/rust-results.md")),
+        a: PathBuf::from(a),
+        b: PathBuf::from(b),
         instances: PathBuf::from(parsed.value("--instances").unwrap_or(DEFAULT_INSTANCES)),
-        python: PathBuf::from(parsed.value("--python").unwrap_or(PYTHON_DATA)),
-        verifiers: parsed.number("--verifiers")?.unwrap_or(4),
-        verify: !parsed.switch("--no-verify"),
+        out: PathBuf::from(parsed.value("--out").unwrap_or(DEFAULT_OUT)),
+        verifiers: parsed.number("--verifiers")?.unwrap_or(8),
+        open: !parsed.switch("--no-open"),
     })
 }
 
-/// What a comparison found.
-#[derive(Debug, Clone)]
-pub struct Comparison {
-    pub rows: Vec<Row>,
-    pub groups: Vec<Group>,
-    pub cpu: Cpu,
-    pub failures: usize,
-}
-
-/// Builds the rows, verifies the Rust bests when `official` is given, and
-/// writes the report and `<out>/compare.csv`.
-pub fn compare(options: &CompareOptions, official: Option<&dyn Official>) -> Result<Comparison, String> {
-    let bench_path = options.python.join("bench.txt");
-    let bench: HashSet<String> = match bench_path.is_file() {
-        true => read_uid_list(&bench_path)?.into_iter().collect(),
-        false => HashSet::new(),
-    };
-
-    let store = DirStore::open(&options.out).map_err(|e| e.to_string())?;
-    let sources = rows::Sources {
-        instances: &options.instances,
-        python: &options.python,
-        rust: &store,
-        bench: &bench,
-    };
-    let mut rows = rows::rows(&sources)?;
-
-    if let Some(official) = official {
-        verify_all(&mut rows, official, options.verifiers.max(1) * 2);
-    }
-    let failures = rows
-        .iter()
-        .filter(|r| matches!(r.check, Check::Failed(_)))
-        .count();
-
-    let (rust, _) = rows::cpu_seconds(&options.out.join("jobs.jsonl"))?;
-    let (python_all, python_mined) = rows::cpu_seconds(&options.python.join("jobs.jsonl"))?;
-    let cpu = Cpu {
-        rust,
-        python_all,
-        python_mined,
-    };
-
-    save(&options.report, &write::markdown(&rows, cpu, failures))?;
-    save(&options.out.join("compare.csv"), &write::csv(&rows))?;
-
-    Ok(Comparison {
-        groups: groups(&rows),
-        rows,
-        cpu,
-        failures,
-    })
-}
-
-fn save(path: &Path, text: &str) -> Result<(), String> {
-    write_atomic(path, text).map_err(|e| format!("cannot write {}: {e}", path.display()))
-}
-
-/// Checks every Rust best on `threads` threads; failures are printed loudly.
-fn verify_all(rows: &mut [Row], official: &dyn Official, threads: usize) {
-    let next = AtomicUsize::new(0);
-    let checks: Vec<std::sync::Mutex<Check>> = rows
-        .iter()
-        .map(|_| std::sync::Mutex::new(Check::NotRun))
-        .collect();
-    let shared: &[Row] = rows;
-
-    std::thread::scope(|scope| {
-        for _ in 0..threads {
-            scope.spawn(|| loop {
-                let index = next.fetch_add(1, Ordering::Relaxed);
-                let Some(row) = shared.get(index) else { break };
-                let (Some(file), Some(objective)) = (&row.rust_file, row.rust) else {
-                    continue;
-                };
-
-                let check = match confirm(official, file, objective) {
-                    Ok(()) => Check::Passed,
-                    Err(error) => {
-                        eprintln!("!!! VERIFY FAILED {}: {error}", row.uid);
-                        Check::Failed(error)
-                    }
-                };
-                *checks[index].lock().unwrap_or_else(|p| p.into_inner()) = check;
-            });
+/// Two files or two folders; anything else is refused.
+pub fn run(options: &CompareOptions) -> Result<(), String> {
+    for path in [&options.a, &options.b] {
+        if !path.exists() {
+            return Err(format!("{} does not exist", path.display()));
         }
-    });
+    }
 
-    for (row, check) in rows.iter_mut().zip(checks) {
-        row.check = check.into_inner().unwrap_or_else(|p| p.into_inner());
-        row.rust_file = None;
+    match (options.a.is_dir(), options.b.is_dir()) {
+        (false, false) => pair::run(options),
+        (true, true) => folders::run(options),
+        _ => Err(format!("give two files or two folders, not one of each\n{USAGE}")),
     }
 }

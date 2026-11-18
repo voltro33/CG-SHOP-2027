@@ -1,10 +1,10 @@
-//! `mow mine` end to end on two tiny lawns, then `mow compare` on its store.
+//! `mow mine` end to end on two tiny lawns, then `mow compare` on its bests.
 
 mod common;
 
 use std::fs;
 
-use mow_cli::compare::{self, Check, CompareOptions};
+use mow_cli::compare::folders::compare_folders;
 use mow_cli::meta::meta_field;
 use mow_cli::mine::{self, MineOptions};
 use mow_store::{DirStore, JobLog};
@@ -59,31 +59,19 @@ fn mines_verifies_restarts_and_compares() {
     let again = mine::mine(&options(&instances, &out), &official).unwrap();
     assert_eq!((again.skipped, again.done), (12, 0));
 
-    let python = common::temp_dir("python");
-    let report = out.join("report.md");
-    let compare_options = CompareOptions {
-        out: out.clone(),
-        report: report.clone(),
-        instances: instances.clone(),
-        python,
-        verifiers: 1,
-        verify: true,
-    };
-    let comparison = compare::compare(&compare_options, Some(&official)).unwrap();
+    // the bests against a copy of themselves: both valid, officially, and tied
+    let best = store.best_path("rect").unwrap().parent().unwrap().to_path_buf();
+    let copy = common::temp_dir("copy");
+    for entry in fs::read_dir(&best).unwrap() {
+        let path = entry.unwrap().path();
+        fs::copy(&path, copy.join(path.file_name().unwrap())).unwrap();
+    }
 
-    assert_eq!(comparison.rows.len(), 2);
-    assert_eq!(comparison.failures, 0);
-    assert!(comparison.rows.iter().all(|r| r.check == Check::Passed));
-    assert!(comparison.cpu.rust > 0.0);
+    let comparison = compare_folders(&best, &copy, &instances, &official, 2).unwrap();
 
-    assert!(fs::read_to_string(&report).unwrap().contains("| rect | 1 |"));
-    assert_eq!(
-        fs::read_to_string(out.join("compare.csv"))
-            .unwrap()
-            .lines()
-            .count(),
-        3
-    );
+    assert_eq!(comparison.pairs.len(), 2);
+    assert!(comparison.invalid.is_empty(), "{:?}", comparison.invalid);
+    assert_eq!(comparison.groups()[0].tied, 2);
 }
 
 #[test]

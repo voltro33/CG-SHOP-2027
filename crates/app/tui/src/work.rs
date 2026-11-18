@@ -39,6 +39,17 @@ impl App {
             Task::StartExperiment(choice) => self.start_experiment(&choice),
             Task::OpenReport(dir) => self.open_report(dir),
             Task::MergeExperiment(dir) => self.merge_experiment(&dir),
+            Task::Pick { slot, path } => {
+                if let Some(Screen::Compare(compare)) = self.stack.last_mut() {
+                    compare.set(slot, path.clone());
+                }
+                Ok(format!("{} is {}", slot.letter(), path.display()))
+            }
+            Task::StartCompare { a, b } => {
+                let spec = recipes::compare_spec(&self.ctx.paths, &self.ctx.lawn, &a, &b);
+                self.start(&spec)
+                    .map(|started| format!("{started}; the page opens in the browser when it is done"))
+            }
             other => Err(format!("{} is not handled here", other.busy())),
         }
     }

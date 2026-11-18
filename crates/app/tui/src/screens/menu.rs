@@ -7,6 +7,7 @@ use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, List, ListItem, ListState, Paragraph};
 use ratatui::Frame;
 
+use super::compare::Compare;
 use super::experiments::Experiments;
 use super::runs::Runs;
 use super::submission::Submission;
@@ -18,7 +19,7 @@ struct Entry {
     about: &'static str,
 }
 
-const ENTRIES: [Entry; 7] = [
+const ENTRIES: [Entry; 8] = [
     Entry {
         name: "Dashboard",
         about: "the score, by k and by cutter family, and the gaps to the bounds",
@@ -38,6 +39,10 @@ const ENTRIES: [Entry; 7] = [
     Entry {
         name: "Bests",
         about: "merge shorter tours from another folder, with undo",
+    },
+    Entry {
+        name: "Compare",
+        about: "two folders of solutions, or two files, checked then compared in the browser",
     },
     Entry {
         name: "Submission",
@@ -77,7 +82,8 @@ impl Menu {
             2 => Nav::Push(Screen::Runs(Runs::default())),
             3 => Nav::Push(Screen::Experiments(Experiments::default())),
             4 => Nav::Run(Task::OpenBests),
-            5 => Nav::Push(Screen::Submission(Submission::new(ctx))),
+            5 => Nav::Push(Screen::Compare(Compare::new(ctx))),
+            6 => Nav::Push(Screen::Submission(Submission::new(ctx))),
             QUIT => Nav::Quit,
             _ => Nav::Stay,
         }

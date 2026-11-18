@@ -217,6 +217,40 @@ fn zip_name(data: &Path) -> PathBuf {
         .unwrap_or_else(|| data.join(format!("{base}.zip")))
 }
 
+/// `mow compare A B` on a copy of the binary: checks every solution, then
+/// writes the pages to `data/rust/view/` and opens the summary.
+pub fn compare_spec(paths: &Paths, lawn: &Lawn, a: &Path, b: &Path) -> Spec {
+    let id = run_id("compare");
+    let mow = runs_dir(paths).join(&id).join(exe("mow"));
+
+    let path = |p: &Path| p.to_string_lossy().into_owned();
+    let args = vec![
+        "compare".to_owned(),
+        path(a),
+        path(b),
+        "--instances".to_owned(),
+        path(&paths.instances),
+        "--out".to_owned(),
+        path(&paths.data),
+    ];
+    let name = |p: &Path| crate::screens::picker::shown(p, &paths.root);
+
+    Spec {
+        id,
+        kind: "compare".to_owned(),
+        title: format!("compare {} against {}", name(a), name(b)),
+        started: now(),
+        score_before: lawn.score(),
+        data: paths.data.clone(),
+        instances: paths.instances.clone(),
+        files: Vec::new(),
+        phases: vec![
+            vec![copy_mow(&paths.mow, &mow)],
+            vec![exec("compare", &mow, args, &paths.root, paths)],
+        ],
+    }
+}
+
 /// Where runs live.
 pub fn runs_dir(paths: &Paths) -> PathBuf {
     paths.data.join("runs")

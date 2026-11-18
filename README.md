@@ -220,7 +220,7 @@ mow turns --all --seconds 30                                      # corner searc
 mow lns --all --seconds 60 [--pass N]                             # ruin and recreate on every best (after turns)
 mow polish --all --hours 8                                        # CP-SAT polish of bests up to 400k cells
 mow polish --seconds 300 [--aim]                                  # polish the bench set, scored
-mow compare --report docs/rust-results.md                         # against Python's bests
+mow compare data/rust/best data/rust-slide/slide/best             # two folders (or two files), in the browser
 mow bench run <config | best> | pick | score                      # the fixed bench set
 mow report | mine-report | diagnose | catalog | window-map        # reports
 mow help                                                          # every flag

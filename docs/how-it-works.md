@@ -405,16 +405,16 @@ window re-solve could save at most.
 
 ## 12. Tools around the solver
 
-| command                                        | what it does                                                     |
-| ---------------------------------------------- | ---------------------------------------------------------------- |
-| `mow bench run \| pick \| score`               | a fixed set of 31 instances, to judge an idea in minutes         |
-| `mow report`                                   | the leaderboard and headline numbers                             |
-| `mow mine-report`                              | which rounds and configs paid off                                |
-| `mow diagnose`                                 | where the tour length goes                                       |
-| `mow window-map`                               | room to save, window by window                                   |
-| `mow catalog`                                  | instance features and all three bounds                           |
-| `mow compare`                                  | every best against Python's, re-checked by the official verifier |
-| [`mow-viz`](../crates/adapters/viz/src/lib.rs) | SVG pictures of stored solutions                                 |
+| command                                        | what it does                                                                        |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `mow bench run \| pick \| score`               | a fixed set of 31 instances, to judge an idea in minutes                            |
+| `mow report`                                   | the leaderboard and headline numbers                                                |
+| `mow mine-report`                              | which rounds and configs paid off                                                   |
+| `mow diagnose`                                 | where the tour length goes                                                          |
+| `mow window-map`                               | room to save, window by window                                                      |
+| `mow catalog`                                  | instance features and all three bounds                                              |
+| `mow compare A B`                              | two solutions, or two folders matched by name, checked then compared in the browser |
+| [`mow-viz`](../crates/adapters/viz/src/lib.rs) | SVG pictures of stored solutions                                                    |
 
 ## 13. Tried and dropped
 

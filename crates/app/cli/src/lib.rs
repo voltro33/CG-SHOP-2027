@@ -1,12 +1,12 @@
-//! The `mow` command: solve one config, mine the job grid, compare with
-//! Python.
+//! The `mow` command: solve one config, mine the job grid, compare
+//! solutions.
 //!
 //! - [`registry::Kit`]: a config label to the concrete plugins of one run,
 //!   as the table in the `mow-pipeline` crate docs maps them.
 //! - [`grid`]: the job grid of `jobs.py`.
 //! - [`solve_cmd`]: `mow solve`, one config on one instance.
 //! - [`mine`]: `mow mine`, the grid on threads (`mine.py`).
-//! - [`compare`]: `mow compare`, Rust bests against Python's.
+//! - [`compare`]: `mow compare`, two solutions or two folders of them.
 //! - [`polish_cmd`]: `mow polish`, CP-SAT window polish of the bests (`polish.py`).
 //! - [`turns_cmd`]: `mow turns`, the corner search of `mow-turns` on the bests.
 //! - [`lns_cmd`]: `mow lns`, the ruin and recreate search of `mow-lns` on the bests.

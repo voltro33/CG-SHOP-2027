@@ -3,11 +3,11 @@
 
 use std::process::ExitCode;
 
-use mow_cli::compare::{self, Comparison};
+use mow_cli::compare;
 use mow_cli::layout::{repo_root, DEFAULT_INSTANCES};
 use mow_cli::lns_cmd;
 use mow_cli::mine::{self, MineSummary};
-use mow_cli::official::{Official, VerifierPool};
+use mow_cli::official::VerifierPool;
 use mow_cli::polish_cmd;
 use mow_cli::reports;
 use mow_cli::solve_cmd;
@@ -44,7 +44,7 @@ fn main() -> ExitCode {
         "polish" => polish_cmd::run(raw),
         "turns" => turns_cmd::run(raw),
         "lns" => lns_cmd::run(raw),
-        "compare" => compare::parse_args(raw).and_then(|options| run_compare(&options)),
+        "compare" => compare::parse_args(raw).and_then(|options| compare::run(&options)),
         other if reports::COMMANDS.contains(&other) => reports::run(other, raw),
         "help" | "-h" | "--help" => {
             println!("{}", usage());
@@ -81,59 +81,5 @@ fn print_mine(s: &MineSummary) {
         s.bests,
         s.unstarted,
         s.seconds / 60.0
-    );
-}
-
-fn run_compare(options: &compare::CompareOptions) -> Result<(), String> {
-    let pool = match options.verify {
-        true => Some(
-            VerifierPool::start(&repo_root(), &options.instances, options.verifiers)
-                .map_err(|e| e.to_string())?,
-        ),
-        false => None,
-    };
-    let official = pool.as_ref().map(|p| p as &dyn Official);
-
-    let comparison = compare::compare(options, official)?;
-    print_compare(&comparison);
-    println!(
-        "written {} and {}",
-        options.report.display(),
-        options.out.join("compare.csv").display()
-    );
-
-    match comparison.failures {
-        0 => Ok(()),
-        n => Err(format!("!!! {n} Rust bests FAILED the official verifier")),
-    }
-}
-
-fn print_compare(c: &Comparison) {
-    println!("group        n  solved  vs best W/T/L  geomean   vs mined W/T/L  geomean");
-
-    for g in &c.groups {
-        let geo = |t: &compare::Tally| t.geomean.map_or("n/a".to_owned(), |v| format!("{v:.4}"));
-        println!(
-            "{:<10} {:>3}  {:>6}  {:>4}/{:>3}/{:<4}  {:>7}   {:>4}/{:>3}/{:<4}  {:>7}",
-            g.name,
-            g.instances,
-            g.solved,
-            g.vs_best.wins,
-            g.vs_best.ties,
-            g.vs_best.losses,
-            geo(&g.vs_best),
-            g.vs_mined.wins,
-            g.vs_mined.ties,
-            g.vs_mined.losses,
-            geo(&g.vs_mined)
-        );
-    }
-
-    println!(
-        "CPU hours: Rust {:.2}, Python {:.2} ({:.2} without polish); verifier failures: {}",
-        c.cpu.rust / 3600.0,
-        c.cpu.python_all / 3600.0,
-        c.cpu.python_mined / 3600.0,
-        c.failures
     );
 }
