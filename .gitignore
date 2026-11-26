@@ -227,3 +227,7 @@ data/bench/
 
 # agent worktrees and local Claude Code state
 .claude/
+
+# the deck bundle for Fable and zips made to hand around
+deck-bundle/
+*.zip

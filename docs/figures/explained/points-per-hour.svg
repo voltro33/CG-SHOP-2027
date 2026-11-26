@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 312" width="760" height="312">
+<rect width="760" height="312" fill="#fff"/>
+<text x="300.0" y="37.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#1f3a5f" text-anchor="end">first ruin and recreate pass (60 s)</text>
+<rect x="310" y="20" width="376.6" height="22" fill="#1f3a5f"/>
+<text x="694.6" y="37.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f3a5f" text-anchor="start">2.28</text>
+<text x="300.0" y="71.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#1f3a5f" text-anchor="end">corner moves on today's bests</text>
+<rect x="310" y="54" width="312.4" height="22" fill="#1f3a5f"/>
+<text x="630.4" y="71.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f3a5f" text-anchor="start">0.61</text>
+<text x="300.0" y="105.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#1f3a5f" text-anchor="end">ruin and recreate, 300 s pass</text>
+<rect x="310" y="88" width="247.2" height="22" fill="#1f3a5f"/>
+<text x="565.2" y="105.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f3a5f" text-anchor="start">0.16</text>
+<text x="300.0" y="139.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#1f3a5f" text-anchor="end">mining: groups round</text>
+<rect x="310" y="122" width="209.0" height="22" fill="#1f3a5f"/>
+<text x="527.0" y="139.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f3a5f" text-anchor="start">0.073</text>
+<text x="300.0" y="173.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#1f3a5f" text-anchor="end">ruin and recreate, pass 4</text>
+<rect x="310" y="156" width="199.4" height="22" fill="#1f3a5f"/>
+<text x="517.4" y="173.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f3a5f" text-anchor="start">0.06</text>
+<text x="300.0" y="207.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#1f3a5f" text-anchor="end">polish (exact solver on windows)</text>
+<rect x="310" y="190" width="94.8" height="22" fill="#1f3a5f"/>
+<text x="412.8" y="207.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f3a5f" text-anchor="start">0.007</text>
+<text x="300.0" y="241.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#1f3a5f" text-anchor="end">ruin and recreate, pass 6</text>
+<rect x="310" y="224" width="67.5" height="22" fill="#1f3a5f"/>
+<text x="385.5" y="241.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f3a5f" text-anchor="start">0.004</text>
+<text x="300.0" y="275.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#1f3a5f" text-anchor="end">ruin and recreate, pass 8</text>
+<rect x="310" y="258" width="19.8" height="22" fill="#66707a"/>
+<text x="337.8" y="275.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f3a5f" text-anchor="start">0.0015</text>
+<line x1="343.8" x2="343.8" y1="10" y2="300" stroke="#b8432f" stroke-dasharray="5 4"/>
+<text x="347.8" y="308.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#b8432f" text-anchor="start">stop line: 0.002</text>
+</svg>

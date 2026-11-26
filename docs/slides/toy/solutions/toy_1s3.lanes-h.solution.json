@@ -1,0 +1,19 @@
+{
+  "content_type": "CGSHOP2027_Solution",
+  "instance_uid": "toy_1s3",
+  "tours": [
+    {
+      "x": [1, 29, 29, 1, 1, 29, 29, 1, 1, 17, 17, 1, 1, 17, 1],
+      "y": [1, 1, 4, 4, 7, 7, 10, 10, 13, 13, 16, 16, 19, 19, 19]
+    }
+  ],
+  "meta": {
+    "config": "lanes-h",
+    "job": "toy_1s3|lanes-h|s0|vr1",
+    "kick_scale": 1.0,
+    "round": null,
+    "seconds": 0.0000671,
+    "solver": "rust",
+    "time_limit": 2.0
+  }
+}

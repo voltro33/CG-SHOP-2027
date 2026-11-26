@@ -1,0 +1,14 @@
+{
+  "content_type": "CGSHOP2027_Instance",
+  "instance_uid": "toy_1s3",
+  "region_to_cover": {
+    "outer_boundary": {
+      "x": [0, 31, 31, 19, 19, 0],
+      "y": [0, 0, 11, 11, 20, 20]
+    },
+    "inner_boundaries": [{ "x": [8, 8, 14, 14], "y": [7, 13, 13, 7] }]
+  },
+  "cutter": { "x": [0, 3, 3, 0], "y": [0, 0, 3, 3] },
+  "cutter_center": [1, 1],
+  "number_of_cutters": 1
+}

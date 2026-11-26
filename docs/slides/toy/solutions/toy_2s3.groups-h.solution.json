@@ -1,0 +1,20 @@
+{
+  "content_type": "CGSHOP2027_Solution",
+  "instance_uid": "toy_2s3",
+  "tours": [
+    {
+      "x": [1, 1, 17, 17, 1, 1, 29, 29],
+      "y": [10, 13, 13, 16, 16, 19, 19, 10]
+    },
+    { "x": [1, 29, 29, 1, 1, 29, 1], "y": [7, 7, 4, 4, 1, 1, 1] }
+  ],
+  "meta": {
+    "config": "groups-h",
+    "job": "toy_2s3|groups-h|s0|vr1",
+    "kick_scale": 1.0,
+    "round": null,
+    "seconds": 4.3201319,
+    "solver": "rust",
+    "time_limit": 2.0
+  }
+}

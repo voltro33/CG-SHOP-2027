@@ -1,0 +1,20 @@
+{
+  "content_type": "CGSHOP2027_Solution",
+  "instance_uid": "toy_1s3",
+  "tours": [
+    {
+      "x": [6, 1, 1, 26, 26, 1, 1, 29, 29, 15, 17, 17, 1, 1, 14, 14, 1, 6],
+      "y": [10, 10, 7, 7, 4, 4, 1, 1, 10, 10, 10, 18, 18, 16, 16, 13, 13, 13]
+    }
+  ],
+  "meta": {
+    "config": "turns/window=6",
+    "job": "toy_1s3|turns/window=6|s0|vr1",
+    "kick_scale": 1.0,
+    "polished_from": "toy_1s3|segments-h|s0|vr1",
+    "round": -3,
+    "seconds": 0.0070291,
+    "solver": "rust",
+    "time_limit": 5.0
+  }
+}
